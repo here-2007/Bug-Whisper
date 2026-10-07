@@ -52,6 +52,12 @@ A persistent log of core architectural decisions, model constraints, and technic
   - The model's strict 768-token budget must never be breached by large monolithic scripts.
   - Running 4-bit bitsandbytes directly on Windows CPU is unsupported; Ollama GGUF and remote OpenAI-compatible endpoints guarantee crash-free cross-platform execution.
 
+### Decision 8: Two-Stage Verification & Unified Diff Generation
+* **Decision**: Before presenting or applying any synthesized remediation, execute two-stage verification: Stage 1 static AST check (`compile()` + `ast.parse()`), Stage 2 dynamic execution in the sandboxed runner. Emit status (`VERIFIED`, `SYNTAX_PASSED`, `FAILED`, `REGRESSED`, `SYNTAX_ERROR`).
+* **Rationale**:
+  - Eliminates AI hallucinations and ensures proposed patches never introduce syntax regressions or runtime breakage.
+  - Generates line-level change statistics (`+N -M`) for developer inspection.
+
 ---
 
 ## 2. Technical Discoveries & Model Constraints
