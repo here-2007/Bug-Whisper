@@ -39,6 +39,30 @@ async def repair_pipeline(request: RepairRequest) -> RepairResponse:
     # Step 2: Deterministic traceback parsing
     analysis = parse_traceback(stderr)
 
+    if not analysis.has_error:
+        total_latency_ms = (time.perf_counter() - start_time) * 1000.0
+        return RepairResponse(
+            original_code=code,
+            repaired_code=code,
+            original_error=None,
+            diff=DiffSummaryModel(
+                diff_text="",
+                additions=0,
+                deletions=0,
+                has_changes=False,
+                modified_line_ranges=[],
+            ),
+            verification=VerificationSummaryModel(
+                status="VERIFIED",
+                is_valid_syntax=True,
+                details="No error detected; code executed cleanly.",
+                exit_code=0,
+            ),
+            latency_ms=round(total_latency_ms, 2),
+            provider_name="deterministic",
+            model_name="clean-passthrough",
+        )
+
     # Step 3: AST Focal Windowing
     focal = extract_focal_window(code, analysis.line_number)
     target_code = focal.scoped_code

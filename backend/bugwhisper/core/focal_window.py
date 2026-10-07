@@ -66,8 +66,8 @@ def extract_focal_window(
             start_l = enclosing_node.lineno
             end_l = enclosing_node.end_lineno
             scoped = "\n".join(lines[start_l - 1 : end_l])
-            # If the enclosing block itself is reasonably sized, return it
-            if len(scoped) <= char_threshold * 1.5:
+            # If the enclosing block itself fits within the token budget (<= 1500 chars), return it
+            if len(scoped) <= max(char_threshold, 1500):
                 return FocalWindow(
                     scoped_code=scoped,
                     start_line=start_l,

@@ -34,7 +34,8 @@ class InferenceManager:
             if res.success and res.fixed_code.strip():
                 return res
         except Exception as exc:
-            logger.warning("Primary inference provider %s failed: %s; falling back to heuristic engine", self.primary.provider_name, exc)
+            provider_label = getattr(self.primary, "provider_name", "primary")
+            logger.warning("Primary inference provider %s failed: %s; falling back to heuristic engine", provider_label, exc)
 
         return await self.fallback.generate_fix(code, stderr)
 
@@ -48,7 +49,8 @@ class InferenceManager:
             if chunks:
                 return
         except Exception as exc:
-            logger.warning("Primary stream from %s failed: %s; falling back to heuristic engine", self.primary.provider_name, exc)
+            provider_label = getattr(self.primary, "provider_name", "primary")
+            logger.warning("Primary stream from %s failed: %s; falling back to heuristic engine", provider_label, exc)
 
         async for chunk in self.fallback.stream_fix(code, stderr):
             yield chunk

@@ -78,6 +78,8 @@ def run_code_sandboxed(
         safe_env = os.environ.copy()
         safe_env["PYTHONDONTWRITEBYTECODE"] = "1"
         safe_env["PYTHONUNBUFFERED"] = "1"
+        safe_env["PYTHONIOENCODING"] = "utf-8"
+        safe_env["PYTHONUTF8"] = "1"
 
         creationflags = 0
         preexec_fn = None

@@ -128,8 +128,20 @@ def parse_traceback(stderr: str, target_filename: str = "main.py") -> TracebackA
             )
             all_frames.append(frame)
 
-            # Match against target user script
-            if target_filename in fn or fn == "<string>":
+            # Check if this frame is from standard library
+            fn_lower = fn.lower().replace("\\", "/")
+            is_stdlib = (
+                "<frozen " in fn_lower
+                or "/site-packages/" in fn_lower
+                or "/dist-packages/" in fn_lower
+                or (
+                    "/lib/" in fn_lower
+                    and any(pkg in fn_lower for pkg in ["python3", "cpython", "appdata", "json", "urllib", "asyncio", "http", "socket"])
+                )
+            )
+
+            # Frame belongs to user if it matches target filename, is <string>/<stdin>, or is non-stdlib
+            if target_filename in fn or fn in {"<string>", "<stdin>"} or not is_stdlib:
                 user_frames.append(frame)
 
         else:
