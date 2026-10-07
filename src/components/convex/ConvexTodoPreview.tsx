@@ -1,47 +1,33 @@
 import React, { useState } from 'react';
-import { RotateCw, Check } from 'lucide-react';
-import type { ConvexTodo } from '../../hooks/useConvexDemo';
+import { Play, RotateCw, Check, AlertCircle } from 'lucide-react';
+import type { PythonTestCase } from '../../hooks/usePythonStudioDemo';
 
-interface ConvexTodoPreviewProps {
-  todos: ConvexTodo[];
-  onToggleTodo: (id: string) => void;
-  onAddTodo: (text: string) => void;
+interface PythonRuntimePreviewProps {
+  tests: PythonTestCase[];
+  onRunTests: () => void;
+  isRunning: boolean;
   showBlockedHint: boolean;
 }
 
-export const ConvexTodoPreview: React.FC<ConvexTodoPreviewProps> = ({
-  todos,
-  onToggleTodo,
-  onAddTodo,
+export const ConvexTodoPreview: React.FC<PythonRuntimePreviewProps> = ({
+  tests,
+  onRunTests,
+  isRunning,
   showBlockedHint,
 }) => {
-  const [inputText, setInputText] = useState('Clean bathroom and kitchen');
+  const [cmdText, setCmdText] = useState('pytest tests/test_pipeline.py -v');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputText.trim()) {
-      onAddTodo(inputText);
-      setInputText('');
-    }
-  };
-
-  const getCategoryBadge = (category: string) => {
-    switch (category) {
-      case 'Work':
-        return 'bg-[#512c61] text-[#e9c6f7] border border-[#6b3a80]';
-      case 'Chores':
-        return 'bg-[#7a541c] text-[#fde4a6] border border-[#966723]';
-      default:
-        return 'bg-[#2f332a] text-[#c7ccbf] border border-[#3e4438]';
-    }
+    onRunTests();
   };
 
   return (
     <div className="bg-[#181a16] rounded-xl border border-[#2e3128] overflow-hidden flex flex-col relative select-none">
-      {/* Toast alert if trying to complete when disabled */}
+      {/* Toast alert if running tests while bug persists */}
       {showBlockedHint && (
         <div className="absolute top-10 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded bg-[#fc618d] text-[#141414] font-bold text-[11px] animate-bounce whitespace-nowrap">
-          Nothing happens! Change to &apos;true&apos; in code ↖
+          ZeroDivisionError detected! Click &apos;Try it out!&apos; in code ↖
         </div>
       )}
 
@@ -53,7 +39,7 @@ export const ConvexTodoPreview: React.FC<ConvexTodoPreviewProps> = ({
           <span className="w-2.5 h-2.5 rounded-full bg-[#3d4135]" />
         </div>
         <div className="px-4 py-0.5 rounded bg-[#121410] border border-[#282c22] text-[11px] font-mono text-[#8a9082]">
-          my-amazing-project.app
+          terminal.bugwhisper.run
         </div>
         <div className="w-6" />
       </div>
@@ -61,70 +47,81 @@ export const ConvexTodoPreview: React.FC<ConvexTodoPreviewProps> = ({
       {/* Content */}
       <div className="p-4 flex flex-col justify-between flex-1">
         <div>
-          <div className="text-[11px] font-mono text-[#787e70] mb-3">
-            Last categorized: 0s ago
+          <div className="text-[11px] font-mono text-[#787e70] mb-3 flex items-center justify-between">
+            <span>CPython 3.11 · Deterministic Traceback</span>
+            <span className="text-[#388bfd]">WebWorker Sandbox</span>
           </div>
 
           <div className="space-y-2.5">
-            {todos.map((todo) => (
-              <div
-                key={todo.id}
-                onClick={() => onToggleTodo(todo.id)}
-                className="flex items-center justify-between py-1 px-1 rounded hover:bg-[#20231d] transition-colors cursor-pointer group"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors ${
-                      todo.completed
-                        ? 'bg-[#1a73e8] text-white'
-                        : 'border border-[#3d4135] group-hover:border-[#69bee2]'
-                    }`}
-                  >
-                    {todo.completed && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+            {tests.map((test) => {
+              const isPassed = test.status === 'passed';
+              return (
+                <div
+                  key={test.id}
+                  onClick={onRunTests}
+                  className="flex items-center justify-between py-1.5 px-2 rounded bg-[#1d201a] border border-[#282c22] hover:border-[#3d4335] transition-colors cursor-pointer group"
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-4 h-4 rounded flex items-center justify-center ${
+                        isPassed ? 'text-[#7bd88f]' : 'text-[#fc618d]'
+                      }`}
+                    >
+                      {isPassed ? (
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      ) : (
+                        <AlertCircle className="w-3.5 h-3.5 stroke-[2.5]" />
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-mono text-white leading-tight">
+                        {test.name}
+                      </span>
+                      <span className="text-[10px] font-mono text-[#7d8274]">
+                        {test.inputArgs}
+                      </span>
+                    </div>
                   </div>
+
                   <span
-                    className={`text-xs font-sans transition-colors ${
-                      todo.completed ? 'line-through text-[#6e7467]' : 'text-white'
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded font-medium border ${
+                      isPassed
+                        ? 'bg-[#1c3524] text-[#86e39d] border-[#295434]'
+                        : 'bg-[#401f28] text-[#fca5a5] border-[#6b2c3a]'
                     }`}
                   >
-                    {todo.text}
+                    {isPassed ? 'PASSED' : 'ZeroDivisionError'}
                   </span>
                 </div>
-
-                <span
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded font-medium ${getCategoryBadge(
-                    todo.category
-                  )}`}
-                >
-                  {todo.category}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Input Bar */}
+        {/* Input & Run Bar */}
         <form onSubmit={handleSubmit} className="mt-4 pt-3 border-t border-[#2a2e24] flex items-center gap-2">
           <input
             type="text"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="Add a new task..."
-            className="flex-1 px-3 py-1.5 rounded-lg bg-[#20231d] border border-[#2f332a] text-xs text-white placeholder-[#787e70] focus:outline-none focus:border-[#69bee2]"
+            value={cmdText}
+            onChange={(e) => setCmdText(e.target.value)}
+            placeholder="Run Python test suite..."
+            className="flex-1 px-3 py-1.5 rounded-lg bg-[#20231d] border border-[#2f332a] text-xs font-mono text-white placeholder-[#787e70] focus:outline-none focus:border-[#69bee2]"
           />
           <button
             type="button"
-            onClick={() => setInputText('Clean bathroom and kitchen')}
-            title="Reset text"
+            onClick={() => setCmdText('pytest tests/test_pipeline.py -v')}
+            title="Reset command"
             className="p-1.5 rounded-lg bg-[#20231d] hover:bg-[#282c22] border border-[#2f332a] text-[#8e9385] hover:text-white transition-colors cursor-pointer"
           >
             <RotateCw className="w-3.5 h-3.5" />
           </button>
           <button
             type="submit"
-            className="px-3 py-1.5 rounded-lg bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold cursor-pointer transition-colors"
+            disabled={isRunning}
+            className="px-3.5 py-1.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 disabled:opacity-50"
           >
-            Add
+            <Play className="w-3 h-3 fill-white" />
+            <span>{isRunning ? 'Running...' : 'Run'}</span>
           </button>
         </form>
       </div>

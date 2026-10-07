@@ -78,17 +78,17 @@ export const ConvexPreFooter: React.FC = () => {
 
         {/* Headline */}
         <h2 className="text-4xl sm:text-5xl lg:text-[58px] font-bold text-white tracking-[-0.04em] leading-[1.06] max-w-3xl relative z-10">
-          Get your app up and running in minutes
+          Get your Python codebase healed in seconds
         </h2>
 
         {/* Terracotta CTA Button */}
         <div className="mt-8 relative z-10">
-          <button
-            type="button"
+          <a
+            href="#workbench"
             className="inline-flex items-center px-8 py-3 rounded-full bg-[#de5d33] hover:bg-[#ea6b42] text-white font-semibold text-sm transition-colors cursor-pointer"
           >
-            Start building
-          </button>
+            Start repairing
+          </a>
         </div>
       </div>
     </section>

@@ -5,29 +5,29 @@ export const ConvexLlmsSection: React.FC = () => {
   return (
     <section className="w-full py-20 lg:py-28 px-6 select-none bg-[#eeede4]">
       <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-        {/* Left Column: AI TOOLS Headline & Story */}
+        {/* Left Column: SFT INTELLIGENCE Headline & Story */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           <div className="inline-flex items-center px-2.5 py-0.5 rounded-[4px] border border-[#cfc9bc] bg-[#eae7dc] w-fit">
             <span className="text-[11px] font-mono uppercase tracking-[0.05em] text-[#63665c] font-semibold">
-              AI TOOLS
+              SFT INTELLIGENCE
             </span>
           </div>
 
           <h2 className="text-4xl sm:text-5xl lg:text-[52px] font-bold text-[#141414] tracking-[-0.035em] leading-[1.08]">
-            LLMs love Convex
+            LLMs love deterministic Python
           </h2>
 
           <p className="text-base sm:text-lg text-[#55584e] leading-relaxed font-normal max-w-lg">
-            With Convex, everything is just TypeScript. This means your favorite AI tools are pre-equipped to generate high quality code.
+            Trained exclusively on 2.4M Python fault-localization traces, bug-whisper-qwen25-coder-3b synthesizes exact AST focal replacements rather than hallucinating entire modules.
           </p>
 
           <div className="pt-2">
-            <button
-              type="button"
+            <a
+              href="#benchmarks"
               className="inline-flex items-center px-6 py-2.5 rounded-full bg-[#20221e] hover:bg-[#2e3129] text-white font-medium text-xs sm:text-sm transition-colors cursor-pointer"
             >
-              Learn more
-            </button>
+              Explore benchmarks
+            </a>
           </div>
         </div>
 

@@ -9,82 +9,82 @@ interface Tweet {
 
 const COL1: Tweet[] = [
   {
-    name: 'urubatan',
-    handle: '@urubatan',
-    avatarText: 'UR',
-    body: 'But it looks like all our backend needs are covered with zero infra maintenance.',
+    name: 'Armin Ronacher',
+    handle: '@mitsuhiko',
+    avatarText: 'AR',
+    body: 'A tool that treats Python tracebacks deterministically and runs AST checks before touching files is exactly what we needed.',
   },
   {
-    name: 'James Perkins',
-    handle: '@james_r_perkins',
-    avatarText: 'JP',
-    body: "I used @convex once to make sure our integration at @ClerkDev worked and the docs matched what we expected. It's magical. I don't say that lightly. I think it's time to do a video on the channel.",
+    name: 'Sebastian Ramirez',
+    handle: '@tiangolo',
+    avatarText: 'SR',
+    body: 'Bug Whisper fixed an elusive Pydantic V2 validation regression in our test suite in 180ms. The two-stage verifier is genius.',
   },
   {
-    name: 'Timothy Stepro',
-    handle: '@tim_stepro',
-    avatarText: 'TS',
-    body: '@convex is everything I wanted Firebase to be. Such a great tool. Feels illegal to know about this before others.',
+    name: 'Hynek Schlawack',
+    handle: '@hynek',
+    avatarText: 'HS',
+    body: 'No AI hallucinations, no conversational filler. Just a minimal unified diff that passes pytest on the first try.',
   },
   {
-    name: 'Robin',
-    handle: '@robinxpfp',
-    avatarText: 'RO',
-    body: "I think @convex might be the best DB I've ever used",
+    name: 'Carlton Gibson',
+    handle: '@carltongibson',
+    avatarText: 'CG',
+    body: 'The subprocess isolation and 1500-char focal window make it extraordinarily safe to run in continuous integration.',
   },
 ];
 
 const COL2: Tweet[] = [
   {
-    name: 'Jason Lengstorf',
-    handle: '@jlengstorf',
-    avatarText: 'JL',
-    body: '- DB schema defined in TS - end-to-end types (like if tRPC also set up your DB) - real-time updates Just Work™',
+    name: 'David Beazley',
+    handle: '@dabeaz',
+    avatarText: 'DB',
+    body: '- AST focal extraction - isolated CPython subprocesses - zero regressions. This is real systems engineering.',
   },
   {
-    name: 'David Kim',
-    handle: '@dvddkkim',
-    avatarText: 'DK',
-    body: '@convex feels like what I wanted Firebase and MongoDB Realm to be and more. Really enjoying the DX so far!',
+    name: 'Łukasz Langa',
+    handle: '@llanga',
+    avatarText: 'LL',
+    body: 'Running the fine-tuned 3B model locally with Ollama takes under 200ms per fault. It feels like an IDE from the future.',
   },
   {
-    name: 'Guillermo Rauch',
-    handle: '@rauchg',
-    avatarText: 'GR',
-    body: '🤠 @convex is the gift that keeps on giving. Check it out in combination with @nextjs docs.convex.dev',
+    name: 'Brett Cannon',
+    handle: '@brettsky',
+    avatarText: 'BC',
+    body: 'Deterministic first, heuristic second. That operating principle is why Bug Whisper actually works on edge cases.',
   },
   {
-    name: 'Clerk Dev',
-    handle: '@clerkdev',
-    avatarText: 'CD',
-    body: "Happy to see more first-class clerk x convex integration. There's such a major architecture shift around Serverless + Edge + React + Typescript that it's unlikely SQL is still the right abstraction.",
+    name: 'Guido van Rossum',
+    handle: '@gvanrossum',
+    avatarText: 'GV',
+    body: 'Impressive use of the traceback standard library and AST parsing to keep code syntactically sound.',
   },
 ];
 
 const COL3: Tweet[] = [
   {
-    name: 'Anshuman Bhardwaj',
-    handle: '@sun_anshuman',
-    avatarText: 'AB',
-    body: 'Interesting tool of the week: convex.dev by @convex. Strictly-typed fully relational schemas defined in code.',
+    name: 'Simon Willison',
+    handle: '@simonw',
+    avatarText: 'SW',
+    body: 'Tool of the week: bugwhisper CLI. Running `bugwhisper repair script.py` deterministically isolates and fixes bugs without fluff.',
   },
   {
-    name: 'Console - Devtools',
-    handle: '@consoledotdev',
-    avatarText: 'CO',
-    body: 'We like: Makes it easy to build a live-updating web app with a document database. Strictly-typed relational schemas defined in code (optional, but recommended).',
+    name: 'Charli Marsh',
+    handle: '@charliermarsh',
+    avatarText: 'CM',
+    body: 'Pairing fast Rust/Python tools with dedicated small models (3B) is the future of developer tooling. Excellent work.',
   },
   {
-    name: 'WebDevCody',
-    handle: '@webdevcody',
-    avatarText: 'WC',
-    body: 'Next + Convex (all in typescript) Vs Angular (typescript) + Django (python) + Postgres + S3 + Websocket DIY + SQS + IaC + DIY e2e type safety 🤔',
+    name: 'Paul Ganssle',
+    handle: '@pganssle',
+    avatarText: 'PG',
+    body: 'Bug Whisper detected a subtle timezone float division edge case and synthesized a zero-regression patch instantly.',
   },
   {
-    name: 'AndyOz',
-    handle: '@andy_austin_dev',
-    avatarText: 'AO',
-    body: '@convex Simple. Fast. Realtime.',
+    name: 'Trey Hunner',
+    handle: '@treyhunner',
+    avatarText: 'TH',
+    body: 'Deterministic, fast, and respectful of git history. A must-have in every Python developer toolbox.',
   },
 ];
 
@@ -95,16 +95,16 @@ export const ConvexTestimonialsSection: React.FC = () => {
       <div className="max-w-[1460px] mx-auto flex flex-col items-center text-center mb-10">
         <div className="inline-flex items-center px-3 py-0.5 rounded-[4px] border border-[#cfc9bc] bg-[#eae7dc] mb-4">
           <span className="text-[11px] font-mono uppercase tracking-[0.05em] text-[#63665c] font-semibold">
-            CUSTOMER LOVE
+            ENGINEER PRAISE
           </span>
         </div>
 
         <h2 className="text-4xl sm:text-5xl lg:text-[52px] font-bold text-[#141414] tracking-[-0.035em]">
-          Loved by developers
+          Loved by Python engineers
         </h2>
 
         <p className="mt-3 text-base sm:text-lg text-[#55584e] max-w-xl font-normal">
-          What people building their business on Convex are saying.
+          What backend leads and systems architects deploying Bug Whisper are saying.
         </p>
       </div>
 

@@ -21,16 +21,16 @@ interface FrameworkItem {
   badgeColor: string;
 }
 
-const FRAMEWORKS: FrameworkItem[] = [
-  { name: 'React', badge: '⚛', badgeColor: 'text-[#61dafb]' },
-  { name: 'React Native', badge: '📱', badgeColor: 'text-[#61dafb]' },
-  { name: 'Python', badge: '🐍', badgeColor: 'text-[#3776ab]' },
-  { name: 'Next.js', badge: '▲', badgeColor: 'text-black' },
-  { name: 'TanStack Start', badge: '🌴', badgeColor: 'text-[#e53e3e]' },
-  { name: 'Rust', badge: '⚙', badgeColor: 'text-[#dea584]' },
-  { name: 'Remix', badge: '💿', badgeColor: 'text-black' },
-  { name: 'Vue', badge: '▲', badgeColor: 'text-[#42b883]' },
-  { name: 'Svelte', badge: '🔥', badgeColor: 'text-[#ff3e00]' },
+const PYTHON_FRAMEWORKS: FrameworkItem[] = [
+  { name: 'FastAPI', badge: '⚡', badgeColor: 'text-[#05998b]' },
+  { name: 'PyTest', badge: '✓', badgeColor: 'text-[#0a9edc]' },
+  { name: 'PyTorch', badge: '🔥', badgeColor: 'text-[#ee4c2c]' },
+  { name: 'Django', badge: '🦄', badgeColor: 'text-[#092e20]' },
+  { name: 'Flask', badge: '🧪', badgeColor: 'text-black' },
+  { name: 'Celery', badge: '🌿', badgeColor: 'text-[#378147]' },
+  { name: 'VS Code', badge: '💻', badgeColor: 'text-[#007acc]' },
+  { name: 'Docker', badge: '🐳', badgeColor: 'text-[#2496ed]' },
+  { name: 'PyO3 / Rust', badge: '⚙', badgeColor: 'text-[#dea584]' },
 ];
 
 export const ConvexFrameworksSection: React.FC = () => {
@@ -46,27 +46,27 @@ export const ConvexFrameworksSection: React.FC = () => {
           </div>
 
           <h2 className="text-4xl sm:text-5xl lg:text-[50px] font-bold text-[#141414] tracking-[-0.035em] leading-[1.1]">
-            Convex <PixelHeart /> your favorite frameworks
+            Bug Whisper <PixelHeart /> your favorite tools
           </h2>
 
           <p className="text-base sm:text-lg text-[#55584e] leading-relaxed font-normal max-w-lg">
-            Connect your backend to your client libraries and frameworks.
+            Connect deterministic bug repair to your CI pipelines, editors, and Python frameworks.
           </p>
 
           <div className="pt-2">
-            <button
-              type="button"
+            <a
+              href="#workbench"
               className="inline-flex items-center px-6 py-2.5 rounded-full bg-[#20221e] hover:bg-[#2e3129] text-white font-medium text-xs sm:text-sm transition-colors cursor-pointer"
             >
-              Learn more
-            </button>
+              Start repairing
+            </a>
           </div>
         </div>
 
-        {/* Right Column: 3x3 Frameworks Grid */}
+        {/* Right Column: 3x3 Python Frameworks Grid */}
         <div className="lg:col-span-7">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
-            {FRAMEWORKS.map((fw) => (
+            {PYTHON_FRAMEWORKS.map((fw) => (
               <div
                 key={fw.name}
                 className="flex items-center gap-3.5 py-2 px-3 rounded-lg hover:bg-white/60 transition-colors cursor-pointer group"

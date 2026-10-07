@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Terminal } from 'lucide-react';
 
 const GithubIcon: React.FC = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -25,51 +25,44 @@ export const ConvexNavbar: React.FC = () => {
       <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between">
         <div className="flex items-center gap-8">
           <a href="#" className="flex items-center gap-2">
+            <Terminal className="w-5 h-5 text-[#de5d33]" />
             <span className="font-bold text-[22px] text-[#141414] tracking-[-0.04em] lowercase">
-              convex
+              bug whisper
             </span>
           </a>
 
           <nav className="hidden lg:flex items-center gap-6 text-[14px] font-medium text-[#141414]">
             <button type="button" className="flex items-center gap-1 hover:text-[#5f6259] transition-colors cursor-pointer">
-              <span>Product</span>
+              <span>Architecture</span>
               <ChevronDown className="w-3.5 h-3.5 text-[#5f6259]" />
             </button>
             <button type="button" className="flex items-center gap-1 hover:text-[#5f6259] transition-colors cursor-pointer">
-              <span>Developers</span>
+              <span>Inference</span>
               <ChevronDown className="w-3.5 h-3.5 text-[#5f6259]" />
             </button>
-            <a href="#blog" className="hover:text-[#5f6259] transition-colors">Blog</a>
-            <a href="#changelog" className="hover:text-[#5f6259] transition-colors">Changelog</a>
+            <a href="#benchmarks" className="hover:text-[#5f6259] transition-colors">Benchmarks</a>
             <a href="#docs" className="hover:text-[#5f6259] transition-colors">Docs</a>
-            <a href="#pricing" className="hover:text-[#5f6259] transition-colors">Pricing</a>
+            <a href="#cli" className="hover:text-[#5f6259] transition-colors">CLI</a>
           </nav>
         </div>
 
         <div className="flex items-center gap-3">
           <a
-            href="https://github.com/get-convex/convex"
+            href="https://github.com/pernavjain/bug-whisper"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/70 hover:bg-white border border-[#d6d0c2] text-xs font-medium text-[#141414] transition-colors"
           >
             <GithubIcon />
             <span>GitHub</span>
-            <span className="text-[#9ba092] font-mono text-[11px]">20,211 stars</span>
+            <span className="text-[#9ba092] font-mono text-[11px]">3B Model</span>
           </a>
-
-          <button
-            type="button"
-            className="text-xs font-semibold px-4 py-2 text-[#141414] hover:text-[#5f6259] transition-colors cursor-pointer"
-          >
-            Log in
-          </button>
 
           <button
             type="button"
             className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-[#20221e] hover:bg-[#2e3129] text-white text-xs font-semibold transition-colors cursor-pointer"
           >
-            Start building
+            Start repairing
           </button>
         </div>
       </div>
