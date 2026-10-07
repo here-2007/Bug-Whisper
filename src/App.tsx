@@ -1,9 +1,15 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Navbar } from './components/Navbar';
+import { HeroSection } from './components/HeroSection';
 import { BugPresetsStrip } from './components/BugPresetsStrip';
 import { CodeEditor } from './components/CodeEditor';
 import { DiffViewer } from './components/DiffViewer';
 import { TerminalDrawer } from './components/TerminalDrawer';
+import { BenchmarkDashboard } from './components/BenchmarkDashboard';
+import { DuskShowcase } from './components/DuskShowcase';
+import { FeatureCards } from './components/FeatureCards';
+import { FaqSection } from './components/FaqSection';
+import { Footer } from './components/Footer';
 import { SettingsDrawer } from './components/SettingsDrawer';
 import { useSettings } from './hooks/useSettings';
 import { usePyodide } from './hooks/usePyodide';
@@ -86,6 +92,13 @@ export default function App() {
     setHighlightLine(line);
   }, []);
 
+  const handleLaunchStudio = useCallback(() => {
+    const el = document.getElementById('studio');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
   // Global keyboard shortcuts (Ctrl+Enter / Cmd+Enter)
   const handleRunRef = useRef(handleRun);
   useEffect(() => {
@@ -104,69 +117,109 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-cream-surface flex flex-col text-ink-black font-sans">
-      {/* Top Navigation */}
+    <div className="min-h-screen bg-cream-surface flex flex-col text-ink-black font-sans selection:bg-[#e5e5e5]">
+      {/* 1. Top Navigation */}
       <Navbar
         currentProvider={settings.provider}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      {/* Preset Bug Selector Strip */}
-      <BugPresetsStrip
-        activePresetId={activePreset?.id ?? null}
-        onSelectPreset={handleSelectPreset}
-      />
+      {/* 2. Hero Section */}
+      <HeroSection onLaunchStudio={handleLaunchStudio} />
 
-      {/* Primary Studio Workspace */}
-      <main className="flex-1 p-6 flex flex-col gap-6 max-w-[1600px] w-full mx-auto">
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[640px]">
-          {/* Left Panel: Python Code Editor + Terminal Drawer */}
-          <div className="flex flex-col gap-5 min-h-[600px]">
-            {/* Monaco Python Code Editor */}
-            <div className="flex-1 flex flex-col min-h-[360px]">
-              <CodeEditor
-                value={code}
-                onChange={(newVal) => setCode(newVal)}
-                onRun={handleRun}
+      {/* 3. Preset Bug Selector Strip */}
+      <div id="studio" className="scroll-mt-16">
+        <BugPresetsStrip
+          activePresetId={activePreset?.id ?? null}
+          onSelectPreset={handleSelectPreset}
+        />
+      </div>
+
+      {/* 4. Primary Studio Workspace */}
+      <section className="w-full bg-cream-surface py-8 px-6 border-b border-mist-divider">
+        <div className="max-w-[1200px] w-full mx-auto flex flex-col gap-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-mint-green" />
+              <h2 className="text-xl font-bold text-ink-black tracking-tight">
+                Interactive Debugging Studio
+              </h2>
+            </div>
+            <span className="text-xs font-mono text-fog-text">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-paper-white border border-mist-divider text-ink-black font-semibold">Ctrl+Enter</kbd> to run in Pyodide Sandbox
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[640px]">
+            {/* Left Panel: Python Code Editor + Terminal Drawer */}
+            <div className="flex flex-col gap-5 min-h-[600px]">
+              {/* Monaco Python Code Editor */}
+              <div className="flex-1 flex flex-col min-h-[360px]">
+                <CodeEditor
+                  value={code}
+                  onChange={(newVal) => setCode(newVal)}
+                  onRun={handleRun}
+                  isExecuting={isExecuting}
+                  highlightLine={highlightLine}
+                  className="flex-1"
+                />
+              </div>
+
+              {/* In-Browser Python Terminal HUD */}
+              <TerminalDrawer
+                status={status}
                 isExecuting={isExecuting}
-                highlightLine={highlightLine}
-                className="flex-1"
+                result={lastResult}
+                onClear={clearOutput}
+                onJumpToLine={handleJumpToLine}
+                onRemediate={() => {
+                  void triggerRemediation(code, lastResult?.traceback || lastResult?.stderr || '');
+                }}
+                className="min-h-[220px]"
               />
             </div>
 
-            {/* In-Browser Python Terminal HUD */}
-            <TerminalDrawer
-              status={status}
-              isExecuting={isExecuting}
-              result={lastResult}
-              onClear={clearOutput}
-              onJumpToLine={handleJumpToLine}
-              onRemediate={() => {
-                void triggerRemediation(code, lastResult?.traceback || lastResult?.stderr || '');
-              }}
-              className="min-h-[220px]"
-            />
-          </div>
-
-          {/* Right Panel: Side-by-Side Monaco Diff Viewer */}
-          <div className="flex flex-col min-h-[600px]">
-            <DiffViewer
-              originalCode={code}
-              fixedCode={fixedCode}
-              onAcceptFix={handleAcceptFix}
-              latencyMs={inferenceLatency}
-              providerLabel={
-                isInferring
-                  ? 'Synthesizing Fix...'
-                  : settings.provider === 'mock'
-                    ? 'Qwen 2.5 Coder 3B (LoRA)'
-                    : settings.provider.toUpperCase()
-              }
-              className="flex-1"
-            />
+            {/* Right Panel: Side-by-Side Monaco Diff Viewer */}
+            <div className="flex flex-col min-h-[600px]">
+              <DiffViewer
+                originalCode={code}
+                fixedCode={fixedCode}
+                onAcceptFix={handleAcceptFix}
+                latencyMs={inferenceLatency}
+                providerLabel={
+                  isInferring
+                    ? 'Synthesizing Fix...'
+                    : settings.provider === 'mock'
+                      ? 'Qwen 2.5 Coder 3B (LoRA)'
+                      : settings.provider.toUpperCase()
+                }
+                className="flex-1"
+              />
+            </div>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* 5. Empirical Benchmark Dashboard */}
+      <div id="benchmarks" className="scroll-mt-16">
+        <BenchmarkDashboard />
+      </div>
+
+      {/* 6. Dusk Gradient Architecture Banner */}
+      <div id="architecture" className="scroll-mt-16">
+        <DuskShowcase />
+      </div>
+
+      {/* 7. Engineering Principles Cards */}
+      <FeatureCards />
+
+      {/* 8. Technical FAQ Accordion */}
+      <div id="faq" className="scroll-mt-16">
+        <FaqSection />
+      </div>
+
+      {/* 9. Convex Engineering Footer */}
+      <Footer />
 
       {/* Settings Modal Drawer */}
       <SettingsDrawer
