@@ -40,6 +40,18 @@ A persistent log of core architectural decisions, model constraints, and technic
   - Maximizes contrast: code blocks stand out sharply in `#141414` against the `#f6f6f6` cream backdrop.
   - Semantic syntax colors (hot pink `#fc618d`, iris violet `#948ae3`, mint green `#7bd88f`, canary yellow `#f8e67a`) remain strictly scoped inside code blocks.
 
+### Decision 6: Sandbox Subprocess Isolation & Windows Tree Termination
+* **Decision**: Isolate execution via `subprocess.Popen` with `stdin=subprocess.DEVNULL`, Windows process group creation (`CREATE_NEW_PROCESS_GROUP`), and cleanup via `taskkill /F /T /PID`.
+* **Rationale**:
+  - Prevents interactive `input()` calls in user scripts from hanging the backend until timeout.
+  - Eliminates orphaned child processes on Windows when timeouts occur.
+
+### Decision 7: AST Focal Windowing & Multi-Tier Inference Strategy
+* **Decision**: Implement AST focal window extraction for scripts $> 1,200$ characters and structure inference into a multi-tier hierarchy (Ollama local / vLLM remote / deterministic heuristic fallback).
+* **Rationale**:
+  - The model's strict 768-token budget must never be breached by large monolithic scripts.
+  - Running 4-bit bitsandbytes directly on Windows CPU is unsupported; Ollama GGUF and remote OpenAI-compatible endpoints guarantee crash-free cross-platform execution.
+
 ---
 
 ## 2. Technical Discoveries & Model Constraints
