@@ -77,7 +77,7 @@ export const BenchmarkDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Convex Dashboard Preview Card (Component 142) */}
+        {/* Dashboard Preview Card (Component 142) */}
         <div className="rounded-xl bg-paper-white border border-mist-divider p-6 flex flex-col gap-4 overflow-hidden">
           {/* Card Header Row */}
           <div className="flex items-center justify-between pb-3 border-b border-mist-divider text-xs font-mono text-fog-text">

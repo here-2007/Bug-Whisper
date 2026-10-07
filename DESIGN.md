@@ -1,11 +1,11 @@
-# Convex — Style Reference
+# Cream Paper Engineering Notebook — Style Reference
 > Cream paper engineering notebook
 
 **Theme:** mixed
 
 Source measurements are normalized; roles and recommendations are interpreted. Font summary lists are independent, not paired by position. HTML examples are reconstructions, not source components.
 
-Convex presents a warm cream-paper technical workspace: a desaturated beige canvas (#f6f6f6 to #f7f1ff) hosts both product UI and product screenshots, while dark code surfaces (#141414, #292929) carry TypeScript and dashboard previews with syntax-highlight punctuation in pink, violet, green, and yellow. GT America grotesque at whisper-weights creates a calm, editorial engineering voice — tight negative tracking on 40-56px headlines compresses the wordmark into confident, compact blocks. Components are squared and compact: 8-12px radii, thin charcoal borders, and minimal padding produce a blueprint-like density that reads more like a developer's notebook than a marketing site.
+The Cream Paper Engineering Notebook presents a warm technical workspace: a desaturated beige canvas (#f6f6f6 to #f7f1ff) hosts both product UI and product screenshots, while dark code surfaces (#141414, #292929) carry code and dashboard previews with syntax-highlight punctuation in pink, violet, green, and yellow. GT America grotesque at whisper-weights creates a calm, editorial engineering voice — tight negative tracking on 40-56px headlines compresses the wordmark into confident, compact blocks. Components are squared and compact: 8-12px radii, thin charcoal borders, and minimal padding produce a blueprint-like density that reads more like a developer's notebook than a marketing site.
 
 ## Tokens — Colors
 
@@ -13,7 +13,7 @@ Convex presents a warm cream-paper technical workspace: a desaturated beige canv
 |------|-------|-------|------|
 | Ink Black | `#141414` | `--color-ink-black` | Primary text, dark card surfaces, code editor backgrounds, filled neutral buttons — the dominant dark across the site |
 | Paper White | `#ffffff` | `--color-paper-white` | Light supporting surface for subtle backgrounds and section separation. Do not promote it to the primary CTA color |
-| Cream Surface | `#f6f6f6` | `--color-cream-surface` | Page canvas and section backgrounds — warm off-white that distinguishes Convex from cold-white SaaS |
+| Cream Surface | `#f6f6f6` | `--color-cream-surface` | Page canvas and section backgrounds — warm off-white that distinguishes the notebook from cold-white SaaS |
 | Lilac Wash | `#f7f1ff` | `--color-lilac-wash` | Subtle tinted background panels, icon wash areas, soft section dividers |
 | Charcoal Surface | `#292929` | `--color-charcoal-surface` | Secondary dark surfaces, navigation pills, dark-mode code block frames |
 | Graphite Border | `#38383a` | `--color-graphite-border` | Borders on dark surfaces, dividers within code blocks, outlined button strokes on dark fills |
@@ -141,9 +141,9 @@ White (#ffffff) fill, #141414 text, GT America 15px/500, 8px radius, 10px 20px p
 ### Dashboard Preview Card
 **Role:** Product preview — todo app UI
 
-Light card surface #ffffff with #e5e5e5 hairline border, 12px radius, 24px padding. Header bar shows domain (.convex.dev) in #6d6d70 12px, table rows alternate white/#f6f6f6 with 1px #e5e5e5 dividers, blue #69bee2 'Add' button at 8px radius.
+Light card surface #ffffff with #e5e5e5 hairline border, 12px radius, 24px padding. Header bar shows domain (bugwhisper.dev) in #6d6d70 12px, table rows alternate white/#f6f6f6 with 1px #e5e5e5 dividers, blue #69bee2 'Add' button at 8px radius.
 
-### Command Snippet Card (npm create convex)
+### Command Snippet Card (pip install bugwhisper)
 **Role:** Hero install command
 
 #292929 dark fill, 8px radius, monospace 13px white text, trailing copy icon in #a9a9ac. Sits inline beside the light CTA in the hero.
@@ -161,7 +161,7 @@ Background is the 135deg dusk gradient (#221f1d → #38383a → rgba blue haze),
 ### Chat Prompt Card
 **Role:** AI/LLM demo card in feature section
 
-Dark #292929 background, 12px radius, white monospace 13px prompt text, bottom-right 'Try Convex with Chef' CTA where 'Chef' is set in a custom decorative red serif/wordmark.
+Dark #292929 background, 12px radius, white monospace 13px prompt text, bottom-right 'Try Bug Whisper' CTA.
 
 ### GitHub Stars Pill
 **Role:** Social proof in nav
@@ -210,11 +210,11 @@ Blocky pixel grid on cream #f6f6f6 background, scattered #292929 blocks forming 
 
 ## Elevation
 
-Convex deliberately avoids drop shadows. All separation is achieved through surface color contrast (cream → white → dark) and 1px hairline borders in #e5e5e5 or #38383a. This flat treatment reinforces the engineering-notebook aesthetic and keeps the focus on the product screenshots, which carry their own visual depth through code syntax colors.
+The design system deliberately avoids drop shadows. All separation is achieved through surface color contrast (cream → white → dark) and 1px hairline borders in #e5e5e5 or #38383a. This flat treatment reinforces the engineering-notebook aesthetic and keeps the focus on the product screenshots, which carry their own visual depth through code syntax colors.
 
 ## Imagery
 
-Convex uses dark product UI screenshots (code editor, dashboard) as the primary visual content — these are the hero elements, not stock photography. The code editor card shows a real TypeScript file with syntax-colored tokens, and the dashboard card shows a live todo app. The only illustrative element is a pixel-art style block grid used in the LLM section, rendered in a retro 8-bit aesthetic with charcoal and accent-color blocks on cream. No lifestyle photography, no abstract 3D renders. Icon style is minimal mono line icons (copy, GitHub octocat) at 1-1.5px stroke weight. Imagery serves as product demonstration rather than decoration — every visual is something a developer would actually see in the product.
+The design system uses dark product UI screenshots (code editor, dashboard) as the primary visual content — these are the hero elements, not stock photography. The code editor card shows a real code file with syntax-colored tokens, and the dashboard card shows an interactive execution preview. The only illustrative element is a pixel-art style block grid used in the LLM section, rendered in a retro 8-bit aesthetic with charcoal and accent-color blocks on cream. No lifestyle photography, no abstract 3D renders. Icon style is minimal mono line icons (copy, GitHub octocat) at 1-1.5px stroke weight. Imagery serves as product demonstration rather than decoration — every visual is something a developer would actually see in the product.
 
 ## Layout
 
@@ -231,7 +231,7 @@ Max-width 1200px centered container with 24px gutter. Hero is a two-column split
 
 **Example Component Prompts**
 
-1. Build a hero headline: GT America 56px/700, #141414, letter-spacing -2.8px, line-height 1.0. Subline at 18px/400 in #4f4f52. Below it, a white filled button 'Start building' at 8px radius, GT America 15px/500, #141414 text, 10px 20px padding. Beside it, a dark command card #292929 at 8px radius, monospace 13px white text showing '> npm create convex' with a copy icon in #a9a9ac.
+1. Build a hero headline: GT America 56px/700, #141414, letter-spacing -2.8px, line-height 1.0. Subline at 18px/400 in #4f4f52. Below it, a white filled button 'Start building' at 8px radius, GT America 15px/500, #141414 text, 10px 20px padding. Beside it, a dark command card #292929 at 8px radius, monospace 13px white text showing '> pip install bugwhisper' with a copy icon in #a9a9ac.
 
 2. Build a code editor card: #141414 background, 12px radius, 1px #38383a border, three 8px traffic-light dots (#fc618d, #f8e67a, #7bd88f) top-left. File tab bar in #292929 height 32px. Monospace 13px code body with line-height 1.4. Keywords in #fc618d, type annotations in #948ae3, booleans in #7bd88f, constants in #f8e67a, comments in #6d6d70.
 
@@ -243,7 +243,7 @@ No distinct primary action color was observed; use the extracted neutral button 
 
 ## Syntax Highlight System
 
-Inside code blocks, Convex uses a deliberate four-color syntax palette that makes TypeScript scannable at a glance. This is a semantic system, not a decorative one: keywords (export, import, const) are hot pink #fc618d, type annotations and interfaces are iris violet #948ae3, booleans and true/false values are mint green #7bd88f, and constants or string literals canary yellow #f8e67a. String interpolation falls to a desaturated lavender #e3d0df. Default code text is #d7d7d7 on the #141414 editor background, with comments in #6d6d70. Never reuse these colors for UI buttons, tags, or accents — they are reserved exclusively for code semantics.
+Inside code blocks, the design system uses a deliberate four-color syntax palette that makes code scannable at a glance. This is a semantic system, not a decorative one: keywords (export, import, const, def) are hot pink #fc618d, type annotations and interfaces are iris violet #948ae3, booleans and true/false values are mint green #7bd88f, and constants or string literals canary yellow #f8e67a. String interpolation falls to a desaturated lavender #e3d0df. Default code text is #d7d7d7 on the #141414 editor background, with comments in #6d6d70. Never reuse these colors for UI buttons, tags, or accents — they are reserved exclusively for code semantics.
 
 ## Similar Brands
 

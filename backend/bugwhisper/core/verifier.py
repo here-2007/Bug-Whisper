@@ -44,6 +44,8 @@ def verify_remediation(
     original_error: Optional[TracebackAnalysis] = None,
     dynamic_exec: bool = True,
     timeout_seconds: float = 3.0,
+    python_executable: Optional[str] = None,
+    venv: Optional[str] = None,
 ) -> VerificationResult:
     """
     Executes two-stage verification against repaired code.
@@ -80,7 +82,12 @@ def verify_remediation(
         )
 
     # Stage 2: Dynamic Sandboxed Re-run
-    run_result = run_code_sandboxed(repaired_code, timeout_seconds=timeout_seconds)
+    run_result = run_code_sandboxed(
+        repaired_code,
+        timeout_seconds=timeout_seconds,
+        python_executable=python_executable,
+        venv=venv,
+    )
 
     if run_result.timed_out:
         return VerificationResult(

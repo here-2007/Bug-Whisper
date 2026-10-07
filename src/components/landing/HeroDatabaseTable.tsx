@@ -4,7 +4,7 @@ interface VerifierTableProps {
   isPatched: boolean;
 }
 
-export const ConvexDatabaseTable: React.FC<VerifierTableProps> = ({ isPatched }) => {
+export const HeroDatabaseTable: React.FC<VerifierTableProps> = ({ isPatched }) => {
   const records = [
     {
       stage: 'AST Parse',
@@ -30,7 +30,7 @@ export const ConvexDatabaseTable: React.FC<VerifierTableProps> = ({ isPatched })
   ];
 
   return (
-    <div className="bg-[#181a16] rounded-xl border border-[#2e3128] overflow-hidden flex flex-col select-none">
+    <div className="bg-[#141414] rounded-xl border border-[#38383a] overflow-hidden flex flex-col select-none">
       {/* Header Bar */}
       <div className="h-9 bg-[#20231d] border-b border-[#2e3128] px-3.5 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
@@ -48,22 +48,22 @@ export const ConvexDatabaseTable: React.FC<VerifierTableProps> = ({ isPatched })
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
         {/* Table Description */}
-        <div className="flex items-baseline gap-2 mb-3 font-mono">
+        <div className="flex items-baseline justify-between mb-3 font-mono">
           <span className="text-xs font-bold text-white">verification</span>
           <span className="text-[11px] text-[#787e70]">
-            two-stage harness with 0 regressions detected
+            two-stage harness · 0 regressions
           </span>
         </div>
 
-        {/* Table View */}
+        {/* Clean Table View with Proportional Column Spacing */}
         <div className="w-full text-[11px] font-mono overflow-x-auto">
           {/* Table Header */}
-          <div className="grid grid-cols-12 text-[#64685b] pb-2 border-b border-[#282c22] font-medium">
-            <span className="col-span-3">_stage</span>
-            <span className="col-span-4">target</span>
-            <span className="col-span-2">status</span>
-            <span className="col-span-1">latency</span>
-            <span className="col-span-2 text-right">confidence</span>
+          <div className="flex items-center justify-between text-[#64685b] pb-2 border-b border-[#282c22] font-medium px-1">
+            <span className="w-[30%]">_stage</span>
+            <span className="w-[30%]">target</span>
+            <span className="w-[20%] text-center">status</span>
+            <span className="w-[10%] text-right">time</span>
+            <span className="w-[10%] text-right">conf</span>
           </div>
 
           {/* Table Rows */}
@@ -73,11 +73,11 @@ export const ConvexDatabaseTable: React.FC<VerifierTableProps> = ({ isPatched })
               return (
                 <div
                   key={idx}
-                  className="grid grid-cols-12 items-center py-2 text-[#d6dad0] hover:bg-[#1f221c] transition-colors"
+                  className="flex items-center justify-between py-2.5 text-[#d6dad0] hover:bg-[#1a1c17] transition-colors px-1"
                 >
-                  <span className="col-span-3 text-[#8a9082] truncate">{r.stage}</span>
-                  <span className="col-span-4 text-white truncate">&quot;{r.target}&quot;</span>
-                  <span className="col-span-2">
+                  <span className="w-[30%] text-[#8a9082] truncate pr-2">{r.stage}</span>
+                  <span className="w-[30%] text-white font-medium truncate pr-2">&quot;{r.target}&quot;</span>
+                  <span className="w-[20%] flex justify-center">
                     <span
                       className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
                         isGreen
@@ -88,8 +88,8 @@ export const ConvexDatabaseTable: React.FC<VerifierTableProps> = ({ isPatched })
                       {r.status}
                     </span>
                   </span>
-                  <span className="col-span-1 text-[#8a9082] text-[10px]">{r.latency}</span>
-                  <span className="col-span-2 text-right text-[#7bd88f]">{r.confidence}</span>
+                  <span className="w-[10%] text-right text-[#8a9082] text-[10px]">{r.latency}</span>
+                  <span className="w-[10%] text-right text-[#7bd88f]">{r.confidence}</span>
                 </div>
               );
             })}

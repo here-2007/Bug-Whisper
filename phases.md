@@ -105,9 +105,9 @@ Phase 8: Model Ecosystem, Modelfile & Auto-Fallback        [COMPLETED]
 ---
 
 ## Phase 7: Frontend Studio Video-Match Re-alignment [COMPLETED]
-*Objective: Transform Convex landing page into dedicated Python Debugging Studio matching reference layout.*
+*Objective: Build dedicated Python Debugging Studio matching reference layout.*
 
-- [x] **Convex Landing Page Rebranding**: Adapted full page to Python Debugging Studio while preserving warm cream-paper notebook aesthetic (`#f6f6f6`), Ink Black code cards (`#141414`), hairline borders, and strict zero drop shadows.
+- [x] **Landing Page Design**: Built full page as Python Debugging Studio preserving warm cream-paper notebook aesthetic (`#f6f6f6`), Ink Black code cards (`#141414`), hairline borders, and strict zero drop shadows.
 - [x] **Section 3 Interactive Playground**:
   - Replaced top layer with embedded `BugWhisperPlayground.tsx` inside the dark container card.
   - Split view: Monaco Python editor (`PlaygroundEditor.tsx`), Pyodide WebWorker terminal (`PlaygroundTerminal.tsx`), side-by-side Monaco diff (`PlaygroundDiff.tsx`), and verification metrics panel (`PlaygroundVerifierPanel.tsx`).

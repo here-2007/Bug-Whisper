@@ -33,7 +33,7 @@ export const ArchitectureBlueprintSection: React.FC = () => {
           Everything your codebase deserves to detect, isolate, and repair in real time.
         </p>
 
-        {/* Signal Blue CTA Button (Convex Style) */}
+        {/* Signal Blue CTA Button (Notebook Style) */}
         <div className="mt-6">
           <a
             href="https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b"

@@ -71,7 +71,7 @@ export const PlaygroundTerminal: React.FC<PlaygroundTerminalProps> = ({
                   <button
                     type="button"
                     onClick={onHeal}
-                    className="mt-1 w-full py-1.5 px-3 rounded bg-[#de5d33] hover:bg-[#eb6a40] text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                    className="mt-1 w-full py-2 px-3 rounded-lg bg-[#de5d33] hover:bg-[#eb6a40] text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Synthesize Patch with Qwen 2.5 Coder 3B</span>

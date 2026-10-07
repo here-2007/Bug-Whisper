@@ -79,7 +79,7 @@
   box-shadow: none !important;
 }
 
-/* Convex Dusk Gradient background utility */
+/* Dusk Gradient background utility */
 .bg-dusk-gradient {
   background: linear-gradient(135deg, rgb(34, 31, 29), rgb(49, 43, 43) 28%, rgba(41, 57, 105, 0.9) 50%);
 }

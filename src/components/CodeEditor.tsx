@@ -25,8 +25,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
 
-    // Define the Convex Dark Code Theme
-    monaco.editor.defineTheme('convex-dark', {
+    // Define the Dark Code Theme
+    monaco.editor.defineTheme('notebook-dark', {
       base: 'vs-dark',
       inherit: true,
       rules: [
@@ -54,7 +54,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       },
     });
 
-    monaco.editor.setTheme('convex-dark');
+    monaco.editor.setTheme('notebook-dark');
 
     // Add Ctrl+Enter / Cmd+Enter run command
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {

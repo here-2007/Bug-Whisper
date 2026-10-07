@@ -48,11 +48,16 @@ def _kill_process_tree(pid: int) -> None:
             pass
 
 
+from bugwhisper.core.venv import get_venv_env, resolve_python_executable
+
+
 def run_code_sandboxed(
     code: str,
     timeout_seconds: float = 5.0,
     working_dir: Optional[str] = None,
     max_output_chars: int = 50_000,
+    python_executable: Optional[str] = None,
+    venv: Optional[str] = None,
 ) -> RunResult:
     """
     Executes Python source code in an isolated subprocess.
@@ -61,6 +66,7 @@ def run_code_sandboxed(
     - `stdin=DEVNULL` prevents deadlocks from interactive `input()` calls.
     - Process tree kill on timeout ensures zero orphaned child tasks.
     - Output buffer truncation prevents memory exhaustion.
+    - Supports custom virtual environments via `venv` or `python_executable`.
     """
     cleanup_temp_dir = False
     if working_dir is None:
@@ -74,12 +80,18 @@ def run_code_sandboxed(
         with open(script_path, "w", encoding="utf-8") as f:
             f.write(code)
 
+        # Resolve Python interpreter (custom executable, venv, or sys.executable)
+        python_bin = python_executable or resolve_python_executable(
+            venv=venv, script_dir=working_dir
+        )
+
         # Environment isolation: filter out sensitive environment variables
         safe_env = os.environ.copy()
         safe_env["PYTHONDONTWRITEBYTECODE"] = "1"
         safe_env["PYTHONUNBUFFERED"] = "1"
         safe_env["PYTHONIOENCODING"] = "utf-8"
         safe_env["PYTHONUTF8"] = "1"
+        safe_env = get_venv_env(python_bin, safe_env)
 
         creationflags = 0
         preexec_fn = None
@@ -89,7 +101,7 @@ def run_code_sandboxed(
             preexec_fn = os.setsid
 
         proc = subprocess.Popen(
-            [sys.executable, "-u", "main.py"],
+            [python_bin, "-u", "main.py"],
             cwd=working_dir,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,

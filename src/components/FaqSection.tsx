@@ -49,7 +49,7 @@ export const FaqSection: React.FC = () => {
           </h2>
         </div>
 
-        {/* Convex Accordion Rows (Component 242) */}
+        {/* Accordion Rows (Component 242) */}
         <div className="flex flex-col border-t border-mist-divider">
           {faqs.map((faq, i) => {
             const isOpen = openIndex === i;

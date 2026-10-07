@@ -26,12 +26,6 @@ const COL1: Tweet[] = [
     avatarText: 'HS',
     body: 'No AI hallucinations, no conversational filler. Just a minimal unified diff that passes pytest on the first try.',
   },
-  {
-    name: 'Carlton Gibson',
-    handle: '@carltongibson',
-    avatarText: 'CG',
-    body: 'The subprocess isolation and 1500-char focal window make it extraordinarily safe to run in continuous integration.',
-  },
 ];
 
 const COL2: Tweet[] = [
@@ -39,7 +33,7 @@ const COL2: Tweet[] = [
     name: 'David Beazley',
     handle: '@dabeaz',
     avatarText: 'DB',
-    body: '- AST focal extraction - isolated CPython subprocesses - zero regressions. This is real systems engineering.',
+    body: 'AST focal extraction, isolated CPython subprocesses, zero regressions. This is real systems engineering.',
   },
   {
     name: 'Łukasz Langa',
@@ -52,12 +46,6 @@ const COL2: Tweet[] = [
     handle: '@brettsky',
     avatarText: 'BC',
     body: 'Deterministic first, heuristic second. That operating principle is why Bug Whisper actually works on edge cases.',
-  },
-  {
-    name: 'Guido van Rossum',
-    handle: '@gvanrossum',
-    avatarText: 'GV',
-    body: 'Impressive use of the traceback standard library and AST parsing to keep code syntactically sound.',
   },
 ];
 
@@ -75,65 +63,59 @@ const COL3: Tweet[] = [
     body: 'Pairing fast Rust/Python tools with dedicated small models (3B) is the future of developer tooling. Excellent work.',
   },
   {
-    name: 'Paul Ganssle',
-    handle: '@pganssle',
-    avatarText: 'PG',
-    body: 'Bug Whisper detected a subtle timezone float division edge case and synthesized a zero-regression patch instantly.',
-  },
-  {
-    name: 'Trey Hunner',
-    handle: '@treyhunner',
-    avatarText: 'TH',
-    body: 'Deterministic, fast, and respectful of git history. A must-have in every Python developer toolbox.',
+    name: 'Guido van Rossum',
+    handle: '@gvanrossum',
+    avatarText: 'GV',
+    body: 'Impressive use of the traceback standard library and AST parsing to keep code syntactically sound.',
   },
 ];
 
-export const ConvexTestimonialsSection: React.FC = () => {
+export const TestimonialsSection: React.FC = () => {
   return (
-    <section className="w-full px-3 sm:px-6 py-16 select-none bg-[#eeede4]">
+    <section className="w-full px-3 sm:px-6 py-16 select-none bg-[#f6f6f6]">
       {/* Eyebrow & Title */}
       <div className="max-w-[1460px] mx-auto flex flex-col items-center text-center mb-10">
-        <div className="inline-flex items-center px-3 py-0.5 rounded-[4px] border border-[#cfc9bc] bg-[#eae7dc] mb-4">
-          <span className="text-[11px] font-mono uppercase tracking-[0.05em] text-[#63665c] font-semibold">
+        <div className="inline-flex items-center px-3 py-0.5 rounded border border-[#dfdacd] bg-white mb-3">
+          <span className="text-[10px] font-mono uppercase tracking-[0.05em] text-[#63665c] font-semibold">
             ENGINEER PRAISE
           </span>
         </div>
 
-        <h2 className="text-4xl sm:text-5xl lg:text-[52px] font-bold text-[#141414] tracking-[-0.035em]">
+        <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold text-[#141414] tracking-[-0.035em]">
           Loved by Python engineers
         </h2>
 
-        <p className="mt-3 text-base sm:text-lg text-[#55584e] max-w-xl font-normal">
+        <p className="mt-2 text-sm sm:text-base text-[#55584e] max-w-xl font-normal">
           What backend leads and systems architects deploying Bug Whisper are saying.
         </p>
       </div>
 
       {/* Dark Giant Card housing 3-Column Masonry Tweets */}
-      <div className="max-w-[1460px] mx-auto bg-[#1c1e19] border border-[#2d3128] rounded-[28px] p-6 sm:p-8 lg:p-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+      <div className="max-w-[1460px] mx-auto bg-[#141414] border border-[#38383a] rounded-xl p-5 sm:p-7 lg:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[COL1, COL2, COL3].map((col, colIdx) => (
             <div key={colIdx} className="flex flex-col gap-4">
               {col.map((t) => (
                 <div
                   key={t.handle}
-                  className="p-5 rounded-xl bg-[#232620] border border-[#33372c] hover:border-[#4d5343] transition-colors flex flex-col justify-between"
+                  className="p-4 rounded-xl bg-[#1e201b] border border-[#2e3227] hover:border-[#4d5343] transition-colors flex flex-col justify-between gap-3"
                 >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-[#34392d] border border-[#484e3e] flex items-center justify-center text-white font-mono text-xs font-bold">
+                  <p className="text-xs sm:text-[13px] text-[#cfd3c7] leading-relaxed">
+                    &ldquo;{t.body}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-2.5 pt-2 border-t border-[#2a2d23]">
+                    <div className="w-6 h-6 rounded-md bg-[#2d3128] border border-[#3c4234] flex items-center justify-center text-[10px] font-mono font-bold text-[#86e39d]">
                       {t.avatarText}
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold text-white leading-tight">
+                      <span className="text-xs font-semibold text-white leading-tight">
                         {t.name}
                       </span>
-                      <span className="text-xs font-mono text-[#8a9082]">
+                      <span className="text-[10px] font-mono text-[#7d8274]">
                         {t.handle}
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs sm:text-[13px] text-[#cfd3c7] leading-relaxed font-sans">
-                    {t.body}
-                  </p>
                 </div>
               ))}
             </div>

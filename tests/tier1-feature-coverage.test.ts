@@ -81,7 +81,7 @@ describe('F1: Design Tokens & Strict Zero Shadows Enforcement', () => {
     expect(largeRadiusMatches).toBeNull();
   });
 
-  test('F1.4: Convex core surface and accent color tokens are defined in index.css', () => {
+  test('F1.4: Core surface and accent color tokens are defined in index.css', () => {
     const cssPath = path.join(srcDir, 'index.css');
     const cssContent = fs.readFileSync(cssPath, 'utf-8');
 
@@ -497,7 +497,7 @@ describe('F8: Pyodide WebWorker Sandbox & Terminal HUD Modules', () => {
     expect(content).toContain('clearOutput');
   });
 
-  test('F8.4: src/components/TerminalDrawer.tsx implements Convex dark HUD, traffic dots, and Remediate CTA', () => {
+  test('F8.4: src/components/TerminalDrawer.tsx implements Engineering dark HUD, traffic dots, and Remediate CTA', () => {
     const terminalPath = path.join(ROOT_DIR, 'src', 'components', 'TerminalDrawer.tsx');
     expect(fs.existsSync(terminalPath)).toBe(true);
     const content = fs.readFileSync(terminalPath, 'utf-8');
@@ -513,11 +513,11 @@ describe('F8: Pyodide WebWorker Sandbox & Terminal HUD Modules', () => {
     expect(content).toContain('Remediate with Whisper');
   });
 
-  test('F8.5: src/App.tsx mounts ConvexProductSection hosting BugWhisperPlayground', () => {
+  test('F8.5: src/App.tsx mounts StudioSection hosting BugWhisperPlayground', () => {
     const appPath = path.join(ROOT_DIR, 'src', 'App.tsx');
     const content = fs.readFileSync(appPath, 'utf-8');
 
-    expect(content).toContain('ConvexProductSection');
+    expect(content).toContain('StudioSection');
     const playgroundPath = path.join(ROOT_DIR, 'src', 'components', 'playground', 'BugWhisperPlayground.tsx');
     expect(fs.existsSync(playgroundPath)).toBe(true);
     const playgroundContent = fs.readFileSync(playgroundPath, 'utf-8');

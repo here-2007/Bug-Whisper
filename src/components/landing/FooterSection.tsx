@@ -1,7 +1,7 @@
 import React from 'react';
 import { Terminal } from 'lucide-react';
 
-export const ConvexFooter: React.FC = () => {
+export const FooterSection: React.FC = () => {
   return (
     <footer className="w-full bg-[#0f100e] text-white pt-20 pb-16 px-6 select-none border-t border-[#23261f]">
       <div className="max-w-[1400px] mx-auto grid grid-cols-2 md:grid-cols-12 gap-10 lg:gap-14">
@@ -23,7 +23,7 @@ export const ConvexFooter: React.FC = () => {
           <span className="font-semibold text-white text-[13px]">
             Product
           </span>
-          <a href="#workbench" className="text-[#8e9385] hover:text-white transition-colors">Runtime Studio</a>
+          <a href="#playground" className="text-[#8e9385] hover:text-white transition-colors">Runtime Studio</a>
           <a href="#architecture" className="text-[#8e9385] hover:text-white transition-colors">Two-Stage Verifier</a>
           <a href="#inference" className="text-[#8e9385] hover:text-white transition-colors">AST Focal Window</a>
           <a href="#diff" className="text-[#8e9385] hover:text-white transition-colors">Unified Diff Engine</a>
@@ -56,7 +56,7 @@ export const ConvexFooter: React.FC = () => {
           <span className="font-semibold text-white text-[13px]">
             Community
           </span>
-          <a href="https://github.com/pernavjain/bug-whisper" target="_blank" rel="noreferrer" className="text-[#8e9385] hover:text-white transition-colors flex items-center gap-1">GitHub 3B <span className="text-[10px]">↗</span></a>
+          <a href="https://github.com/harshitthek/bug-whisper" target="_blank" rel="noreferrer" className="text-[#8e9385] hover:text-white transition-colors flex items-center gap-1">GitHub 3B <span className="text-[10px]">↗</span></a>
           <a href="https://pypi.org/project/bugwhisper" target="_blank" rel="noreferrer" className="text-[#8e9385] hover:text-white transition-colors flex items-center gap-1">PyPI Package <span className="text-[10px]">↗</span></a>
           <a href="https://discord.gg" target="_blank" rel="noreferrer" className="text-[#8e9385] hover:text-white transition-colors flex items-center gap-1">Discord <span className="text-[10px]">↗</span></a>
           <a href="https://twitter.com" target="_blank" rel="noreferrer" className="text-[#8e9385] hover:text-white transition-colors flex items-center gap-1">Twitter / X <span className="text-[10px]">↗</span></a>

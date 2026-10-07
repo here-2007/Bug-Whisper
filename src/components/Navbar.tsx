@@ -101,9 +101,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="font-semibold text-ink-black">{providerLabel}</span>
         </div>
 
-        {/* GitHub Stars Pill (Convex Component 166) */}
+        {/* GitHub Stars Pill (Component 166) */}
         <a
-          href="https://github.com/harshitxdev"
+          href="https://github.com/harshitthek/bug-whisper"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-paper-white hover:bg-cream-surface border border-mist-divider text-xs font-mono text-ink-black transition-colors"

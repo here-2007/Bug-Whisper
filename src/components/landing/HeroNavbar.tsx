@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, Terminal } from 'lucide-react';
+import { Terminal } from 'lucide-react';
 
 const GithubIcon: React.FC = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -7,53 +7,41 @@ const GithubIcon: React.FC = () => (
   </svg>
 );
 
-export const ConvexHeroNavbar: React.FC = () => {
+export const HeroNavbar: React.FC = () => {
   return (
-    <nav className="w-full flex items-center justify-between pb-8 lg:pb-12 text-[#cfd3c7] select-none">
+    <nav className="w-full flex items-center justify-between pb-6 lg:pb-8 text-[#cfd3c7] select-none">
       {/* Brand logo & main links */}
       <div className="flex items-center gap-7 lg:gap-9">
         <a href="#" className="flex items-center gap-2">
           <Terminal className="w-5 h-5 text-[#de5d33]" />
-          <span className="font-bold text-[24px] text-white tracking-[-0.04em] lowercase">
+          <span className="font-bold text-[22px] text-white tracking-[-0.04em] lowercase">
             bug whisper
           </span>
         </a>
 
-        <div className="hidden lg:flex items-center gap-6 text-[14px] font-normal text-[#cfd3c7]">
-          <button type="button" className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
-            <span>Architecture</span>
-            <ChevronDown className="w-3.5 h-3.5 text-[#9ba092]" />
-          </button>
-          <button type="button" className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
-            <span>Inference</span>
-            <ChevronDown className="w-3.5 h-3.5 text-[#9ba092]" />
-          </button>
+        <div className="hidden lg:flex items-center gap-6 text-[13px] font-medium text-[#cfd3c7]">
           <a href="#benchmarks" className="hover:text-white transition-colors">Benchmarks</a>
-          <a href="#changelog" className="hover:text-white transition-colors">Changelog</a>
-          <a href="#docs" className="hover:text-white transition-colors">Docs</a>
-          <a href="#cli" className="hover:text-white transition-colors">CLI</a>
+          <a href="#playground" className="hover:text-white transition-colors">Studio</a>
+          <a href="#integrations" className="hover:text-white transition-colors">Integrations</a>
         </div>
       </div>
 
       {/* Right: GitHub Star Badge & Ghost Action */}
       <div className="flex items-center gap-3">
         <a
-          href="https://github.com/pernavjain/bug-whisper"
+          href="https://github.com/harshitthek/bug-whisper"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#20231b] hover:bg-[#282c22] border border-[#373c2e] text-xs font-medium text-white transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#282c22] hover:bg-[#343a2c] border border-[#3c4232] text-xs font-medium text-white transition-colors"
         >
           <GithubIcon />
           <span>GitHub</span>
           <span className="text-[#8e9385] font-mono text-[11px]">3B Model</span>
         </a>
 
-        <a
-          href="#studio"
-          className="text-xs font-semibold px-3 py-1.5 text-white/90 hover:text-white transition-colors cursor-pointer"
-        >
-          CLI v1.0
-        </a>
+        <span className="text-xs font-mono px-2 py-1 text-[#8e9385]">
+          v1.0
+        </span>
       </div>
     </nav>
   );

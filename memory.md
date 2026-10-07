@@ -33,10 +33,10 @@ A persistent log of core architectural decisions, model constraints, and technic
   - First-time visitors and evaluators need to test the website immediately without configuring API tokens or spinning up local GPU servers.
   - Power users and team members can switch to their local Ollama instance (`localhost:11434`) or hosted endpoints with 1 click.
 
-### Decision 5: Convex Design System (Cream Paper Engineering Notebook)
-* **Decision**: Adopt the Convex technical style reference ([design.md](file:///e:/projects/Bug%20whisper/design.md)) featuring a warm cream canvas (`#f6f6f6`), dark code editor blocks (`#141414`), charcoal frames (`#292929`), zero drop shadows, and hairline borders (`#e5e5e5` on light, `#38383a` on dark).
+### Decision 5: Cream Paper Engineering Notebook Design System
+* **Decision**: Adopt the technical style reference ([design.md](file:///e:/projects/Bug%20whisper/design.md)) featuring a warm cream canvas (`#f6f6f6`), dark code editor blocks (`#141414`), charcoal frames (`#292929`), zero drop shadows, and hairline borders (`#e5e5e5` on light, `#38383a` on dark).
 * **Rationale**:
-  - Moves away from generic SaaS dark mode into a distinctive, editorial developer-first notebook feel (similar to Linear and Convex).
+  - Moves away from generic SaaS dark mode into a distinctive, editorial developer-first notebook feel (similar to Linear).
   - Maximizes contrast: code blocks stand out sharply in `#141414` against the `#f6f6f6` cream backdrop.
   - Semantic syntax colors (hot pink `#fc618d`, iris violet `#948ae3`, mint green `#7bd88f`, canary yellow `#f8e67a`) remain strictly scoped inside code blocks.
 

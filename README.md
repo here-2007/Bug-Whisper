@@ -21,7 +21,7 @@ Bug Whisper pairs deterministic execution with specialized neural code repair. I
    - **Stage 1 (Static)**: Verifies AST syntax through `compile()` and `ast.parse()`.
    - **Stage 2 (Dynamic)**: Executes the synthesized fix in an isolated sandbox with identical inputs to guarantee 0 regressions.
 4. **Visual Monaco Diff Inspection**: Highlights exact line additions and deletions (green/red) with 1-click patch application.
-5. **Convex Engineering Notebook Design**: Crafted with a warm cream-paper workspace (`#f6f6f6`), Ink Black dark code surfaces (`#141414`), hairline borders, and zero drop shadows.
+5. **Cream Paper Engineering Notebook Design**: Crafted with a warm cream-paper workspace (`#f6f6f6`), Ink Black dark code surfaces (`#141414`), hairline borders, and zero drop shadows.
 
 ---
 
@@ -67,8 +67,9 @@ Open [http://localhost:5173](http://localhost:5173) in your browser. The studio 
 ### 2. FastAPI Backend Service
 Install Python dependencies and start the local API service:
 ```bash
-pip install -r requirements.txt
-# or run directly with uvicorn
+pip install -r backend/requirements.txt
+# or from project root:
+# pip install -r requirements.txt
 python -m uvicorn backend.bugwhisper.server.app:app --port 8000 --reload
 ```
 Interactive API documentation is available at [http://localhost:8000/docs](http://localhost:8000/docs).
@@ -125,10 +126,11 @@ pytest backend/tests
 ```
 
 ```text
-======================= 74 passed in 34.72s =======================
+======================= 85 passed in 35.12s =======================
 ```
 
-* All 74 unit, integration, and stress tests pass with 100% success rate.
+* All 85 unit, integration, and sandbox tests pass with 100% success rate.
+* Frontend TypeScript test suite passes completely (82/82 tests passing).
 * Frontend TypeScript build compiles with zero errors (`tsc -b && vite build`).
 
 ---
@@ -137,7 +139,7 @@ pytest backend/tests
 
 * **[ARCHITECTURE.md](file:///e:/projects/Bug%20whisper/ARCHITECTURE.md)**: End-to-end technical architecture, sandbox security model, and component layout.
 * **[MODEL_GUIDE.md](file:///e:/projects/Bug%20whisper/MODEL_GUIDE.md)**: Model card, Kaggle weights, LoRA hyperparameters, and serving instructions (Ollama, vLLM, HF).
-* **[DESIGN.md](file:///e:/projects/Bug%20whisper/DESIGN.md)**: Design system specifications (Convex cream paper, typography tokens, zero drop shadows).
+* **[DESIGN.md](file:///e:/projects/Bug%20whisper/DESIGN.md)**: Design system specifications (cream paper notebook, typography tokens, zero drop shadows).
 * **[context.md](file:///e:/projects/Bug%20whisper/context.md)**: Model specs, dataset details, and strict 3-turn ChatML prompt contract.
 * **[memory.md](file:///e:/projects/Bug%20whisper/memory.md)**: Architectural decisions and technical lessons learned.
 * **[phases.md](file:///e:/projects/Bug%20whisper/phases.md)**: Development roadmap from foundation to production.

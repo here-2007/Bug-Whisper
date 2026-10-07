@@ -137,7 +137,7 @@ export const Footer: React.FC = () => {
 
       <div className="max-w-[1240px] mx-auto mt-12 pt-6 border-t border-graphite-border flex flex-col sm:flex-row items-center justify-between text-xs text-fog-text font-mono">
         <span>&copy; {new Date().getFullYear()} Bug Whisper. All rights reserved.</span>
-        <span>Convex Technical Style · Zero Drop Shadows</span>
+        <span>Cream Paper Engineering Notebook · Zero Drop Shadows</span>
       </div>
     </footer>
   );

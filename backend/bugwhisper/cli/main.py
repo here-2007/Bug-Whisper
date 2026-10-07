@@ -55,12 +55,16 @@ def check(
         raise typer.Exit(code=1)
 
 
+from bugwhisper.core.venv import detect_virtual_env, resolve_python_executable
+
+
 @app.command()
 def run(
     script_path: Path = typer.Argument(..., help="Path to Python script to execute"),
     timeout: float = typer.Option(5.0, "--timeout", "-t", help="Timeout in seconds"),
     auto_apply: bool = typer.Option(False, "--apply", "-y", help="Automatically apply verified fix"),
     provider: str = typer.Option("auto", "--provider", "-p", help="Inference provider: auto, ollama, hf, openai, heuristic"),
+    venv: Optional[Path] = typer.Option(None, "--venv", help="Path to virtual environment root or python executable"),
 ) -> None:
     """Executes Python script safely; synthesizes and verifies fixes upon failure."""
     if provider != "auto":
@@ -69,8 +73,18 @@ def run(
         console.print(f"[red]Error:[/red] File '{script_path}' does not exist.")
         raise typer.Exit(code=1)
 
+    python_bin = resolve_python_executable(venv=venv, script_dir=script_path.parent)
+    active_venv = venv or detect_virtual_env(start_dir=script_path.parent)
+    if active_venv:
+        console.print(f"[dim]Virtual Environment: [cyan]{active_venv}[/cyan][/dim]")
+
     code = script_path.read_text(encoding="utf-8")
-    run_res = run_code_sandboxed(code, timeout_seconds=timeout)
+    run_res = run_code_sandboxed(
+        code,
+        timeout_seconds=timeout,
+        python_executable=python_bin,
+        venv=str(venv) if venv else None,
+    )
 
     if run_res.success:
         if run_res.stdout:
@@ -90,7 +104,13 @@ def run(
     synth_res = loop.run_until_complete(manager.generate_fix(code, run_res.stderr))
     loop.close()
 
-    verify_res = verify_remediation(code, synth_res.fixed_code, original_error=analysis)
+    verify_res = verify_remediation(
+        code,
+        synth_res.fixed_code,
+        original_error=analysis,
+        python_executable=python_bin,
+        venv=str(venv) if venv else None,
+    )
 
     diff_syntax = Syntax(verify_res.diff.diff_text, "diff", theme="monokai", line_numbers=False)
     status_color = "green" if verify_res.status.value == "VERIFIED" else "yellow"
@@ -105,6 +125,23 @@ def run(
     if auto_apply or Confirm.ask(f"Apply fix to '{script_path}'?"):
         script_path.write_text(synth_res.fixed_code, encoding="utf-8")
         console.print(f"[bold green]Updated '{script_path}' successfully.[/bold green]")
+
+
+@app.command()
+def env(
+    path: Optional[Path] = typer.Argument(None, help="Directory to inspect for virtual environments"),
+) -> None:
+    """Inspects detected virtual environment and active Python interpreter."""
+    import sys
+    detected = detect_virtual_env(start_dir=path)
+    resolved = resolve_python_executable(venv=detected, script_dir=path)
+    console.print("[bold]Python Environment Diagnostics:[/bold]")
+    console.print(f"  • Host Python: [cyan]{sys.executable}[/cyan] ({sys.version.split()[0]})")
+    if detected:
+        console.print(f"  • Detected Virtualenv: [bold green]{detected}[/bold green]")
+        console.print(f"  • Resolved Interpreter: [cyan]{resolved}[/cyan]")
+    else:
+        console.print("  • Detected Virtualenv: [yellow]None[/yellow] (using host Python)")
 
 
 @app.command()

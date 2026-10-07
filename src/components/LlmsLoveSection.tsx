@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowRight, Sparkles, Terminal } from 'lucide-react';
 
 export const LlmsLoveSection: React.FC = () => {
-  // 8-bit glyph block grid pattern matching Convex video Frame 00:02 - 00:03
+  // 8-bit glyph block grid pattern
   const gridCells = [
     // Row 1
     ['#292929', '#292929', '', '#292929', '', '#de5d33', '#292929', '', '', '#292929', '#292929', ''],
@@ -74,7 +74,7 @@ export const LlmsLoveSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Overlapping Dark Prompt / Inference Card (Convex Component 162) */}
+          {/* Overlapping Dark Prompt / Inference Card (Component 162) */}
           <div className="w-[90%] sm:w-[85%] mx-auto -mt-16 sm:-mt-20 bg-charcoal-surface rounded-xl border border-graphite-border p-5 text-paper-white relative z-10">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-graphite-border">
               <div className="flex items-center gap-2">

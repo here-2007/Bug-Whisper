@@ -49,7 +49,7 @@ Bug Whisper is an end-to-end Python debugging studio and automated code remediat
 
 ---
 
-## 3. Frontend Architecture (Convex Engineering Notebook)
+## 3. Frontend Architecture (Cream Paper Engineering Notebook)
 
 * **Stack**: React 19, TypeScript, Tailwind CSS, Vite.
 * **Aesthetic**: Cream paper engineering notebook (`#f6f6f6`), Ink Black dark code frames (`#141414`), hairline 1px dividers (`#e5e5e5` on light, `#38383a` on dark), zero drop shadows (`box-shadow: none !important;`).

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Play, RotateCw, Check, AlertCircle } from 'lucide-react';
+import React from 'react';
+import { Check, AlertCircle } from 'lucide-react';
 import type { PythonTestCase } from '../../hooks/usePythonStudioDemo';
 
 interface PythonRuntimePreviewProps {
@@ -9,25 +9,17 @@ interface PythonRuntimePreviewProps {
   showBlockedHint: boolean;
 }
 
-export const ConvexTodoPreview: React.FC<PythonRuntimePreviewProps> = ({
+export const HeroRuntimePreview: React.FC<PythonRuntimePreviewProps> = ({
   tests,
   onRunTests,
-  isRunning,
   showBlockedHint,
 }) => {
-  const [cmdText, setCmdText] = useState('pytest tests/test_pipeline.py -v');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onRunTests();
-  };
-
   return (
     <div className="bg-[#181a16] rounded-xl border border-[#2e3128] overflow-hidden flex flex-col relative select-none">
       {/* Toast alert if running tests while bug persists */}
       {showBlockedHint && (
         <div className="absolute top-10 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded bg-[#fc618d] text-[#141414] font-bold text-[11px] animate-bounce whitespace-nowrap">
-          ZeroDivisionError detected! Click &apos;Try it out!&apos; in code ↖
+          ZeroDivisionError detected! Click &apos;Try fix&apos; in code ↖
         </div>
       )}
 
@@ -97,33 +89,6 @@ export const ConvexTodoPreview: React.FC<PythonRuntimePreviewProps> = ({
             })}
           </div>
         </div>
-
-        {/* Input & Run Bar */}
-        <form onSubmit={handleSubmit} className="mt-4 pt-3 border-t border-[#2a2e24] flex items-center gap-2">
-          <input
-            type="text"
-            value={cmdText}
-            onChange={(e) => setCmdText(e.target.value)}
-            placeholder="Run Python test suite..."
-            className="flex-1 px-3 py-1.5 rounded-lg bg-[#20231d] border border-[#2f332a] text-xs font-mono text-white placeholder-[#787e70] focus:outline-none focus:border-[#69bee2]"
-          />
-          <button
-            type="button"
-            onClick={() => setCmdText('pytest tests/test_pipeline.py -v')}
-            title="Reset command"
-            className="p-1.5 rounded-lg bg-[#20231d] hover:bg-[#282c22] border border-[#2f332a] text-[#8e9385] hover:text-white transition-colors cursor-pointer"
-          >
-            <RotateCw className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="submit"
-            disabled={isRunning}
-            className="px-3.5 py-1.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 disabled:opacity-50"
-          >
-            <Play className="w-3 h-3 fill-white" />
-            <span>{isRunning ? 'Running...' : 'Run'}</span>
-          </button>
-        </form>
       </div>
     </div>
   );

@@ -85,7 +85,7 @@ export const HeroWorkbench: React.FC<HeroWorkbenchProps> = ({ onOpenStudio }) =>
             </button>
           </div>
 
-          {/* Vertical Feature Tabs (Convex Hero Signature) */}
+          {/* Vertical Feature Tabs */}
           <div className="flex flex-col border-t border-mist-divider pt-6 gap-2">
             {steps.map((step, idx) => {
               const isActive = activeStep === idx;
@@ -297,7 +297,7 @@ export const HeroWorkbench: React.FC<HeroWorkbenchProps> = ({ onOpenStudio }) =>
                   </div>
                 </div>
 
-                {/* Bottom Panel: Live Database / AST Trace Table (Convex Component 142) */}
+                {/* Bottom Panel: Live Database / AST Trace Table (Component 142) */}
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-graphite-border/60">

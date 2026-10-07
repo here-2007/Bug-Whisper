@@ -20,7 +20,7 @@ This document defines the operational directives, architectural constraints, and
 
 ---
 
-## 2. Frontend & Design System Directives (Convex Engineering Notebook)
+## 2. Frontend & Design System Directives (Cream Paper Engineering Notebook)
 
 All frontend components must strictly adhere to the design system defined in [design.md](file:///e:/projects/Bug%20whisper/design.md):
 
