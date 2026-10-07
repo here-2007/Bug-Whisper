@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 
 interface PlaygroundEditorProps {
@@ -16,9 +16,13 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
 }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const monacoRef = useRef<any>(null);
+  const decorationsRef = useRef<string[]>([]);
 
   const handleMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
 
     monaco.editor.defineTheme('playground-dark', {
       base: 'vs-dark',
@@ -44,38 +48,51 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
     });
 
     monaco.editor.setTheme('playground-dark');
-
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-      onRun();
-    });
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onRun);
   };
 
-  React.useEffect(() => {
-    if (editorRef.current && highlightLine) {
-      editorRef.current.revealLineInCenter(highlightLine);
-      editorRef.current.setPosition({ lineNumber: highlightLine, column: 1 });
-      editorRef.current.focus();
+  useEffect(() => {
+    if (!editorRef.current || !monacoRef.current) return;
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+
+    if (highlightLine && highlightLine > 0) {
+      editor.revealLineInCenter(highlightLine);
+      editor.setPosition({ lineNumber: highlightLine, column: 1 });
+      decorationsRef.current = editor.deltaDecorations(decorationsRef.current, [
+        {
+          range: new monaco.Range(highlightLine, 1, highlightLine, 1),
+          options: {
+            isWholeLine: true,
+            className: 'bg-[#3d1a24]/50 border-l-2 border-[#fc618d]',
+          },
+        },
+      ]);
+    } else {
+      decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
     }
   }, [highlightLine]);
 
   return (
-    <div className="flex-1 flex flex-col bg-[#141414] border-r border-[#2d3128] overflow-hidden">
-      {/* Editor Sub-Header */}
-      <div className="h-8 bg-[#1e201b] border-b border-[#2d3128] px-3.5 flex items-center justify-between text-xs font-mono text-[#8e9385] select-none shrink-0">
+    <div className="flex-1 h-full flex flex-col bg-[#141414] overflow-hidden select-text">
+      {/* Editor Sub-Header: Exactly 40px (h-10) */}
+      <div className="h-10 bg-[#1a1c17] border-b border-[#2d3128] px-3.5 flex items-center justify-between text-xs font-mono text-[#8e9385] select-none shrink-0">
         <div className="flex items-center gap-2">
-          <span className="px-1.5 py-0.2 rounded bg-[#3776ab] text-[9px] font-bold text-[#ffd43b]">PY</span>
+          <span className="px-1.5 py-0.5 rounded bg-[#3776ab] text-[9px] font-bold text-[#ffd43b]">
+            PY
+          </span>
           <span className="text-[#d6dad0] font-medium">main.py</span>
           {highlightLine && (
-            <span className="text-[10px] text-[#fc618d] bg-[#3a1a23] px-1.5 py-0.2 rounded">
+            <span className="text-[10px] text-[#fc618d] bg-[#3a1a23] border border-[#5a2030] px-1.5 py-0.5 rounded">
               Line {highlightLine} exception
             </span>
           )}
         </div>
-        <span className="text-[11px] text-[#64685b]">UTF-8 · Python</span>
+        <span className="text-[11px] text-[#64685b]">Python 3.12 · UTF-8</span>
       </div>
 
-      {/* Monaco Editor Container */}
-      <div className="flex-1 min-h-[380px] h-[400px]">
+      {/* Editor Body */}
+      <div className="flex-1 w-full h-[calc(100%-40px)] min-h-[360px] overflow-hidden">
         <Editor
           height="100%"
           language="python"

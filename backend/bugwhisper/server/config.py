@@ -34,6 +34,15 @@ class Settings(BaseModel):
     openai_model: str = Field(
         default_factory=lambda: os.getenv("OPENAI_MODEL", "bug-whisper-qwen25-coder-3b")
     )
+    hf_model: str = Field(
+        default_factory=lambda: os.getenv("HF_MODEL", "pernavjain/bug-whisper-qwen25-coder-3b")
+    )
+    hf_token: str = Field(
+        default_factory=lambda: os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN", "")
+    )
+    hf_local: bool = Field(
+        default_factory=lambda: os.getenv("HF_LOCAL", "").lower() in ("true", "1", "yes")
+    )
     default_timeout: float = Field(
         default_factory=lambda: float(os.getenv("BUGWHISPER_TIMEOUT", "3.0"))
     )

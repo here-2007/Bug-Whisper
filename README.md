@@ -67,22 +67,29 @@ Open [http://localhost:5173](http://localhost:5173) in your browser. The studio 
 ### 2. FastAPI Backend Service
 Install Python dependencies and start the local API service:
 ```bash
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 # or run directly with uvicorn
 python -m uvicorn backend.bugwhisper.server.app:app --port 8000 --reload
 ```
 Interactive API documentation is available at [http://localhost:8000/docs](http://localhost:8000/docs).
 
-### 3. Model Serving (Ollama or vLLM)
-To activate local neural code synthesis:
-```bash
-# Option A: Quickstart with Ollama
-ollama run qwen2.5-coder:3b
+### 3. Model Inference (Hugging Face, Ollama, or vLLM)
+Bug Whisper supports multiple inference backends:
 
-# Option B: Use the repository Modelfile for exact ChatML prompting
+```bash
+# Option A: Hugging Face Library (huggingface_hub & transformers)
+# Uses fine-tuned pernavjain/bug-whisper-qwen25-coder-3b serverless endpoint
+export BUGWHISPER_PROVIDER=hf
+export HF_TOKEN="your_huggingface_token"  # Optional for public models
+
+# Option B: Local Ollama Service
+ollama run qwen2.5-coder:3b
 ollama create bug-whisper-qwen25-coder-3b -f Modelfile
+
+# Option C: Zero-Weight Deterministic Fallback
+# Automatically engages if Ollama or HF are offline (0 MB download / 0 GPU)
 ```
-*For detailed instructions on serving via vLLM, Hugging Face, or Kaggle Hub, see [MODEL_GUIDE.md](file:///e:/projects/Bug%20whisper/MODEL_GUIDE.md).*
+*For detailed instructions on serving via Hugging Face, vLLM, or Kaggle Hub, see [MODEL_GUIDE.md](file:///e:/projects/Bug%20whisper/MODEL_GUIDE.md).*
 
 ### 4. Developer CLI (`bugwhisper`)
 Bug Whisper provides a command-line interface for terminal workflows:
@@ -90,10 +97,10 @@ Bug Whisper provides a command-line interface for terminal workflows:
 # Validate Python syntax statically
 python -m bugwhisper.cli.main check script.py
 
-# Execute, catch exceptions, synthesize & prompt to apply verified fix
-python -m bugwhisper.cli.main run script.py --apply
+# Execute, catch exceptions, synthesize & prompt to apply verified fix via Hugging Face
+python -m bugwhisper.cli.main run script.py --provider hf --apply
 
-# Inspect local Ollama model configuration
+# Inspect local model and Hugging Face Hub configuration
 python -m bugwhisper.cli.main model
 ```
 

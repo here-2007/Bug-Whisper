@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PlaygroundHeader } from './PlaygroundHeader';
 import { PlaygroundEditor } from './PlaygroundEditor';
-import { PlaygroundTabs, type RightTab } from './PlaygroundTabs';
-import { PlaygroundTerminal } from './PlaygroundTerminal';
-import { PlaygroundDiff } from './PlaygroundDiff';
-import { PlaygroundVerifierPanel } from './PlaygroundVerifierPanel';
+import { PlaygroundRightPane } from './PlaygroundRightPane';
+import { type RightTab } from './PlaygroundTabs';
 import { BUG_PRESETS } from '../../constants/presets';
 import { DEFAULT_INFERENCE_SETTINGS } from '../../types/settings';
 import { usePyodide } from '../../hooks/usePyodide';
@@ -17,21 +15,32 @@ export const BugWhisperPlayground: React.FC = () => {
   const [fixedCode, setFixedCode] = useState<string>(BUG_PRESETS[0].fixedCode);
   const [activeTab, setActiveTab] = useState<RightTab>('terminal');
   const [isFixing, setIsFixing] = useState<boolean>(false);
-  const [diffLatency, setDiffLatency] = useState<number>(185);
+  const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
+  const [sideBySide, setSideBySide] = useState<boolean>(true);
+  const [diffCopied, setDiffCopied] = useState<boolean>(false);
 
-  const { status, isExecuting, lastResult, runCode } = usePyodide();
+  const { status, isExecuting, lastResult, runCode, clearOutput } = usePyodide();
 
-  // Execute initial preset on first load or when preset changes
+  // Execute initial preset on mount once status becomes ready
   useEffect(() => {
     if (status === 'ready') {
       runCode(code);
     }
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (lastResult?.lineNumber) {
+      setHighlightedLine(lastResult.lineNumber);
+    } else if (lastResult?.success) {
+      setHighlightedLine(null);
+    }
+  }, [lastResult]);
+
   const handleSelectPreset = useCallback((preset: BugPreset) => {
     setActivePreset(preset);
     setCode(preset.buggyCode);
     setFixedCode(preset.fixedCode);
+    setHighlightedLine(preset.offendingLine || null);
     setActiveTab('terminal');
     runCode(preset.buggyCode);
   }, [runCode]);
@@ -50,31 +59,35 @@ export const BugWhisperPlayground: React.FC = () => {
         settings: DEFAULT_INFERENCE_SETTINGS,
       });
       setFixedCode(res.fixedCode);
-      setDiffLatency(res.latencyMs || 185);
       setActiveTab('diff');
     } finally {
       setIsFixing(false);
     }
   }, [code, lastResult]);
 
-  const handleAcceptFix = useCallback((acceptedCode: string) => {
-    setCode(acceptedCode);
+  const handleAcceptFix = useCallback(() => {
+    setCode(fixedCode);
+    setHighlightedLine(null);
     setActiveTab('terminal');
-    runCode(acceptedCode);
-  }, [runCode]);
+    runCode(fixedCode);
+  }, [fixedCode, runCode]);
 
   const handleReset = useCallback(() => {
     setCode(activePreset.buggyCode);
     setFixedCode(activePreset.fixedCode);
+    setHighlightedLine(activePreset.offendingLine || null);
     setActiveTab('terminal');
     runCode(activePreset.buggyCode);
   }, [activePreset, runCode]);
 
-  const hasDiff = Boolean(fixedCode && code.trim() !== fixedCode.trim());
-  const hasError = Boolean(lastResult && !lastResult.success);
+  const handleCopyDiff = useCallback(async () => {
+    await navigator.clipboard.writeText(fixedCode);
+    setDiffCopied(true);
+    setTimeout(() => setDiffCopied(false), 2000);
+  }, [fixedCode]);
 
   return (
-    <div className="w-full rounded-[22px] border-[2px] border-[#c89880] bg-[#161715] overflow-hidden flex flex-col select-none">
+    <div className="w-full rounded-xl border border-[#38383a] bg-[#141414] overflow-hidden flex flex-col shadow-none">
       <PlaygroundHeader
         activePresetId={activePreset.id}
         onSelectPreset={handleSelectPreset}
@@ -86,53 +99,37 @@ export const BugWhisperPlayground: React.FC = () => {
         status={status}
       />
 
-      {/* Main 2-Column Split Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[460px]">
-        {/* Left: Code Editor (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col">
+      {/* Main 2-Column Split Workspace (Equal 50/50, Exactly Aligned) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#2d3128] h-[520px] lg:h-[560px]">
+        {/* Left: Python Code Editor */}
+        <div className="h-full flex flex-col overflow-hidden bg-[#141414]">
           <PlaygroundEditor
             code={code}
             onChange={setCode}
             onRun={handleRun}
-            highlightLine={lastResult?.lineNumber}
+            highlightLine={highlightedLine}
           />
         </div>
 
-        {/* Right: Multi-tab Terminal / Diff / Verifier (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col bg-[#141414]">
-          <PlaygroundTabs
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            hasDiff={hasDiff}
-            hasError={hasError}
-          />
-
-          <div className="flex-1 flex flex-col">
-            {activeTab === 'terminal' && (
-              <PlaygroundTerminal
-                result={lastResult}
-                isExecuting={isExecuting}
-                onJumpToLine={() => {}}
-                onHeal={handleHeal}
-              />
-            )}
-            {activeTab === 'diff' && (
-              <PlaygroundDiff
-                originalCode={code}
-                fixedCode={fixedCode}
-                onAcceptFix={handleAcceptFix}
-                latencyMs={diffLatency}
-              />
-            )}
-            {activeTab === 'verifier' && (
-              <PlaygroundVerifierPanel
-                result={lastResult}
-                hasFixedCode={hasDiff}
-                fixedCode={fixedCode}
-              />
-            )}
-          </div>
-        </div>
+        {/* Right: Multi-tab Terminal / Diff / Verifier */}
+        <PlaygroundRightPane
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          hasDiff={Boolean(fixedCode && code.trim() !== fixedCode.trim())}
+          hasError={Boolean(lastResult && !lastResult.success)}
+          sideBySide={sideBySide}
+          onToggleSideBySide={() => setSideBySide(!sideBySide)}
+          onCopyDiff={handleCopyDiff}
+          diffCopied={diffCopied}
+          onAcceptFix={handleAcceptFix}
+          onClearTerminal={clearOutput}
+          lastResult={lastResult}
+          isExecuting={isExecuting}
+          onJumpToLine={(line) => setHighlightedLine(line)}
+          onHeal={handleHeal}
+          code={code}
+          fixedCode={fixedCode}
+        />
       </div>
     </div>
   );

@@ -513,14 +513,16 @@ describe('F8: Pyodide WebWorker Sandbox & Terminal HUD Modules', () => {
     expect(content).toContain('Remediate with Whisper');
   });
 
-  test('F8.5: src/App.tsx mounts TerminalDrawer in left panel and connects Pyodide hook', () => {
+  test('F8.5: src/App.tsx mounts ConvexProductSection hosting BugWhisperPlayground', () => {
     const appPath = path.join(ROOT_DIR, 'src', 'App.tsx');
     const content = fs.readFileSync(appPath, 'utf-8');
 
-    expect(content).toContain('TerminalDrawer');
-    expect(content).toContain('usePyodide');
-    expect(content).toContain('runCode');
-    expect(content).toContain('Run & Whisper');
+    expect(content).toContain('ConvexProductSection');
+    const playgroundPath = path.join(ROOT_DIR, 'src', 'components', 'playground', 'BugWhisperPlayground.tsx');
+    expect(fs.existsSync(playgroundPath)).toBe(true);
+    const playgroundContent = fs.readFileSync(playgroundPath, 'utf-8');
+    expect(playgroundContent).toContain('usePyodide');
+    expect(playgroundContent).toContain('runCode');
   });
 });
 

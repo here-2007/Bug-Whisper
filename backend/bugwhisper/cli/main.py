@@ -9,6 +9,7 @@ Commands:
 from __future__ import annotations
 
 import asyncio
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -59,8 +60,11 @@ def run(
     script_path: Path = typer.Argument(..., help="Path to Python script to execute"),
     timeout: float = typer.Option(5.0, "--timeout", "-t", help="Timeout in seconds"),
     auto_apply: bool = typer.Option(False, "--apply", "-y", help="Automatically apply verified fix"),
+    provider: str = typer.Option("auto", "--provider", "-p", help="Inference provider: auto, ollama, hf, openai, heuristic"),
 ) -> None:
     """Executes Python script safely; synthesizes and verifies fixes upon failure."""
+    if provider != "auto":
+        os.environ["BUGWHISPER_PROVIDER"] = provider
     if not script_path.exists():
         console.print(f"[red]Error:[/red] File '{script_path}' does not exist.")
         raise typer.Exit(code=1)
@@ -160,6 +164,18 @@ def model(
         console.print("  1. Install & start Ollama: https://ollama.com")
         console.print("  2. Pull model: [cyan]ollama run qwen2.5-coder:3b[/cyan]")
         console.print("  3. (Optional) Create fine-tuned profile: [cyan]ollama create bug-whisper -f Modelfile[/cyan]")
+
+    console.print("\n[bold]Hugging Face Hub Integration:[/bold]")
+    try:
+        import huggingface_hub
+        hf_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN")
+        token_badge = "[green]Configured[/green]" if hf_token else "[dim]Optional (serverless)[/dim]"
+        console.print(f"  • huggingface_hub: [green]v{huggingface_hub.__version__}[/green]")
+        console.print(f"  • Target Model: [cyan]pernavjain/bug-whisper-qwen25-coder-3b[/cyan]")
+        console.print(f"  • Auth Token: {token_badge}")
+        console.print("  • Run with HF provider: [cyan]bugwhisper run script.py --provider hf[/cyan]")
+    except ImportError:
+        console.print("  • huggingface_hub: [yellow]Not installed[/yellow] (run: pip install -r requirements.txt)")
 
 
 if __name__ == "__main__":

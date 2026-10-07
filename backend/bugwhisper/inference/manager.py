@@ -11,6 +11,7 @@ from typing import AsyncIterator, Optional
 
 from .base import InferenceProvider, InferenceResult
 from .heuristic_provider import HeuristicProvider
+from .hf_provider import HuggingFaceProvider
 from .ollama_provider import OllamaProvider
 from .openai_provider import OpenAIProvider
 
@@ -66,6 +67,12 @@ def get_default_inference_manager() -> InferenceManager:
             base_url=os.getenv("OPENAI_BASE_URL", "http://localhost:8000/v1"),
             model_name=os.getenv("OPENAI_MODEL", "bug-whisper-qwen25-coder-3b"),
             api_key=os.getenv("OPENAI_API_KEY") or None,
+        )
+    elif provider_type in ("huggingface", "hf", "transformers"):
+        primary = HuggingFaceProvider(
+            model_name=os.getenv("HF_MODEL", "pernavjain/bug-whisper-qwen25-coder-3b"),
+            token=os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN") or None,
+            use_local=os.getenv("HF_LOCAL", "").lower() in ("true", "1", "yes"),
         )
     elif provider_type == "heuristic":
         primary = HeuristicProvider()
