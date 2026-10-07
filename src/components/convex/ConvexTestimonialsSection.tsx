@@ -1,119 +1,144 @@
 import React from 'react';
 
-interface TweetCard {
+interface Tweet {
   name: string;
   handle: string;
   avatarText: string;
-  text: string;
+  body: string;
 }
 
-export const ConvexTestimonialsSection: React.FC = () => {
-  const tweets: TweetCard[] = [
-    {
-      name: 'crubetan',
-      handle: '@crubetan',
-      avatarText: 'CB',
-      text: 'I used @convex once to make sure our integration at @ClerkDev worked and the docs matched what we expected. It\'s magical. I don\'t say that lightly. I think it\'s time to do a video on the channel.',
-    },
-    {
-      name: 'Jason Lengstorf',
-      handle: '@jlengstorf',
-      avatarText: 'JL',
-      text: '• DB schema defined in TS -> end to end types (like if tRPC also set up your DB) • Real-time updates "just work"',
-    },
-    {
-      name: 'Anshuman Bhardwaj',
-      handle: '@anshuman_bhardwaj',
-      avatarText: 'AB',
-      text: 'Interesting tool of the week: convex.dev by @convex. Makes it easy to build a live-updating web app with a document database. Strictly-typed fully relational schemas defined in code.',
-    },
-    {
-      name: 'David Kim',
-      handle: '@davidk_dev',
-      avatarText: 'DK',
-      text: '@convex feels like what I wanted Firebase and MongoDB Realm to be and more. Really enjoying the DX so far.',
-    },
-    {
-      name: 'Guillermo Rauch',
-      handle: '@rauchg',
-      avatarText: 'GR',
-      text: '@convex is the gift that keeps on giving. Check it out in combination with @nextjs docs.convex.dev',
-    },
-    {
-      name: 'v0',
-      handle: '@v0',
-      avatarText: 'V0',
-      text: 'Next + Convex (all in TypeScript) · Angular (typescript) + Django (python) + Postgres + S3 + Webworker DX + POJO + DI + type safety',
-    },
-    {
-      name: 'James Perkins',
-      handle: '@james_perkins',
-      avatarText: 'JP',
-      text: '@convex is everything I wanted Firebase to be. Such a great tool. Feel\'s illegal to know about this before others.',
-    },
-    {
-      name: 'Timothy Broder',
-      handle: '@timothybroder',
-      avatarText: 'TB',
-      text: 'I think @convex might be the best DB I\'ve ever used.',
-    },
-    {
-      name: 'WebDevCody',
-      handle: '@webdevcody',
-      avatarText: 'WC',
-      text: '@convex Simple, Fast, Realtime.',
-    },
-  ];
+const COL1: Tweet[] = [
+  {
+    name: 'urubatan',
+    handle: '@urubatan',
+    avatarText: 'UR',
+    body: 'But it looks like all our backend needs are covered with zero infra maintenance.',
+  },
+  {
+    name: 'James Perkins',
+    handle: '@james_r_perkins',
+    avatarText: 'JP',
+    body: "I used @convex once to make sure our integration at @ClerkDev worked and the docs matched what we expected. It's magical. I don't say that lightly. I think it's time to do a video on the channel.",
+  },
+  {
+    name: 'Timothy Stepro',
+    handle: '@tim_stepro',
+    avatarText: 'TS',
+    body: '@convex is everything I wanted Firebase to be. Such a great tool. Feels illegal to know about this before others.',
+  },
+  {
+    name: 'Robin',
+    handle: '@robinxpfp',
+    avatarText: 'RO',
+    body: "I think @convex might be the best DB I've ever used",
+  },
+];
 
+const COL2: Tweet[] = [
+  {
+    name: 'Jason Lengstorf',
+    handle: '@jlengstorf',
+    avatarText: 'JL',
+    body: '- DB schema defined in TS - end-to-end types (like if tRPC also set up your DB) - real-time updates Just Work™',
+  },
+  {
+    name: 'David Kim',
+    handle: '@dvddkkim',
+    avatarText: 'DK',
+    body: '@convex feels like what I wanted Firebase and MongoDB Realm to be and more. Really enjoying the DX so far!',
+  },
+  {
+    name: 'Guillermo Rauch',
+    handle: '@rauchg',
+    avatarText: 'GR',
+    body: '🤠 @convex is the gift that keeps on giving. Check it out in combination with @nextjs docs.convex.dev',
+  },
+  {
+    name: 'Clerk Dev',
+    handle: '@clerkdev',
+    avatarText: 'CD',
+    body: "Happy to see more first-class clerk x convex integration. There's such a major architecture shift around Serverless + Edge + React + Typescript that it's unlikely SQL is still the right abstraction.",
+  },
+];
+
+const COL3: Tweet[] = [
+  {
+    name: 'Anshuman Bhardwaj',
+    handle: '@sun_anshuman',
+    avatarText: 'AB',
+    body: 'Interesting tool of the week: convex.dev by @convex. Strictly-typed fully relational schemas defined in code.',
+  },
+  {
+    name: 'Console - Devtools',
+    handle: '@consoledotdev',
+    avatarText: 'CO',
+    body: 'We like: Makes it easy to build a live-updating web app with a document database. Strictly-typed relational schemas defined in code (optional, but recommended).',
+  },
+  {
+    name: 'WebDevCody',
+    handle: '@webdevcody',
+    avatarText: 'WC',
+    body: 'Next + Convex (all in typescript) Vs Angular (typescript) + Django (python) + Postgres + S3 + Websocket DIY + SQS + IaC + DIY e2e type safety 🤔',
+  },
+  {
+    name: 'AndyOz',
+    handle: '@andy_austin_dev',
+    avatarText: 'AO',
+    body: '@convex Simple. Fast. Realtime.',
+  },
+];
+
+export const ConvexTestimonialsSection: React.FC = () => {
   return (
-    <section className="w-full bg-[#f6f6f6] py-20 px-6 border-b border-[#e5e5e5] select-none">
-      <div className="max-w-[1240px] mx-auto flex flex-col items-center">
-        
-        {/* Eyebrow */}
-        <div className="inline-flex items-center px-3 py-1 rounded bg-[#ffffff] border border-[#e5e5e5] mb-4">
-          <span className="text-[11px] font-mono uppercase tracking-[0.05em] text-[#6d6d70] font-medium">
-            Customer Love
+    <section className="w-full px-3 sm:px-6 py-16 select-none bg-[#eeede4]">
+      {/* Eyebrow & Title */}
+      <div className="max-w-[1460px] mx-auto flex flex-col items-center text-center mb-10">
+        <div className="inline-flex items-center px-3 py-0.5 rounded-[4px] border border-[#cfc9bc] bg-[#eae7dc] mb-4">
+          <span className="text-[11px] font-mono uppercase tracking-[0.05em] text-[#63665c] font-semibold">
+            CUSTOMER LOVE
           </span>
         </div>
 
-        {/* Heading */}
-        <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#141414] tracking-[-0.025em] text-center">
+        <h2 className="text-4xl sm:text-5xl lg:text-[52px] font-bold text-[#141414] tracking-[-0.035em]">
           Loved by developers
         </h2>
 
-        {/* Subhead */}
-        <p className="mt-3 text-base text-[#4f4f52] text-center max-w-xl font-normal leading-relaxed">
+        <p className="mt-3 text-base sm:text-lg text-[#55584e] max-w-xl font-normal">
           What people building their business on Convex are saying.
         </p>
+      </div>
 
-        {/* 3-Column Masonry Grid of Tweets (Video Frame 00:07 - 00:10) */}
-        <div className="mt-14 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {tweets.map((t) => (
-            <div
-              key={t.handle}
-              className="p-5 rounded-xl bg-[#141414] border border-[#38383a] flex flex-col justify-between hover:border-[#4f4f52] transition-colors"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-[#292929] border border-[#38383a] flex items-center justify-center text-white font-mono text-xs font-bold">
-                  {t.avatarText}
+      {/* Dark Giant Card housing 3-Column Masonry Tweets */}
+      <div className="max-w-[1460px] mx-auto bg-[#1c1e19] border border-[#2d3128] rounded-[28px] p-6 sm:p-8 lg:p-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {[COL1, COL2, COL3].map((col, colIdx) => (
+            <div key={colIdx} className="flex flex-col gap-4">
+              {col.map((t) => (
+                <div
+                  key={t.handle}
+                  className="p-5 rounded-xl bg-[#232620] border border-[#33372c] hover:border-[#4d5343] transition-colors flex flex-col justify-between"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-[#34392d] border border-[#484e3e] flex items-center justify-center text-white font-mono text-xs font-bold">
+                      {t.avatarText}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-white leading-tight">
+                        {t.name}
+                      </span>
+                      <span className="text-xs font-mono text-[#8a9082]">
+                        {t.handle}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs sm:text-[13px] text-[#cfd3c7] leading-relaxed font-sans">
+                    {t.body}
+                  </p>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-white leading-tight">
-                    {t.name}
-                  </span>
-                  <span className="text-xs font-mono text-[#6d6d70]">
-                    {t.handle}
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-xs sm:text-[13px] text-[#cccccc] leading-relaxed font-sans">
-                {t.text}
-              </p>
+              ))}
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

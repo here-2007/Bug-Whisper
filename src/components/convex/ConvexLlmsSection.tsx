@@ -1,66 +1,77 @@
 import React from 'react';
+import { CONVEX_GLYPHS } from '../../constants/convexGlyphs';
 
 export const ConvexLlmsSection: React.FC = () => {
-  // Exact 8-bit pixel glyph matrix from Convex video Frame 00:02 - 00:03
-  const matrixRows = [
-    ['#292929', '#292929', '', '#292929', '', '#de5d33', '#292929', '', '', '#292929', '#292929', ''],
-    ['#292929', '', '#292929', '', '#292929', '#292929', '', '#69bee2', '', '#292929', '', '#292929'],
-    ['', '#292929', '#292929', '', '#292929', '', '#292929', '#292929', '', '', '#7bd88f', '#292929'],
-    ['#292929', '#292929', '', '#de5d33', '', '#292929', '#292929', '', '#292929', '#292929', '#292929', ''],
-    ['', '#69bee2', '#292929', '#292929', '', '', '#292929', '#292929', '#de5d33', '', '#292929', '#292929'],
-    ['#292929', '', '', '#292929', '#292929', '', '#69bee2', '', '#292929', '#292929', '', '#7bd88f'],
-    ['#292929', '#292929', '', '', '#292929', '#292929', '', '#292929', '', '#292929', '#292929', ''],
-  ];
-
   return (
-    <section className="w-full bg-[#f6f6f6] py-20 px-6 border-b border-[#e5e5e5] select-none">
-      <div className="max-w-[1240px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        
-        {/* Left Column: Eyebrow, Heading, Body, CTA */}
+    <section className="w-full py-20 lg:py-28 px-6 select-none bg-[#eeede4]">
+      <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        {/* Left Column: AI TOOLS Headline & Story */}
         <div className="lg:col-span-5 flex flex-col gap-6">
-          <div className="inline-flex items-center px-2.5 py-1 rounded bg-[#ffffff] border border-[#e5e5e5] w-fit">
-            <span className="text-[11px] font-mono uppercase tracking-[0.05em] text-[#6d6d70] font-medium">
-              AI + Tools
+          <div className="inline-flex items-center px-2.5 py-0.5 rounded-[4px] border border-[#cfc9bc] bg-[#eae7dc] w-fit">
+            <span className="text-[11px] font-mono uppercase tracking-[0.05em] text-[#63665c] font-semibold">
+              AI TOOLS
             </span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#141414] tracking-[-0.025em] leading-[1.1]">
+          <h2 className="text-4xl sm:text-5xl lg:text-[52px] font-bold text-[#141414] tracking-[-0.035em] leading-[1.08]">
             LLMs love Convex
           </h2>
 
-          <p className="text-base text-[#4f4f52] leading-relaxed font-normal">
+          <p className="text-base sm:text-lg text-[#55584e] leading-relaxed font-normal max-w-lg">
             With Convex, everything is just TypeScript. This means your favorite AI tools are pre-equipped to generate high quality code.
           </p>
 
           <div className="pt-2">
             <button
               type="button"
-              className="inline-flex items-center px-5 py-2.5 rounded-lg bg-[#141414] hover:bg-[#292929] text-[#ffffff] font-medium text-sm transition-colors cursor-pointer"
+              className="inline-flex items-center px-6 py-2.5 rounded-full bg-[#20221e] hover:bg-[#2e3129] text-white font-medium text-xs sm:text-sm transition-colors cursor-pointer"
             >
               Learn more
             </button>
           </div>
         </div>
 
-        {/* Right Column: 8-Bit Pixel Glyph Matrix Canvas */}
+        {/* Right Column: 8-Bit Pixel Glyph Matrix on Ruled Paper Grid */}
         <div className="lg:col-span-7 flex justify-center">
-          <div className="w-full bg-[#eaeaea] p-8 sm:p-12 rounded-2xl border border-[#e5e5e5] flex flex-col items-center justify-center min-h-[320px]">
-            <div className="grid grid-rows-7 gap-2.5">
-              {matrixRows.map((row, rIdx) => (
-                <div key={rIdx} className="flex gap-2.5">
-                  {row.map((color, cIdx) => (
-                    <div
-                      key={cIdx}
-                      style={{ backgroundColor: color || 'transparent' }}
-                      className="w-5 h-5 sm:w-7 sm:h-7 rounded-[4px] transition-all duration-300"
-                    />
+          <div
+            className="w-full max-w-[620px] p-8 sm:p-12 rounded-[22px] border border-[#dfdacd] bg-[#f2f1ea] relative overflow-hidden"
+            style={{
+              backgroundImage:
+                'linear-gradient(#e4e0d4 1px, transparent 1px), linear-gradient(90deg, #e4e0d4 1px, transparent 1px)',
+              backgroundSize: '24px 24px',
+            }}
+          >
+            {/* Floating accent pixels */}
+            <div className="absolute top-6 right-16 w-6 h-3 bg-[#c88d72] rounded-xs opacity-75" />
+            <div className="absolute top-20 right-8 w-4 h-2 bg-[#dcd8cb] rounded-xs" />
+            <div className="absolute bottom-16 right-12 w-6 h-3 bg-[#75503e] rounded-xs opacity-80" />
+            <div className="absolute bottom-28 right-20 w-6 h-3 bg-[#8b9cb5] rounded-xs opacity-75" />
+
+            {/* 3x3 Matrix of Glyphs */}
+            <div className="grid grid-cols-3 gap-8 sm:gap-12 relative z-10 w-fit">
+              {CONVEX_GLYPHS.map((glyph, gIdx) => (
+                <div key={gIdx} className="flex flex-col gap-[3px]">
+                  {glyph.map((row, rIdx) => (
+                    <div key={rIdx} className="flex gap-[3px]">
+                      {row.map((val, cIdx) => (
+                        <div
+                          key={cIdx}
+                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-[1.5px] transition-transform ${
+                            val === 1
+                              ? 'bg-[#20221e]'
+                              : val === 2
+                              ? 'bg-[#de5d33]'
+                              : 'bg-transparent'
+                          }`}
+                        />
+                      ))}
+                    </div>
                   ))}
                 </div>
               ))}
             </div>
           </div>
         </div>
-
       </div>
     </section>
   );

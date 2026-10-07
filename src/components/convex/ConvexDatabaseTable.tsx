@@ -7,46 +7,75 @@ interface ConvexDatabaseTableProps {
 
 export const ConvexDatabaseTable: React.FC<ConvexDatabaseTableProps> = ({ todos }) => {
   return (
-    <div className="p-4 bg-[#141414] flex flex-col justify-between select-none overflow-x-auto">
-      {/* Header Bar */}
-      <div className="flex items-center justify-between text-xs font-mono text-[#6d6d70] pb-2 mb-2 border-b border-[#38383a]/60">
-        <span className="text-[#a9a9ac]">dashboard.convex.dev</span>
-        <span className="text-[11px] text-[#6d6d70]">
-          todos Database table with {todos.length} documents
-        </span>
+    <div className="bg-[#181a16] rounded-xl border border-[#2e3128] overflow-hidden flex flex-col select-none">
+      {/* Header Bar with Convex Logo */}
+      <div className="h-9 bg-[#20231d] border-b border-[#2e3128] px-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#3d4135]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#3d4135]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#3d4135]" />
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-0.5 rounded bg-[#121410] border border-[#282c22] text-[11px] font-mono text-[#8a9082]">
+          <span className="w-2 h-2 rounded-full bg-[#de5d33]" />
+          <span>dashboard.convex.dev</span>
+        </div>
+        <div className="w-6" />
       </div>
 
-      {/* Table Content */}
-      <div className="w-full text-[11px] font-mono">
-        <div className="grid grid-cols-12 text-[#6d6d70] border-b border-[#38383a]/40 pb-1 mb-1.5 font-medium">
-          <span className="col-span-2">_id</span>
-          <span className="col-span-4">text</span>
-          <span className="col-span-2">category</span>
-          <span className="col-span-2">completed</span>
-          <span className="col-span-2 text-right">_creationTime</span>
+      {/* Content */}
+      <div className="p-4 flex flex-col flex-1">
+        {/* Table Description */}
+        <div className="flex items-baseline gap-2 mb-3 font-mono">
+          <span className="text-xs font-bold text-white">todos</span>
+          <span className="text-[11px] text-[#787e70]">
+            database table with {todos.length} documents
+          </span>
         </div>
 
-        <div className="space-y-1">
-          {todos.slice(0, 4).map((todo) => (
-            <div
-              key={todo.id}
-              className="grid grid-cols-12 text-[#e5e5e5] items-center py-0.5 hover:bg-[#292929]/40 rounded transition-colors"
-            >
-              <span className="col-span-2 text-[#6d6d70] truncate">{todo.id}</span>
-              <span className="col-span-4 text-white truncate">{todo.text}</span>
-              <span className="col-span-2 text-[#948ae3]">'{todo.category}'</span>
-              <span
-                className={`col-span-2 font-semibold ${
-                  todo.completed ? 'text-[#7bd88f]' : 'text-[#fc618d]'
-                }`}
+        {/* Table View */}
+        <div className="w-full text-[11px] font-mono overflow-x-auto">
+          {/* Table Header */}
+          <div className="grid grid-cols-12 text-[#64685b] pb-2 border-b border-[#282c22] font-medium">
+            <span className="col-span-3">_id</span>
+            <span className="col-span-3">text</span>
+            <span className="col-span-2">category</span>
+            <span className="col-span-2">completed</span>
+            <span className="col-span-2 text-right">_creationTime</span>
+          </div>
+
+          {/* Table Rows */}
+          <div className="divide-y divide-[#23261f]">
+            {todos.slice(0, 3).map((todo, idx) => (
+              <div
+                key={todo.id}
+                className="grid grid-cols-12 items-center py-2 text-[#d6dad0] hover:bg-[#1f221c] transition-colors"
               >
-                {String(todo.completed)}
-              </span>
-              <span className="col-span-2 text-right text-[#6d6d70] truncate text-[10px]">
-                {todo.creationTime.split(',')[0]}
-              </span>
-            </div>
-          ))}
+                <span className="col-span-3 text-[#787e70] truncate">{todo.shortId}</span>
+                <span className="col-span-3 text-white truncate">&quot;{todo.text.slice(0, 7)}...&quot;</span>
+                <span className="col-span-2">
+                  <span
+                    className={`px-1.5 py-0.5 rounded text-[10px] ${
+                      idx === 0
+                        ? 'border border-[#386c47] bg-[#172c1c] text-[#80dc96]'
+                        : 'text-[#8a9082]'
+                    }`}
+                  >
+                    &quot;{todo.category}&quot;
+                  </span>
+                </span>
+                <span
+                  className={`col-span-2 font-semibold ${
+                    todo.completed ? 'text-[#7bd88f]' : 'text-[#8a9082]'
+                  }`}
+                >
+                  {String(todo.completed)}
+                </span>
+                <span className="col-span-2 text-right text-[#64685b] truncate">
+                  4/30/202...
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

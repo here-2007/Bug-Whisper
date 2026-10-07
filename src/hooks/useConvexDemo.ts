@@ -2,31 +2,35 @@ import { useState, useCallback } from 'react';
 
 export interface ConvexTodo {
   id: string;
+  shortId: string;
   text: string;
-  category: 'Chores' | 'Work' | 'Personal';
+  category: 'Other' | 'Work' | 'Chores';
   completed: boolean;
   creationTime: string;
 }
 
 const INITIAL_TODOS: ConvexTodo[] = [
   {
-    id: 'k5707e78',
+    id: '24svfualb9824n',
+    shortId: '24svfualb...',
     text: 'Play basketball',
-    category: 'Work',
+    category: 'Other',
     completed: false,
     creationTime: '4/30/2024, 4:51:30 PM',
   },
   {
-    id: '2bs54k89',
-    text: 'Talk to Vlad',
-    category: 'Chores',
-    completed: true,
+    id: '24vhbkoeg1942m',
+    shortId: '24vhbkoeg...',
+    text: 'Talk to my boss',
+    category: 'Work',
+    completed: false,
     creationTime: '4/30/2024, 4:49:12 PM',
   },
   {
-    id: '3km91p42',
+    id: '24oajmofc8311k',
+    shortId: '24oajmofc...',
     text: 'Buy groceries',
-    category: 'Personal',
+    category: 'Chores',
     completed: false,
     creationTime: '4/30/2024, 4:32:05 PM',
   },
@@ -58,12 +62,14 @@ export function useConvexDemo() {
 
   const addTodo = useCallback((text: string) => {
     if (!text.trim()) return;
+    const rawId = Math.random().toString(36).substring(2, 12);
     const newTodo: ConvexTodo = {
-      id: Math.random().toString(36).substring(2, 10),
+      id: rawId,
+      shortId: `${rawId.substring(0, 9)}...`,
       text: text.trim(),
-      category: 'Work',
+      category: 'Other',
       completed: false,
-      creationTime: new Date().toLocaleString(),
+      creationTime: '4/30/2024, 4:55:00 PM',
     };
     setTodos((prev) => [newTodo, ...prev]);
   }, []);

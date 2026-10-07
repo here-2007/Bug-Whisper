@@ -1,62 +1,86 @@
 import React from 'react';
 
+// Authentic 8-bit Pixel Heart from Video Frame 11s
+const PixelHeart: React.FC = () => (
+  <span className="inline-grid grid-cols-7 gap-[2px] w-[22px] h-[18px] mx-2 align-middle">
+    <span className="col-start-2 bg-[#de5d33]" />
+    <span className="bg-[#de5d33]" />
+    <span className="col-start-5 bg-[#de5d33]" />
+    <span className="bg-[#de5d33]" />
+    <span className="col-span-7 bg-[#de5d33] h-[3px]" />
+    <span className="col-span-7 bg-[#de5d33] h-[3px]" />
+    <span className="col-start-2 col-span-5 bg-[#de5d33] h-[3px]" />
+    <span className="col-start-3 col-span-3 bg-[#de5d33] h-[3px]" />
+    <span className="col-start-4 bg-[#de5d33] h-[3px]" />
+  </span>
+);
+
+interface FrameworkItem {
+  name: string;
+  badge: string;
+  badgeColor: string;
+}
+
+const FRAMEWORKS: FrameworkItem[] = [
+  { name: 'React', badge: '⚛', badgeColor: 'text-[#61dafb]' },
+  { name: 'React Native', badge: '📱', badgeColor: 'text-[#61dafb]' },
+  { name: 'Python', badge: '🐍', badgeColor: 'text-[#3776ab]' },
+  { name: 'Next.js', badge: '▲', badgeColor: 'text-black' },
+  { name: 'TanStack Start', badge: '🌴', badgeColor: 'text-[#e53e3e]' },
+  { name: 'Rust', badge: '⚙', badgeColor: 'text-[#dea584]' },
+  { name: 'Remix', badge: '💿', badgeColor: 'text-black' },
+  { name: 'Vue', badge: '▲', badgeColor: 'text-[#42b883]' },
+  { name: 'Svelte', badge: '🔥', badgeColor: 'text-[#ff3e00]' },
+];
+
 export const ConvexFrameworksSection: React.FC = () => {
-  const frameworks = [
-    'React',
-    'React Native',
-    'Python',
-    'Remix',
-    'TanStack Start',
-    'Rust',
-    'Next.js',
-    'Vue',
-    'Svelte',
-  ];
-
   return (
-    <section className="w-full bg-[#f6f6f6] py-20 px-6 border-b border-[#e5e5e5] select-none">
-      <div className="max-w-[1240px] mx-auto flex flex-col items-center">
-        
-        {/* Eyebrow */}
-        <div className="inline-flex items-center px-3 py-1 rounded bg-[#ffffff] border border-[#e5e5e5] mb-4">
-          <span className="text-[11px] font-mono uppercase tracking-[0.05em] text-[#6d6d70] font-medium">
-            Integrations
-          </span>
-        </div>
+    <section className="w-full py-20 lg:py-28 px-6 select-none bg-[#eeede4]">
+      <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        {/* Left Column: Heading & CTAs */}
+        <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className="inline-flex items-center px-2.5 py-0.5 rounded-[4px] border border-[#cfc9bc] bg-[#eae7dc] w-fit">
+            <span className="text-[11px] font-mono uppercase tracking-[0.05em] text-[#63665c] font-semibold">
+              INTEGRATIONS
+            </span>
+          </div>
 
-        {/* Heading */}
-        <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#141414] tracking-[-0.025em] text-center">
-          Convex ❤️ your favorite frameworks
-        </h2>
+          <h2 className="text-4xl sm:text-5xl lg:text-[50px] font-bold text-[#141414] tracking-[-0.035em] leading-[1.1]">
+            Convex <PixelHeart /> your favorite frameworks
+          </h2>
 
-        {/* Subhead */}
-        <p className="mt-3 text-base text-[#4f4f52] text-center max-w-xl font-normal leading-relaxed">
-          Connect your backend to your client libraries and frameworks.
-        </p>
+          <p className="text-base sm:text-lg text-[#55584e] leading-relaxed font-normal max-w-lg">
+            Connect your backend to your client libraries and frameworks.
+          </p>
 
-        {/* Button */}
-        <div className="mt-6">
-          <button
-            type="button"
-            className="inline-flex items-center px-5 py-2.5 rounded-lg bg-[#141414] hover:bg-[#292929] text-white font-medium text-sm transition-colors cursor-pointer"
-          >
-            Learn more
-          </button>
-        </div>
-
-        {/* 9 Framework Cards Grid (Video Frame 00:11) */}
-        <div className="mt-14 w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
-          {frameworks.map((name) => (
-            <div
-              key={name}
-              className="p-5 rounded-xl bg-[#ffffff] border border-[#e5e5e5] hover:border-[#4f4f52] transition-colors flex items-center justify-between"
+          <div className="pt-2">
+            <button
+              type="button"
+              className="inline-flex items-center px-6 py-2.5 rounded-full bg-[#20221e] hover:bg-[#2e3129] text-white font-medium text-xs sm:text-sm transition-colors cursor-pointer"
             >
-              <span className="text-sm font-bold text-[#141414]">{name}</span>
-              <span className="w-2 h-2 rounded-full bg-[#7bd88f]" />
-            </div>
-          ))}
+              Learn more
+            </button>
+          </div>
         </div>
 
+        {/* Right Column: 3x3 Frameworks Grid */}
+        <div className="lg:col-span-7">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+            {FRAMEWORKS.map((fw) => (
+              <div
+                key={fw.name}
+                className="flex items-center gap-3.5 py-2 px-3 rounded-lg hover:bg-white/60 transition-colors cursor-pointer group"
+              >
+                <div className={`w-8 h-8 rounded-md bg-white border border-[#dfdacd] flex items-center justify-center text-sm font-bold shadow-none ${fw.badgeColor}`}>
+                  {fw.badge}
+                </div>
+                <span className="text-base font-semibold text-[#141414] group-hover:text-black">
+                  {fw.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -9,32 +9,31 @@ import { ConvexFooter } from './components/convex/ConvexFooter';
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#f6f6f6] flex flex-col text-[#141414] font-sans selection:bg-[#e5e5e5]">
-      {/* 1. Convex Top Navigation Bar */}
+    <div className="min-h-screen bg-[#eeede4] flex flex-col text-[#141414] font-sans selection:bg-[#dfdacd]">
+      {/* Sticky Top Nav (Activates smoothly on scroll) */}
       <ConvexNavbar />
 
-      {/* Main Page Flow Matching Reference Video */}
       <main className="flex-1 flex flex-col">
-        {/* 2. Hero Section + Interactive Workbench (Video 00:00 - 00:02) */}
+        {/* 1. Giant Olive Hero Card with In-Card Nav, Copy, and Terracotta Workbench (Video 00:00 - 00:02) */}
         <ConvexHero />
 
-        {/* 3. LLMs love Convex + Glyph Matrix (Video 00:02 - 00:03) */}
+        {/* 2. AI Tools: LLMs love Convex + 8-bit Glyph Matrix (Video 00:02 - 00:03) */}
         <ConvexLlmsSection />
 
-        {/* 4. Not just a database - Dusk Gradient & Isometric Blueprint (Video 00:04 - 00:06) */}
+        {/* 3. Product: Not just a database + Cyan CTA + Isometric 10 Badges (Video 00:04 - 00:06) */}
         <ConvexProductSection />
 
-        {/* 5. Loved by developers - 3-Column Tweet Grid (Video 00:07 - 00:10) */}
+        {/* 4. Customer Love: Loved by developers + 3-Col Dark Tweet Masonry (Video 00:07 - 00:10) */}
         <ConvexTestimonialsSection />
 
-        {/* 6. Convex ❤️ your favorite frameworks (Video 00:11) */}
+        {/* 5. Integrations: Convex ❤️ your favorite frameworks (Video 00:11) */}
         <ConvexFrameworksSection />
 
-        {/* 7. Pre-Footer Dark Grid Banner (Video 00:12 - 00:13) */}
+        {/* 6. Pre-Footer: Dark Grid Banner + Copper Brackets (Video 00:12 - 00:13) */}
         <ConvexPreFooter />
       </main>
 
-      {/* 8. Convex 4-Column Footer (Video 00:13) */}
+      {/* 7. Footer: 4-Column Deep Black Footer (Video 00:13 - 00:14) */}
       <ConvexFooter />
     </div>
   );
