@@ -49,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Section Navigation Anchors */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-text">
+        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-text">
           <a
             href="#studio"
             className="hover:text-ink-black transition-colors"
@@ -57,16 +57,28 @@ export const Navbar: React.FC<NavbarProps> = ({
             Studio
           </a>
           <a
-            href="#benchmarks"
+            href="#ai-tools"
             className="hover:text-ink-black transition-colors"
           >
-            Benchmarks
+            AI + Tools
           </a>
           <a
             href="#architecture"
             className="hover:text-ink-black transition-colors"
           >
             Architecture
+          </a>
+          <a
+            href="#community"
+            className="hover:text-ink-black transition-colors"
+          >
+            Community
+          </a>
+          <a
+            href="#integrations"
+            className="hover:text-ink-black transition-colors"
+          >
+            Integrations
           </a>
           <a
             href="#faq"
@@ -77,24 +89,15 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
       </div>
 
-      {/* Right: Model Pill, Backend Pill, GitHub Stars, Settings */}
-      <div className="flex items-center gap-2.5">
-        {/* Model Badge Pill */}
-        <div
-          className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-charcoal-surface border border-graphite-border text-ash-text text-xs font-mono"
-          title="Fine-tuned bug-whisper-qwen25-coder-3b"
-        >
-          <span className="w-2 h-2 rounded-full bg-mint-green animate-pulse" />
-          <span className="text-[#e5e5e5] font-medium">Qwen 2.5 Coder 3B · 4bit-bnb</span>
-        </div>
-
+      {/* Right: GitHub Stars, Kaggle Pill, Start Repairing CTA, Settings */}
+      <div className="flex items-center gap-3">
         {/* Active Backend Indicator Pill */}
         <div
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cream-surface border border-mist-divider text-xs font-mono text-slate-text"
+          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-cream-surface border border-mist-divider text-xs font-mono text-slate-text"
           title={`Active Inference Provider: ${providerLabel}`}
         >
           <Cpu className="w-3.5 h-3.5 text-fog-text" />
-          <span className="hidden sm:inline text-fog-text">Backend:</span>
+          <span className="hidden md:inline text-fog-text">Backend:</span>
           <span className="font-semibold text-ink-black">{providerLabel}</span>
         </div>
 
@@ -103,7 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           href="https://github.com/harshitxdev"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-paper-white hover:bg-cream-surface border border-mist-divider text-xs font-mono text-ink-black transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-paper-white hover:bg-cream-surface border border-mist-divider text-xs font-mono text-ink-black transition-colors"
           title="View on GitHub"
         >
           <GithubIcon className="w-3.5 h-3.5 text-ink-black" />
@@ -112,29 +115,38 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="font-medium">2,480</span>
         </a>
 
-        {/* Kaggle Link */}
+        {/* Ghost CTA: Kaggle */}
         <a
           href="https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-paper-white hover:bg-cream-surface border border-mist-divider text-xs font-medium text-slate-text hover:text-ink-black transition-colors"
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-paper-white hover:bg-cream-surface border border-mist-divider text-xs font-medium text-slate-text hover:text-ink-black transition-colors"
           title="View fine-tuned weights on Kaggle Models"
         >
           <span>Kaggle</span>
           <ExternalLink className="w-3 h-3 text-fog-text" />
         </a>
 
+        {/* Filled Dark CTA: Start Repairing */}
+        <a
+          href="#studio"
+          className="hidden sm:inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg bg-ink-black hover:bg-[#292929] text-paper-white text-xs font-medium transition-colors"
+        >
+          Start repairing
+        </a>
+
         {/* Settings Drawer Toggle */}
         <button
           type="button"
           onClick={onOpenSettings}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-paper-white hover:bg-cream-surface border border-mist-divider text-xs font-medium text-ink-black transition-colors cursor-pointer"
+          className="flex items-center justify-center w-8 h-8 rounded-lg bg-paper-white hover:bg-cream-surface border border-mist-divider text-slate-text hover:text-ink-black transition-colors cursor-pointer"
           aria-label="Open Inference Settings"
+          title="Inference Settings"
         >
           <SlidersHorizontal className="w-3.5 h-3.5 text-fog-text" />
-          <span className="hidden sm:inline">Settings</span>
         </button>
       </div>
     </header>
   );
 };
+

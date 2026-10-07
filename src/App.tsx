@@ -1,14 +1,17 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Navbar } from './components/Navbar';
-import { HeroSection } from './components/HeroSection';
+import { HeroWorkbench } from './components/HeroWorkbench';
+import { LlmsLoveSection } from './components/LlmsLoveSection';
+import { ArchitectureBlueprintSection } from './components/ArchitectureBlueprintSection';
+import { BenchmarkDashboard } from './components/BenchmarkDashboard';
+import { TestimonialsSection } from './components/TestimonialsSection';
+import { IntegrationsSection } from './components/IntegrationsSection';
 import { BugPresetsStrip } from './components/BugPresetsStrip';
 import { CodeEditor } from './components/CodeEditor';
 import { DiffViewer } from './components/DiffViewer';
 import { TerminalDrawer } from './components/TerminalDrawer';
-import { BenchmarkDashboard } from './components/BenchmarkDashboard';
-import { DuskShowcase } from './components/DuskShowcase';
-import { FeatureCards } from './components/FeatureCards';
 import { FaqSection } from './components/FaqSection';
+import { PreFooterBanner } from './components/PreFooterBanner';
 import { Footer } from './components/Footer';
 import { SettingsDrawer } from './components/SettingsDrawer';
 import { useSettings } from './hooks/useSettings';
@@ -124,33 +127,59 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      {/* 2. Hero Section */}
-      <HeroSection onLaunchStudio={handleLaunchStudio} />
+      {/* 2. Convex Hero & Interactive Workbench (Video Frame 00:00 - 00:02) */}
+      <HeroWorkbench onOpenStudio={handleLaunchStudio} />
 
-      {/* 3. Preset Bug Selector Strip */}
-      <div id="studio" className="scroll-mt-16">
-        <BugPresetsStrip
-          activePresetId={activePreset?.id ?? null}
-          onSelectPreset={handleSelectPreset}
-        />
+      {/* 3. LLMs love Bug Whisper (Video Frame 00:02 - 00:03) */}
+      <LlmsLoveSection />
+
+      {/* 4. Architecture Blueprint (Video Frame 00:04 - 00:06) */}
+      <ArchitectureBlueprintSection />
+
+      {/* 5. Empirical Benchmark Dashboard (Convex Component 142) */}
+      <div id="benchmarks" className="scroll-mt-16">
+        <BenchmarkDashboard />
       </div>
 
-      {/* 4. Primary Studio Workspace */}
-      <section className="w-full bg-cream-surface py-8 px-6 border-b border-mist-divider">
-        <div className="max-w-[1200px] w-full mx-auto flex flex-col gap-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+      {/* 6. Loved by Developers - Testimonial Grid (Video Frame 00:07 - 00:10) */}
+      <TestimonialsSection />
+
+      {/* 7. Ecosystem Integrations (Video Frame 00:11) */}
+      <IntegrationsSection />
+
+      {/* 8. Full Interactive Monaco Studio Section */}
+      <section id="studio" className="w-full bg-cream-surface py-16 px-6 border-b border-mist-divider scroll-mt-16">
+        <div className="max-w-[1240px] w-full mx-auto flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-mint-green" />
-              <h2 className="text-xl font-bold text-ink-black tracking-tight">
-                Interactive Debugging Studio
-              </h2>
+              <span className="w-2.5 h-2.5 rounded-full bg-mint-green animate-pulse" />
+              <span className="text-xs font-mono uppercase tracking-wider text-fog-text">
+                Live Interactive Sandbox
+              </span>
             </div>
-            <span className="text-xs font-mono text-fog-text">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-paper-white border border-mist-divider text-ink-black font-semibold">Ctrl+Enter</kbd> to run in Pyodide Sandbox
-            </span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <h2 className="text-2xl sm:text-3xl font-bold text-ink-black tracking-tight">
+                Bug Whisper Interactive Studio
+              </h2>
+              <span className="text-xs font-mono text-fog-text">
+                Press <kbd className="px-1.5 py-0.5 rounded bg-paper-white border border-mist-divider text-ink-black font-semibold">Ctrl+Enter</kbd> to run in Pyodide Sandbox
+              </span>
+            </div>
+            <p className="text-sm text-slate-text max-w-2xl font-normal">
+              Execute Python client-side via WebAssembly, capture deterministic tracebacks, inspect synthetic repairs in side-by-side diff, and accept patches in one click.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[640px]">
+          {/* Preset Chips */}
+          <div className="pt-2">
+            <BugPresetsStrip
+              activePresetId={activePreset?.id ?? null}
+              onSelectPreset={handleSelectPreset}
+            />
+          </div>
+
+          {/* Studio Split: Left (Editor + Terminal) / Right (DiffViewer) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[640px] mt-2">
             {/* Left Panel: Python Code Editor + Terminal Drawer */}
             <div className="flex flex-col gap-5 min-h-[600px]">
               {/* Monaco Python Code Editor */}
@@ -200,25 +229,15 @@ export default function App() {
         </div>
       </section>
 
-      {/* 5. Empirical Benchmark Dashboard */}
-      <div id="benchmarks" className="scroll-mt-16">
-        <BenchmarkDashboard />
-      </div>
-
-      {/* 6. Dusk Gradient Architecture Banner */}
-      <div id="architecture" className="scroll-mt-16">
-        <DuskShowcase />
-      </div>
-
-      {/* 7. Engineering Principles Cards */}
-      <FeatureCards />
-
-      {/* 8. Technical FAQ Accordion */}
+      {/* 9. Technical FAQ Accordion */}
       <div id="faq" className="scroll-mt-16">
         <FaqSection />
       </div>
 
-      {/* 9. Convex Engineering Footer */}
+      {/* 10. Pre-Footer Dark Grid Banner (Video Frame 00:12 - 00:13) */}
+      <PreFooterBanner />
+
+      {/* 11. Convex Engineering Footer (Video Frame 00:13) */}
       <Footer />
 
       {/* Settings Modal Drawer */}

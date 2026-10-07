@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 
-const GithubIcon: React.FC<{ className?: string }> = ({ className = 'w-3 h-3' }) => (
+const GithubIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5 h-3.5' }) => (
   <svg
     viewBox="0 0 24 24"
     width="16"
@@ -20,54 +20,124 @@ const GithubIcon: React.FC<{ className?: string }> = ({ className = 'w-3 h-3' })
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="w-full bg-cream-surface py-12 px-6 border-t border-mist-divider select-none">
-      <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-base text-ink-black tracking-tight">
+    <footer className="w-full bg-[#111111] text-paper-white py-16 px-6 border-t border-graphite-border select-none">
+      <div className="max-w-[1240px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-10">
+        
+        {/* Left Column: Brand & Authors */}
+        <div className="md:col-span-4 flex flex-col gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-charcoal-surface border border-graphite-border flex items-center justify-center text-paper-white font-mono font-bold text-sm">
+              BW
+            </div>
+            <span className="font-bold text-lg text-paper-white tracking-[-0.025em]">
               Bug Whisper
             </span>
-            <span className="text-[10px] font-mono uppercase tracking-[0.05em] px-2 py-0.5 rounded bg-paper-white border border-mist-divider text-fog-text">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-charcoal-surface border border-graphite-border text-fog-text">
               v0.1.0-qwen3b
             </span>
           </div>
-          <p className="text-xs text-fog-text font-normal">
-            Deterministic runtime execution + fine-tuned code repair intelligence.
+
+          <p className="text-xs text-ash-text leading-relaxed font-normal max-w-sm">
+            Deterministic CPython AST validation meets fine-tuned Qwen 2.5 Coder 3B intelligence. Zero regressions, instant traceback healing.
           </p>
-          <p className="text-xs text-ash-text">
-            Created by <span className="text-slate-text font-medium">Harshit Sharma</span> &amp; <span className="text-slate-text font-medium">Pernav Jain</span>.
+
+          <p className="text-xs text-fog-text mt-2">
+            Created by{' '}
+            <span className="text-paper-white font-medium">Harshit Sharma</span>{' '}
+            &amp;{' '}
+            <span className="text-paper-white font-medium">Pernav Jain</span>.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-slate-text">
+        {/* Column 2: Product Links */}
+        <div className="md:col-span-2 flex flex-col gap-3 text-xs">
+          <span className="font-bold uppercase font-mono tracking-wider text-fog-text text-[11px]">
+            Product
+          </span>
+          <a href="#studio" className="text-ash-text hover:text-paper-white transition-colors">
+            Web Studio
+          </a>
+          <a href="#ai-tools" className="text-ash-text hover:text-paper-white transition-colors">
+            AI + Tools
+          </a>
+          <a href="#architecture" className="text-ash-text hover:text-paper-white transition-colors">
+            Architecture
+          </a>
+          <a href="#benchmarks" className="text-ash-text hover:text-paper-white transition-colors">
+            Benchmarks
+          </a>
+          <a href="#community" className="text-ash-text hover:text-paper-white transition-colors">
+            Community Love
+          </a>
+        </div>
+
+        {/* Column 3: Research & Model Links */}
+        <div className="md:col-span-3 flex flex-col gap-3 text-xs">
+          <span className="font-bold uppercase font-mono tracking-wider text-fog-text text-[11px]">
+            Research &amp; Datasets
+          </span>
           <a
             href="https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-ink-black transition-colors"
+            className="text-ash-text hover:text-paper-white transition-colors flex items-center gap-1"
           >
-            <span>Kaggle Model</span>
+            <span>Qwen 2.5 Coder 3B Weights</span>
             <ExternalLink className="w-3 h-3 text-fog-text" />
           </a>
           <a
             href="https://www.kaggle.com/datasets/pernavjain/python-errors"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-ink-black transition-colors"
+            className="text-ash-text hover:text-paper-white transition-colors flex items-center gap-1"
           >
-            <span>CommitPack Dataset</span>
+            <span>CommitPack Python Errors</span>
             <ExternalLink className="w-3 h-3 text-fog-text" />
           </a>
+          <span className="text-fog-text">
+            4-bit NF4 Quantization Pipeline
+          </span>
+          <span className="text-fog-text">
+            Pass@1 HumanEval Verification
+          </span>
+        </div>
+
+        {/* Column 4: Ecosystem & Social */}
+        <div className="md:col-span-3 flex flex-col gap-3 text-xs">
+          <span className="font-bold uppercase font-mono tracking-wider text-fog-text text-[11px]">
+            Developers
+          </span>
           <a
             href="https://github.com/harshitxdev"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-ink-black transition-colors"
+            className="text-ash-text hover:text-paper-white transition-colors flex items-center gap-1.5"
           >
-            <GithubIcon className="w-3 h-3 text-fog-text" />
-            <span>GitHub</span>
+            <GithubIcon className="w-3.5 h-3.5" />
+            <span>GitHub (@harshitxdev)</span>
           </a>
+          <a
+            href="https://www.kaggle.com/pernavjain"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ash-text hover:text-paper-white transition-colors flex items-center gap-1.5"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>Kaggle (@pernavjain)</span>
+          </a>
+          <span className="text-fog-text">
+            License: MIT Open Source
+          </span>
+          <span className="text-fog-text">
+            Pyodide v0.26 WebAssembly Runtime
+          </span>
         </div>
+
+      </div>
+
+      <div className="max-w-[1240px] mx-auto mt-12 pt-6 border-t border-graphite-border flex flex-col sm:flex-row items-center justify-between text-xs text-fog-text font-mono">
+        <span>&copy; {new Date().getFullYear()} Bug Whisper. All rights reserved.</span>
+        <span>Convex Technical Style · Zero Drop Shadows</span>
       </div>
     </footer>
   );
