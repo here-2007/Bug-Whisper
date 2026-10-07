@@ -113,5 +113,55 @@ def serve(
     uvicorn.run("bugwhisper.server.app:app", host=host, port=port, reload=reload)
 
 
+@app.command()
+def model(
+    show_modelfile: bool = typer.Option(False, "--modelfile", "-m", help="Display Ollama Modelfile definition"),
+) -> None:
+    """Inspects local model status and Ollama configuration."""
+    if show_modelfile:
+        modelfile_path = Path("Modelfile")
+        if modelfile_path.exists():
+            console.print(modelfile_path.read_text(encoding="utf-8"))
+        else:
+            console.print(
+                'FROM qwen2.5-coder:3b\nPARAMETER temperature 0.0\nPARAMETER num_predict 768\n'
+                'SYSTEM "You are an expert Python bug-fixing assistant. Fix all errors in the provided code and return only the corrected Python code."'
+            )
+        return
+
+    from bugwhisper.inference.ollama_provider import OllamaProvider, CANDIDATE_MODELS
+    provider = OllamaProvider()
+
+    loop = asyncio.new_event_loop()
+    pulled_models = loop.run_until_complete(provider.list_models())
+    loop.close()
+
+    if pulled_models:
+        console.print("[bold green]Local Ollama instance is active at http://localhost:11434[/bold green]")
+        console.print("Available models:")
+        has_recommended = False
+        for m in pulled_models:
+            is_candidate = any(c in m for c in CANDIDATE_MODELS)
+            if is_candidate:
+                has_recommended = True
+                console.print(f"  • [bold cyan]{m}[/bold cyan] [green](compatible with Bug Whisper)[/green]")
+            else:
+                console.print(f"  • {m}")
+
+        if not has_recommended:
+            console.print("\n[yellow]Recommended model not yet pulled.[/yellow]")
+            console.print("Run one of the following to activate neural repair:")
+            console.print("  ollama run qwen2.5-coder:3b")
+            console.print("  ollama create bug-whisper -f Modelfile")
+    else:
+        console.print("[yellow]Ollama is currently offline at http://localhost:11434[/yellow]")
+        console.print("[dim]Bug Whisper is operating in [bold green]Deterministic Heuristic Mode[/bold green] (zero weight / zero GPU needed).[/dim]\n")
+        console.print("[bold]To enable local neural code synthesis:[/bold]")
+        console.print("  1. Install & start Ollama: https://ollama.com")
+        console.print("  2. Pull model: [cyan]ollama run qwen2.5-coder:3b[/cyan]")
+        console.print("  3. (Optional) Create fine-tuned profile: [cyan]ollama create bug-whisper -f Modelfile[/cyan]")
+
+
 if __name__ == "__main__":
     app()
+

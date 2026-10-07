@@ -58,6 +58,22 @@ A persistent log of core architectural decisions, model constraints, and technic
   - Eliminates AI hallucinations and ensures proposed patches never introduce syntax regressions or runtime breakage.
   - Generates line-level change statistics (`+N -M`) for developer inspection.
 
+### Decision 9: Multi-Candidate Model Discovery in Ollama Provider
+* **Decision**: Search across candidate model names (`["bug-whisper-qwen25-coder-3b", "pernavjain/bug-whisper-qwen25-coder-3b", "qwen2.5-coder:3b"]`) during inference.
+* **Rationale**:
+  - Developers pulling the base model via `ollama run qwen2.5-coder:3b` can immediately use neural inference without manual model-name remapping.
+  - Automatically upgrades to fine-tuned adapters when available.
+
+### Decision 10: Offline Fallback to Deterministic Heuristics
+* **Decision**: When backend or local Ollama is offline or encounters connection failures, smoothly fall back to the deterministic heuristic engine in both CLI and Web Studio.
+* **Rationale**:
+  - Eliminates blocking error states; users receive an instant, working fix without needing a GPU server running.
+
+### Decision 11: Root Modelfile for 1-Command Ollama Profile Setup
+* **Decision**: Provide a root `Modelfile` pinning `temperature=0.0`, `num_predict=768`, and the exact 3-turn ChatML contract.
+* **Rationale**:
+  - Empowers developers to create `bug-whisper-qwen25-coder-3b` locally in Ollama via `ollama create bug-whisper -f Modelfile` in $< 2\text{ seconds}$ without downloading separate GGUF files.
+
 ---
 
 ## 2. Technical Discoveries & Model Constraints

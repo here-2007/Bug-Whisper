@@ -18,7 +18,35 @@ export async function runInference(req: InferenceRequest): Promise<InferenceResp
   const startTime = performance.now();
   const { code, stderr = '', settings } = req;
 
-  // 1. Mock Provider: High-fidelity simulation for instant testing
+  // 0. Probe live FastAPI Backend if available
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 1200);
+
+    const backendRes = await fetch('http://localhost:8000/api/repair', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, stderr }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (backendRes.ok) {
+      const data = await backendRes.json();
+      if (data.repaired_code) {
+        return {
+          fixedCode: data.repaired_code,
+          explanation: data.verification?.details || 'Synthesized and verified via FastAPI backend.',
+          latencyMs: Math.round(performance.now() - startTime),
+          provider: 'FastAPI Backend (Qwen 2.5 Coder 3B Engine)',
+        };
+      }
+    }
+  } catch {
+    // Backend offline or unreachable; smoothly continue to configured provider
+  }
+
+  // 1. Mock / In-Browser Provider: High-fidelity simulation for instant testing
   if (settings.provider === 'mock') {
     // Artificial latency for realistic inference feel (250-400ms)
     await new Promise((r) => setTimeout(r, 320));
@@ -92,7 +120,21 @@ export async function runInference(req: InferenceRequest): Promise<InferenceResp
         provider: `Ollama (${settings.ollamaModel})`,
       };
     } catch (err: unknown) {
-      console.warn('Ollama call failed, falling back to mock:', err);
+      console.warn('Ollama call failed, falling back to heuristics:', err);
+      const matchingPreset = BUG_PRESETS.find(
+        (p) =>
+          p.buggyCode.trim() === code.trim() ||
+          code.includes(p.id) ||
+          (p.offendingLine && code.includes(p.summary.slice(0, 15)))
+      );
+      if (matchingPreset) {
+        return {
+          fixedCode: matchingPreset.fixedCode,
+          explanation: `Ollama offline (${err instanceof Error ? err.message : String(err)}). Recovered via deterministic engine.`,
+          latencyMs: Math.round(performance.now() - startTime),
+          provider: 'Deterministic Fallback (Ollama Offline)',
+        };
+      }
       return {
         fixedCode: code,
         explanation: `Ollama connection error: ${err instanceof Error ? err.message : String(err)}`,

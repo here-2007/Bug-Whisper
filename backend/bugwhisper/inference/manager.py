@@ -6,6 +6,7 @@ Manages inference providers with seamless, deterministic fallback to the heurist
 from __future__ import annotations
 
 import logging
+import os
 from typing import AsyncIterator, Optional
 
 from .base import InferenceProvider, InferenceResult
@@ -57,8 +58,25 @@ class InferenceManager:
 
 
 def get_default_inference_manager() -> InferenceManager:
-    """Factory creating an InferenceManager with standard configuration."""
+    """Factory creating an InferenceManager with environment-aware configuration."""
+    provider_type = os.getenv("BUGWHISPER_PROVIDER", "ollama").lower()
+
+    if provider_type in ("openai", "vllm", "hosted"):
+        primary: InferenceProvider = OpenAIProvider(
+            base_url=os.getenv("OPENAI_BASE_URL", "http://localhost:8000/v1"),
+            model_name=os.getenv("OPENAI_MODEL", "bug-whisper-qwen25-coder-3b"),
+            api_key=os.getenv("OPENAI_API_KEY") or None,
+        )
+    elif provider_type == "heuristic":
+        primary = HeuristicProvider()
+    else:
+        primary = OllamaProvider(
+            base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+            model_name=os.getenv("OLLAMA_MODEL", "bug-whisper-qwen25-coder-3b"),
+        )
+
     return InferenceManager(
-        primary_provider=OllamaProvider(),
+        primary_provider=primary,
         fallback_provider=HeuristicProvider(),
     )
+

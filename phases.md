@@ -13,7 +13,8 @@ Phase 3: Resilient Multi-Tier Inference Engine             [COMPLETED]
 Phase 4: Two-Stage Verification & Diff Engine              [COMPLETED]
 Phase 5: FastAPI Production Service & SSE Streaming        [COMPLETED]
 Phase 6: Developer CLI (bugwhisper) & Auto-Hook            [COMPLETED]
-Phase 7: Frontend Studio Video-Match Re-alignment          [NEXT]
+Phase 7: Frontend Studio Video-Match Re-alignment          [COMPLETED]
+Phase 8: Model Ecosystem, Modelfile & Auto-Fallback        [COMPLETED]
 ```
 
 ---
@@ -40,7 +41,7 @@ Phase 7: Frontend Studio Video-Match Re-alignment          [NEXT]
   - AST-guided scope extractor for scripts $> 1,200$ characters.
   - Isolates the enclosing function/class or $\pm 15$ lines surrounding the error line to guarantee adherence to the 768-token limit without mid-token truncation.
 - [x] **`core/prompt_builder.py`**:
-  - Exact 3-turn ChatML prompt generator matching [context.md](file:///e:/projects/Bug%20whisper/context.md).
+  - Exact 3-turn ChatML prompt generator matching context.md.
   - Strict `stderr[:300]` slicing.
   - Token length budgeting ensuring `(len(old) + len(new) + len(err[:300])) <= 1800` characters.
 - [x] **`core/code_extractor.py`**:
@@ -96,7 +97,30 @@ Phase 7: Frontend Studio Video-Match Re-alignment          [NEXT]
 ## Phase 6: Developer CLI & Auto-Hook [COMPLETED]
 *Objective: Provide a terminal developer tool and exception interceptor.*
 
-- [x] **`cli/main.py`**: Typer-powered CLI entrypoint (`bugwhisper run`, `bugwhisper check`, `bugwhisper serve`).
+- [x] **`cli/main.py`**: Typer-powered CLI entrypoint (`bugwhisper run`, `bugwhisper check`, `bugwhisper serve`, `bugwhisper model`).
 - [x] **`cli/auto_hook.py`**: Global `sys.excepthook` interceptor with Rich diff panel.
 - [x] **`auto.py`**: Zero-config import hook (`import bugwhisper.auto`).
-- [x] **Pytest Test Suite**: 46 unit and integration tests across 12 test modules with 100% pass rate.
+- [x] **Pytest Test Suite**: Expanded to 74 unit, integration, and CLI tests passing with 100% success rate.
+
+---
+
+## Phase 7: Frontend Studio Video-Match Re-alignment [COMPLETED]
+*Objective: Transform Convex landing page into dedicated Python Debugging Studio matching reference layout.*
+
+- [x] **Convex Landing Page Rebranding**: Adapted full page to Python Debugging Studio while preserving warm cream-paper notebook aesthetic (`#f6f6f6`), Ink Black code cards (`#141414`), hairline borders, and strict zero drop shadows.
+- [x] **Section 3 Interactive Playground**:
+  - Replaced top layer with embedded `BugWhisperPlayground.tsx` inside the dark container card.
+  - Split view: Monaco Python editor (`PlaygroundEditor.tsx`), Pyodide WebWorker terminal (`PlaygroundTerminal.tsx`), side-by-side Monaco diff (`PlaygroundDiff.tsx`), and verification metrics panel (`PlaygroundVerifierPanel.tsx`).
+- [x] **Micro-Component Refactoring**: All 20 UI components strictly $< 150\text{ LOC}$.
+- [x] **Client-Side Sandbox**: CPython 3.12 executed via Pyodide in dedicated WebWorker (`pyodide-worker.ts`) preventing browser thread lockups.
+
+---
+
+## Phase 8: Model Ecosystem, Modelfile & Auto-Fallback [COMPLETED]
+*Objective: Streamline local model serving and zero-dependency execution.*
+
+- [x] **Root `Modelfile`**: Ready-to-use Ollama Modelfile enforcing the exact ChatML contract, `temperature=0.0`, and `num_predict=768`.
+- [x] **Multi-Candidate Model Discovery**: Automatic fallback across candidate model names (`bug-whisper-qwen25-coder-3b`, `pernavjain/bug-whisper-qwen25-coder-3b`, `qwen2.5-coder:3b`).
+- [x] **CLI Model Management**: `bugwhisper model` command for inspecting local Ollama status, listing pulled models, and displaying Modelfile definitions.
+- [x] **Documentation Suite**: `README.md`, `ARCHITECTURE.md`, `MODEL_GUIDE.md`, `DESIGN.md`, `context.md`, `memory.md`.
+

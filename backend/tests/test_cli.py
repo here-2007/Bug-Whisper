@@ -56,3 +56,17 @@ def test_cli_run_auto_apply_fix(tmp_path: Path):
     # Check file was rewritten with fixed code
     updated_code = buggy_file.read_text()
     assert "0 != 0" in updated_code or "!= 0" in updated_code or "y != 0" in updated_code
+
+
+def test_cli_model_modelfile():
+    result = runner.invoke(app, ["model", "--modelfile"])
+    assert result.exit_code == 0
+    assert "FROM qwen2.5-coder:3b" in result.stdout
+    assert "num_predict 768" in result.stdout
+
+
+def test_cli_model_status():
+    result = runner.invoke(app, ["model"])
+    assert result.exit_code == 0
+    assert "Ollama" in result.stdout
+
