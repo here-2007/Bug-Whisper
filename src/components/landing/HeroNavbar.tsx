@@ -20,7 +20,6 @@ export const HeroNavbar: React.FC = () => {
         </a>
 
         <div className="hidden lg:flex items-center gap-6 text-[13px] font-medium text-[#cfd3c7]">
-          <a href="#benchmarks" className="hover:text-white transition-colors">Benchmarks</a>
           <a href="#playground" className="hover:text-white transition-colors">Studio</a>
           <a href="#integrations" className="hover:text-white transition-colors">Integrations</a>
         </div>

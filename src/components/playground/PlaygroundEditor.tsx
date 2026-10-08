@@ -78,17 +78,19 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
       {/* Editor Sub-Header: Exactly 40px (h-10) */}
       <div className="h-10 bg-[#1a1c17] border-b border-[#2d3128] px-3.5 flex items-center justify-between text-xs font-mono text-[#8e9385] select-none shrink-0">
         <div className="flex items-center gap-2">
-          <span className="px-1.5 py-0.5 rounded bg-[#3776ab] text-[9px] font-bold text-[#ffd43b]">
-            PY
-          </span>
-          <span className="text-[#d6dad0] font-medium">main.py</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#141414] border border-[#2d3128] text-white">
+            <span className="px-1.5 py-0.5 rounded bg-[#3776ab] text-[9px] font-bold text-[#ffd43b]">
+              PY
+            </span>
+            <span className="text-[#d6dad0] font-medium text-xs">main.py</span>
+          </div>
           {highlightLine && (
-            <span className="text-[10px] text-[#fc618d] bg-[#3a1a23] border border-[#5a2030] px-1.5 py-0.5 rounded">
+            <span className="text-[10px] text-[#fc618d] bg-[#3a1a23] border border-[#5a2030] px-2 py-0.5 rounded font-mono">
               Line {highlightLine} exception
             </span>
           )}
         </div>
-        <span className="text-[11px] text-[#64685b]">Python 3.12 · UTF-8</span>
+        <span className="text-[11px] text-[#64685b] mr-1">Python 3.12 · UTF-8</span>
       </div>
 
       {/* Editor Body */}
@@ -109,10 +111,16 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
             automaticLayout: true,
             tabSize: 4,
             padding: { top: 12, bottom: 12 },
+            overviewRulerLanes: 0,
+            overviewRulerBorder: false,
+            hideCursorInOverviewRuler: true,
             scrollbar: {
               vertical: 'auto',
               horizontal: 'auto',
+              verticalScrollbarSize: 6,
+              horizontalScrollbarSize: 6,
               alwaysConsumeMouseWheel: false,
+              useShadows: false,
             },
           }}
         />

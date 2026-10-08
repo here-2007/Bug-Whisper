@@ -27,7 +27,8 @@ export function runPythonHarness(code: string, timeoutMs: number = 4000): Harnes
   const startTime = Date.now();
 
   try {
-    const stdout = execFileSync('python', [HARNESS_SCRIPT_PATH], {
+    const pythonBin = process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
+    const stdout = execFileSync(pythonBin, [HARNESS_SCRIPT_PATH], {
       input: code,
       encoding: 'utf-8',
       timeout: timeoutMs,

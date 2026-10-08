@@ -31,14 +31,14 @@ export const PlaygroundTabs: React.FC<PlaygroundTabsProps> = ({
   return (
     <div className="h-10 bg-[#1a1c17] border-b border-[#2d3128] px-3 flex items-center justify-between text-xs font-mono select-none shrink-0">
       {/* Tabs list */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={() => onTabChange('terminal')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t text-xs font-medium transition-colors cursor-pointer border-t border-x ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-pointer border ${
             activeTab === 'terminal'
               ? 'bg-[#141414] text-white border-[#2d3128]'
-              : 'border-transparent text-[#8e9385] hover:text-[#d6dad0]'
+              : 'border-transparent text-[#8e9385] hover:text-[#d6dad0] hover:bg-[#20221d]'
           }`}
         >
           <Terminal className="w-3.5 h-3.5" />
@@ -49,10 +49,10 @@ export const PlaygroundTabs: React.FC<PlaygroundTabsProps> = ({
         <button
           type="button"
           onClick={() => onTabChange('diff')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t text-xs font-medium transition-colors cursor-pointer border-t border-x ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-pointer border ${
             activeTab === 'diff'
               ? 'bg-[#141414] text-white border-[#2d3128]'
-              : 'border-transparent text-[#8e9385] hover:text-[#d6dad0]'
+              : 'border-transparent text-[#8e9385] hover:text-[#d6dad0] hover:bg-[#20221d]'
           }`}
         >
           <GitCompare className="w-3.5 h-3.5" />
@@ -63,10 +63,10 @@ export const PlaygroundTabs: React.FC<PlaygroundTabsProps> = ({
         <button
           type="button"
           onClick={() => onTabChange('verifier')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t text-xs font-medium transition-colors cursor-pointer border-t border-x ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-pointer border ${
             activeTab === 'verifier'
               ? 'bg-[#141414] text-white border-[#2d3128]'
-              : 'border-transparent text-[#8e9385] hover:text-[#d6dad0]'
+              : 'border-transparent text-[#8e9385] hover:text-[#d6dad0] hover:bg-[#20221d]'
           }`}
         >
           <ShieldCheck className="w-3.5 h-3.5" />

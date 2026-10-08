@@ -1,6 +1,5 @@
 import { StickyNavbar } from './components/landing/StickyNavbar';
 import { HeroSection } from './components/landing/HeroSection';
-import { AstIntelligenceSection } from './components/landing/AstIntelligenceSection';
 import { StudioSection } from './components/landing/StudioSection';
 import { TestimonialsSection } from './components/landing/TestimonialsSection';
 import { IntegrationsSection } from './components/landing/IntegrationsSection';
@@ -17,23 +16,20 @@ export default function App() {
         {/* 1. Hero Card with In-Card Nav, Copy, and Workbench */}
         <HeroSection />
 
-        {/* 2. AI Tools: AST Intelligence + 8-bit Glyph Matrix */}
-        <AstIntelligenceSection />
-
-        {/* 3. Interactive Studio: Python Debugging Studio */}
+        {/* 2. Interactive Studio: Python Debugging Studio */}
         <StudioSection />
 
-        {/* 4. Customer Love: Loved by developers */}
+        {/* 3. Customer Love: Loved by developers */}
         <TestimonialsSection />
 
-        {/* 5. Integrations: Ecosystem & Tooling */}
+        {/* 4. Integrations: Ecosystem & Tooling */}
         <IntegrationsSection />
 
-        {/* 6. Pre-Footer: Dark Grid Banner */}
+        {/* 5. Pre-Footer: Dark Grid Banner */}
         <PreFooterSection />
       </main>
 
-      {/* 7. Footer: 4-Column Deep Black Footer */}
+      {/* 6. Footer: 4-Column Deep Black Footer */}
       <FooterSection />
     </div>
   );

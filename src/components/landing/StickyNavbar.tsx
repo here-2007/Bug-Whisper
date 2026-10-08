@@ -32,7 +32,6 @@ export const StickyNavbar: React.FC = () => {
           </a>
 
           <nav className="hidden lg:flex items-center gap-6 text-[13px] font-medium text-[#55584e]">
-            <a href="#benchmarks" className="hover:text-black transition-colors">Benchmarks</a>
             <a href="#playground" className="hover:text-black transition-colors">Studio</a>
             <a href="#integrations" className="hover:text-black transition-colors">Integrations</a>
           </nav>
