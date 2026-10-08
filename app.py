@@ -117,13 +117,32 @@ class DiagnosisResponse(BaseModel):
     warning: Optional[str] = None
 
 
+def notify_zerogpu_startup() -> None:
+    """Explicitly execute ZeroGPU startup sequence and notify supervisor."""
+    try:
+        from spaces.zero import client as zero_client  # type: ignore
+        from spaces.zero import decorator as zero_decorator  # type: ignore
+        from spaces.zero import torch as zero_torch  # type: ignore
+
+        logger.info("Executing ZeroGPU startup sequence...")
+        zero_torch.pack()
+        if len(zero_decorator.decorated_cache) > 0:
+            zero_client.startup_report()
+            logger.info("ZeroGPU supervisor successfully acknowledged startup_report.")
+        else:
+            logger.warning("ZeroGPU decorator cache was empty during startup report.")
+    except Exception as exc:
+        logger.debug("ZeroGPU startup notification: %s", exc)
+
+
 # ---------------------------------------------------------------------------
 # FastAPI Application & REST Endpoints
 # ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan managing model pre-loading."""
+    """Application lifespan managing model pre-loading and ZeroGPU supervisor handshake."""
     logger.info("Lifespan startup: Bug Whisper application initializing...")
+    notify_zerogpu_startup()
     # On ZeroGPU Spaces, model loading MUST occur dynamically inside @spaces.GPU functions
     # For local/CPU/MPS dev environments, eager preloading runs safely
     if not SPACES_AVAILABLE:
@@ -353,4 +372,5 @@ if __name__ == "__main__":
     logger.info("Gradio bridge available at: http://%s:%d/gradio", host, port)
     logger.info("API diagnosis endpoint: http://%s:%d/api/diagnose", host, port)
 
+    notify_zerogpu_startup()
     uvicorn.run(app, host=host, port=port)
