@@ -1,7 +1,7 @@
 import { StickyNavbar } from './components/landing/StickyNavbar';
 import { HeroSection } from './components/landing/HeroSection';
 import { StudioSection } from './components/landing/StudioSection';
-import { TestimonialsSection } from './components/landing/TestimonialsSection';
+import { SoupSection } from './components/landing/SoupSection';
 import { IntegrationsSection } from './components/landing/IntegrationsSection';
 import { PreFooterSection } from './components/landing/PreFooterSection';
 import { FooterSection } from './components/landing/FooterSection';
@@ -19,8 +19,8 @@ export default function App() {
         {/* 2. Interactive Studio: Python Debugging Studio */}
         <StudioSection />
 
-        {/* 3. Customer Love: Loved by developers */}
-        <TestimonialsSection />
+        {/* 3. Model Provenance: Fine-Tuned with Soup */}
+        <SoupSection />
 
         {/* 4. Integrations: Ecosystem & Tooling */}
         <IntegrationsSection />
