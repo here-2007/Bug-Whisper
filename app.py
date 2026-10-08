@@ -32,6 +32,9 @@ import logging
 import os
 import subprocess
 import mimetypes
+
+# Disable Gradio Node.js SSR proxy so Python binds directly to port 7860
+os.environ["GRADIO_SSR_MODE"] = "False"
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -335,4 +338,5 @@ if __name__ == "__main__":
         server_name=host,
         server_port=port,
         prevent_thread_lock=False,
+        ssr_mode=False,
     )
