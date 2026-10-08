@@ -1,7 +1,0 @@
-"""
-Bug Whisper FastAPI Server package.
-"""
-
-from .app import create_app
-
-__all__ = ["create_app"]
