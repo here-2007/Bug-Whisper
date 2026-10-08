@@ -7,6 +7,27 @@ Qwen 2.5 Coder 3B model under @spaces.GPU.
 
 from __future__ import annotations
 
+# Hugging Face Spaces ZeroGPU integration MUST be imported first before any framework
+try:
+    import spaces  # type: ignore
+
+    SPACES_AVAILABLE = True
+except ImportError:
+    SPACES_AVAILABLE = False
+
+    class _MockSpaces:
+        @staticmethod
+        def GPU(func=None, duration=None):  # noqa: N802
+            if func is None:
+
+                def decorator(f):
+                    return f
+
+                return decorator
+            return func
+
+    spaces = _MockSpaces()  # type: ignore
+
 import logging
 import os
 import subprocess
@@ -101,12 +122,15 @@ class DiagnosisResponse(BaseModel):
 # ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan managing eager model pre-loading at startup."""
-    logger.info("Lifespan startup: ensuring Bug Whisper model is pre-loaded into memory...")
-    try:
-        inference.load_model_at_startup()
-    except Exception as exc:
-        logger.error("Failed to preload model during lifespan startup: %s", exc)
+    """Application lifespan managing model pre-loading."""
+    logger.info("Lifespan startup: Bug Whisper application initializing...")
+    # On ZeroGPU Spaces, model loading MUST occur dynamically inside @spaces.GPU functions
+    # For local/CPU/MPS dev environments, eager preloading runs safely
+    if not SPACES_AVAILABLE:
+        try:
+            inference.load_model_at_startup()
+        except Exception as exc:
+            logger.warning("Local startup model preload deferred: %s", exc)
     yield
     logger.info("Application shutdown.")
 
@@ -127,6 +151,26 @@ fastapi_app.add_middleware(
 )
 
 
+@spaces.GPU(duration=60)
+def run_model_diagnosis(
+    code: str,
+    error_type: str,
+    error_message: str,
+    traceback: str,
+    line: Optional[int] = None,
+    file: str = "main.py",
+) -> Dict[str, Any]:
+    """Execute model inference dynamically inside Hugging Face Spaces ZeroGPU allocation context."""
+    return inference.explain_error(
+        code=code,
+        error_type=error_type,
+        error_message=error_message,
+        traceback=traceback,
+        line=line,
+        file=file,
+    )
+
+
 @fastapi_app.post("/api/diagnose", response_model=DiagnosisResponse)
 def diagnose_error(req: DiagnosisRequest) -> Dict[str, Any]:
     """Structured error diagnosis endpoint called by the React Playground."""
@@ -139,7 +183,7 @@ def diagnose_error(req: DiagnosisRequest) -> Dict[str, Any]:
         if lines:
             raw_message = lines[-1]
 
-    result = inference.explain_error(
+    return run_model_diagnosis(
         code=req.code,
         error_type=req.error_type or "RuntimeError",
         error_message=raw_message,
@@ -147,7 +191,6 @@ def diagnose_error(req: DiagnosisRequest) -> Dict[str, Any]:
         line=req.line,
         file=req.file or "main.py",
     )
-    return result
 
 
 @fastapi_app.post("/api/explain", response_model=DiagnosisResponse)
@@ -157,14 +200,13 @@ def explain_legacy(req: LegacyExplainRequest) -> Dict[str, Any]:
     raw_tb = req.traceback or req.stderr or ""
     raw_type = req.error_type or "RuntimeError"
 
-    result = inference.explain_error(
+    return run_model_diagnosis(
         code=req.code,
         error_type=raw_type,
         error_message=raw_tb.splitlines()[-1] if raw_tb else "",
         traceback=raw_tb,
         line=req.line_number,
     )
-    return result
 
 
 @fastapi_app.get("/api/status")
@@ -192,6 +234,7 @@ def gradio_api_diagnose(req: DiagnosisRequest) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Gradio Blocks Interface (The Model Bridge)
 # ---------------------------------------------------------------------------
+@spaces.GPU(duration=60)
 def gradio_diagnose(
     code: str,
     error_type: str,
@@ -199,9 +242,9 @@ def gradio_diagnose(
     traceback: str,
     line: float,
 ) -> Dict[str, Any]:
-    """Gradio handler exposing structured diagnosis via Gradio API contract."""
+    """Gradio handler exposing structured diagnosis via Gradio API contract under ZeroGPU."""
     resolved_line = int(line) if line and line > 0 else None
-    return inference.explain_error(
+    return run_model_diagnosis(
         code=code,
         error_type=error_type or "RuntimeError",
         error_message=error_message or "",
@@ -298,11 +341,12 @@ if __name__ == "__main__":
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "7860"))
 
-    logger.info("Preloading Bug Whisper model before server start...")
-    try:
-        inference.load_model_at_startup()
-    except Exception as exc:
-        logger.warning("Could not preload model immediately at startup: %s", exc)
+    if not SPACES_AVAILABLE:
+        logger.info("Preloading Bug Whisper model before server start...")
+        try:
+            inference.load_model_at_startup()
+        except Exception as exc:
+            logger.warning("Could not preload model immediately at startup: %s", exc)
 
     logger.info("Starting Bug Whisper server on http://%s:%d ...", host, port)
     logger.info("Serving React frontend from: %s", DIST_DIR)
