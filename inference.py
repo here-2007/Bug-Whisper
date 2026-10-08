@@ -156,42 +156,49 @@ def download_model(
     else:
         target_dir = Path(target_dir).resolve()
 
-    # Check if target_dir is already valid
+    # Fast path check outside lock
     is_valid, _ = validate_model(target_dir)
     if is_valid:
         logger.info("Model already exists and validated at: %s", target_dir)
         return target_dir
 
-    model_handle = handle or os.environ.get("KAGGLE_MODEL_HANDLE", DEFAULT_KAGGLE_HANDLE)
-    logger.info("Downloading model from KaggleHub handle: %s ...", model_handle)
+    with _MODEL_LOCK:
+        # Re-check under lock in case another thread already materialized it
+        is_valid, _ = validate_model(target_dir)
+        if is_valid:
+            logger.info("Model already exists and validated at: %s", target_dir)
+            return target_dir
 
-    try:
-        import kagglehub  # type: ignore
+        model_handle = handle or os.environ.get("KAGGLE_MODEL_HANDLE", DEFAULT_KAGGLE_HANDLE)
+        logger.info("Downloading model from KaggleHub handle: %s ...", model_handle)
 
-        downloaded_path = Path(kagglehub.model_download(model_handle))
-        logger.info("kagglehub downloaded model to cache: %s", downloaded_path)
-    except Exception as exc:
-        logger.error("Failed to download model via kagglehub: %s", exc)
-        raise RuntimeError(
-            f"Kaggle download failed for handle '{model_handle}'. Ensure network access or valid Kaggle credentials: {exc}"
-        ) from exc
+        try:
+            import kagglehub  # type: ignore
 
-    # Target directory setup
-    target_dir.mkdir(parents=True, exist_ok=True)
+            downloaded_path = Path(kagglehub.model_download(model_handle))
+            logger.info("kagglehub downloaded model to cache: %s", downloaded_path)
+        except Exception as exc:
+            logger.error("Failed to download model via kagglehub: %s", exc)
+            raise RuntimeError(
+                f"Kaggle download failed for handle '{model_handle}'. Ensure network access or valid Kaggle credentials: {exc}"
+            ) from exc
 
-    # Materialize files from kagglehub cache into target_dir
-    for item in downloaded_path.iterdir():
-        dest = target_dir / item.name
-        if item.is_file():
-            if not dest.exists() or dest.stat().st_size != item.stat().st_size:
-                shutil.copy2(item, dest)
-        elif item.is_dir() and item.name not in (".git", "__pycache__"):
-            if not dest.exists():
-                shutil.copytree(item, dest)
+        # Target directory setup
+        target_dir.mkdir(parents=True, exist_ok=True)
 
-    is_valid, reason = validate_model(target_dir)
-    if not is_valid:
-        raise RuntimeError(f"Materialized model at {target_dir} failed validation: {reason}")
+        # Materialize files from kagglehub cache into target_dir
+        for item in downloaded_path.iterdir():
+            dest = target_dir / item.name
+            if item.is_file():
+                if not dest.exists() or dest.stat().st_size != item.stat().st_size:
+                    shutil.copy2(item, dest)
+            elif item.is_dir() and item.name not in (".git", "__pycache__"):
+                if not dest.exists():
+                    shutil.copytree(item, dest)
+
+        is_valid, reason = validate_model(target_dir)
+        if not is_valid:
+            raise RuntimeError(f"Materialized model at {target_dir} failed validation: {reason}")
 
     logger.info("Model successfully materialized and validated at: %s", target_dir)
     return target_dir

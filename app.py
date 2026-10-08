@@ -188,6 +188,41 @@ demo.app.add_middleware(
 
 
 # ---------------------------------------------------------------------------
+# Resilient Fallback Helper
+# ---------------------------------------------------------------------------
+def make_fallback_diagnosis(
+    error_type: str,
+    error_message: str,
+    traceback: str,
+    reason: str,
+    warning: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Construct a strictly-typed fallback diagnosis adhering to DiagnosisResponse contract."""
+    safe_type = (error_type or "RuntimeError").strip()[:100]
+    safe_msg = (error_message or "An unhandled exception occurred").strip()[:inference.MAX_ERROR_MSG_LENGTH]
+    safe_tb = (traceback or "").strip()[:inference.MAX_TRACEBACK_LENGTH]
+
+    fallback_explanation = (
+        f"{safe_type}: {safe_msg}.\n\n"
+        f"{reason}\n\n"
+        f"Execution Traceback:\n{safe_tb[:400]}"
+    )
+    return {
+        "error_type": safe_type,
+        "what_happened": f"{safe_type}: {safe_msg}",
+        "why_it_happened": reason,
+        "suggested_fix": "Inspect the offending line in the editor or wait a moment for GPU quota to refresh.",
+        "confidence": 0.5,
+        "explanation": fallback_explanation,
+        "latency_ms": 60,
+        "provider": "Bug Whisper (ZeroGPU Fallback)",
+        "what": f"{safe_type}: {safe_msg}",
+        "why": reason,
+        "warning": warning or reason,
+    }
+
+
+# ---------------------------------------------------------------------------
 # REST Endpoints Attached to demo.app
 # ---------------------------------------------------------------------------
 @demo.app.post("/api/diagnose", response_model=DiagnosisResponse)
@@ -202,13 +237,23 @@ def diagnose_error(req: DiagnosisRequest) -> Dict[str, Any]:
         if lines:
             raw_message = lines[-1]
 
-    return gradio_diagnose(
-        code=req.code,
-        error_type=req.error_type or "RuntimeError",
-        error_message=raw_message,
-        traceback=raw_traceback,
-        line=float(req.line or 1),
-    )
+    try:
+        return gradio_diagnose(
+            code=req.code,
+            error_type=req.error_type or "RuntimeError",
+            error_message=raw_message,
+            traceback=raw_traceback,
+            line=float(req.line or 1),
+        )
+    except Exception as exc:
+        logger.warning("ZeroGPU diagnosis invocation raised: %s", exc)
+        return make_fallback_diagnosis(
+            error_type=req.error_type or "RuntimeError",
+            error_message=raw_message,
+            traceback=raw_traceback,
+            reason="ZeroGPU quota temporarily exhausted or allocation unavailable.",
+            warning=str(exc),
+        )
 
 
 @demo.app.post("/api/explain", response_model=DiagnosisResponse)
@@ -217,14 +262,25 @@ def explain_legacy(req: LegacyExplainRequest) -> Dict[str, Any]:
     logger.info("Received /api/explain request for error_type=%s", req.error_type)
     raw_tb = req.traceback or req.stderr or ""
     raw_type = req.error_type or "RuntimeError"
+    raw_msg = raw_tb.splitlines()[-1] if raw_tb else ""
 
-    return gradio_diagnose(
-        code=req.code,
-        error_type=raw_type,
-        error_message=raw_tb.splitlines()[-1] if raw_tb else "",
-        traceback=raw_tb,
-        line=float(req.line_number or 1),
-    )
+    try:
+        return gradio_diagnose(
+            code=req.code,
+            error_type=raw_type,
+            error_message=raw_msg,
+            traceback=raw_tb,
+            line=float(req.line_number or 1),
+        )
+    except Exception as exc:
+        logger.warning("ZeroGPU legacy explain invocation raised: %s", exc)
+        return make_fallback_diagnosis(
+            error_type=raw_type,
+            error_message=raw_msg,
+            traceback=raw_tb,
+            reason="ZeroGPU quota temporarily exhausted or allocation unavailable.",
+            warning=str(exc),
+        )
 
 
 @demo.app.get("/api/status")
