@@ -11,6 +11,7 @@ import logging
 import os
 import subprocess
 import mimetypes
+import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -101,12 +102,14 @@ class DiagnosisResponse(BaseModel):
 # ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan managing eager model pre-loading at startup."""
-    logger.info("Lifespan startup: ensuring Bug Whisper model is pre-loaded into memory...")
-    try:
-        inference.load_model_at_startup()
-    except Exception as exc:
-        logger.error("Failed to preload model during lifespan startup: %s", exc)
+    """Application lifespan managing background model pre-loading at startup."""
+    logger.info("Lifespan startup: launching background thread to preload Bug Whisper model...")
+    preload_thread = threading.Thread(
+        target=inference.load_model_at_startup,
+        name="BugWhisperModelPreloadThread",
+        daemon=True,
+    )
+    preload_thread.start()
     yield
     logger.info("Application shutdown.")
 
@@ -297,12 +300,6 @@ if __name__ == "__main__":
 
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "7860"))
-
-    logger.info("Preloading Bug Whisper model before server start...")
-    try:
-        inference.load_model_at_startup()
-    except Exception as exc:
-        logger.warning("Could not preload model immediately at startup: %s", exc)
 
     logger.info("Starting Bug Whisper server on http://%s:%d ...", host, port)
     logger.info("Serving React frontend from: %s", DIST_DIR)
