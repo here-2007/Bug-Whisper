@@ -126,7 +126,7 @@ export const HeroWorkbench: React.FC<HeroWorkbenchProps> = ({ onOpenStudio }) =>
         <div className="lg:col-span-7 flex flex-col">
           <div className="w-full rounded-xl bg-ink-black border border-graphite-border overflow-hidden">
             {/* Workbench Tab Header */}
-            <div className="h-10 bg-charcoal-surface border-b border-graphite-border px-4 flex items-center justify-between select-none">
+            <div className="h-[40px] min-h-[40px] bg-charcoal-surface border-b border-graphite-border px-4 flex items-center justify-between select-none shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-hot-pink" />
                 <div className="w-2.5 h-2.5 rounded-full bg-canary-yellow" />

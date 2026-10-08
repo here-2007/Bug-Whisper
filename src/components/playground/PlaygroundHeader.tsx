@@ -67,7 +67,7 @@ export const PlaygroundHeader: React.FC<PlaygroundHeaderProps> = ({
       </div>
 
       {/* Center: Presets Quick Chips */}
-      <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 max-w-full">
+      <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 min-w-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <span className="text-[10px] font-mono uppercase text-[#6f7566] mr-1 hidden xl:inline">
           Presets:
         </span>

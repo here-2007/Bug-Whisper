@@ -75,22 +75,22 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
 
   return (
     <div className="flex-1 h-full flex flex-col bg-[#141414] overflow-hidden select-text">
-      {/* Editor Sub-Header: Exactly 40px (h-10) */}
-      <div className="h-10 bg-[#1a1c17] border-b border-[#2d3128] px-3.5 flex items-center justify-between text-xs font-mono text-[#8e9385] select-none shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#141414] border border-[#2d3128] text-white">
+      {/* Editor Sub-Header: Exactly 40px */}
+      <div className="h-[40px] min-h-[40px] bg-[#1a1c17] border-b border-[#2d3128] px-3.5 flex items-center justify-between text-xs font-mono text-[#8e9385] select-none shrink-0 gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#141414] border border-[#2d3128] text-white shrink-0">
             <span className="px-1.5 py-0.5 rounded bg-[#3776ab] text-[9px] font-bold text-[#ffd43b]">
               PY
             </span>
             <span className="text-[#d6dad0] font-medium text-xs">main.py</span>
           </div>
           {highlightLine && (
-            <span className="text-[10px] text-[#fc618d] bg-[#3a1a23] border border-[#5a2030] px-2 py-0.5 rounded font-mono">
+            <span className="text-[10px] text-[#fc618d] bg-[#3a1a23] border border-[#5a2030] px-2 py-0.5 rounded font-mono truncate">
               Line {highlightLine} exception
             </span>
           )}
         </div>
-        <span className="text-[11px] text-[#64685b] mr-1">Python 3.12 · UTF-8</span>
+        <span className="text-[11px] text-[#64685b] shrink-0 hidden sm:inline">Python 3.12 · UTF-8</span>
       </div>
 
       {/* Editor Body */}

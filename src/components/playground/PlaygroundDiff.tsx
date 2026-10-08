@@ -33,10 +33,15 @@ export const PlaygroundDiff: React.FC<PlaygroundDiffProps> = ({
               scrollBeyondLastLine: false,
               minimap: { enabled: false },
               padding: { top: 12, bottom: 12 },
+              overviewRulerLanes: 0,
+              overviewRulerBorder: false,
               scrollbar: {
                 vertical: 'auto',
                 horizontal: 'auto',
+                verticalScrollbarSize: 6,
+                horizontalScrollbarSize: 6,
                 alwaysConsumeMouseWheel: false,
+                useShadows: false,
               },
             }}
           />
