@@ -7,7 +7,7 @@ export const HeroSection: React.FC = () => {
   return (
     <section className="w-full pb-8 select-none">
       {/* Full-width top HeroNavbar with 0 whitespace on top, left, or right */}
-      <header className="w-full bg-[#1c1e19] border-b border-[#2e3128] px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4">
+      <header className="w-full bg-[#1c1e19] border-b border-[#2e3128] px-4 sm:px-6 lg:px-8 py-7 sm:py-10">
         <div className="max-w-[1460px] mx-auto">
           <HeroNavbar />
         </div>
@@ -30,9 +30,9 @@ export const HeroSection: React.FC = () => {
               <div className="mt-10 sm:mt-12">
                 <a
                   href="#playground"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white hover:bg-neutral-100 text-[#141414] font-semibold text-xs transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white hover:bg-neutral-100 text-[#141414] font-bold text-xs transition-colors cursor-pointer"
                 >
-                  <span>Open Studio</span>
+                  <span>PlayGround</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#141414]" />
                 </a>
               </div>
