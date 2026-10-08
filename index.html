@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f6f6f6" />
     <meta
@@ -40,6 +46,35 @@
       rel="stylesheet"
     />
     <title>Bug Whisper Web Studio — AI Python Debugging Environment</title>
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Bug Whisper",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web, Linux, macOS, Windows",
+        "description": "Deterministic Python runtime execution and neural bug repair powered by Qwen 2.5 Coder 3B fine-tuned via soup-cli.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": [
+          {
+            "@type": "Person",
+            "name": "Pernav Jain",
+            "url": "https://github.com/here-2007"
+          },
+          {
+            "@type": "Person",
+            "name": "Harshit Sharma",
+            "url": "https://github.com/harshitthek"
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

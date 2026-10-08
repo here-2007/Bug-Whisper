@@ -1,0 +1,26 @@
+{
+  "name": "Bug Whisper Web Studio",
+  "short_name": "Bug Whisper",
+  "description": "Deterministic runtime execution & neural Python error debugging studio powered by Qwen 2.5 Coder 3B",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141414",
+  "theme_color": "#f6f6f6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
