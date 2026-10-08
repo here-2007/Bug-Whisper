@@ -126,7 +126,6 @@ export const FooterSection: React.FC = () => {
         {/* Bottom Copyright & Design Note Bar */}
         <div className="pt-8 border-t border-[#1c1e19] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#64685b] font-mono">
           <span>&copy; {CURRENT_YEAR} Bug Whisper. Open-source Python intelligence.</span>
-          <span>Cream Paper Engineering Notebook · Zero Drop Shadows</span>
         </div>
       </div>
     </footer>
