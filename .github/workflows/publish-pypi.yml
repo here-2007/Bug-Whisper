@@ -30,12 +30,12 @@ jobs:
         run: python -m pip install --upgrade pip build twine
 
       - name: Build sdist and wheel
-        run: python -m build --outdir dist/
+        run: python -m build --outdir dist-pkg/
 
       - name: Verify package distributions
-        run: python -m twine check dist/*
+        run: python -m twine check dist-pkg/*
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: dist/
+          packages-dir: dist-pkg/
