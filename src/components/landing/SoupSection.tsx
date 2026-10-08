@@ -67,17 +67,21 @@ export const SoupSection: React.FC = () => {
       </div>
 
       {/* Main Grid: Left explanation & Right soup.yaml code card */}
-      <div className="max-w-[1460px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="max-w-[1460px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Left Column: Why Soup in Bug Whisper */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="p-6 rounded-xl bg-white border border-[#e5e5e5] flex flex-col gap-4">
-            <h3 className="text-base font-bold text-[#141414] tracking-tight">
-              Why Bug Whisper Built on Soup
-            </h3>
-            <p className="text-xs sm:text-[13px] text-[#55584e] leading-relaxed">
-              Fine-tuning small code models often requires complex multi-node harnesses or verbose Hugging Face scripts. <span className="font-semibold text-[#141414]">Soup</span> streamlines the entire SFT workflow into an open-source, reproducible command-line tool.
-            </p>
-            <div className="space-y-3 pt-2 border-t border-[#f0eee6] text-xs text-[#55584e]">
+        <div className="lg:col-span-5 flex flex-col h-full">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-[#e5e5e5] flex flex-col justify-between h-full gap-5">
+            <div className="flex flex-col gap-3">
+              <h3 className="text-base sm:text-lg font-bold text-[#141414] tracking-tight">
+                Why Bug Whisper Built on Soup
+              </h3>
+              <p className="text-xs sm:text-[13px] text-[#55584e] leading-relaxed">
+                Fine-tuning small code models often requires complex multi-node harnesses or verbose Hugging Face scripts. <span className="font-semibold text-[#141414]">Soup</span> streamlines the entire SFT workflow into an open-source, reproducible command-line tool.
+              </p>
+            </div>
+
+            {/* Architectural Pillars */}
+            <div className="space-y-3 py-3 border-y border-[#f0eee6] text-xs text-[#55584e]">
               <div className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#de5d33] mt-1.5 shrink-0" />
                 <span><strong className="text-[#141414]">Single Config:</strong> Defined model, dataset, hyperparameters, and target projection layers (<code className="font-mono text-[11px]">q, k, v, o</code>) in a single YAML file.</span>
@@ -87,13 +91,45 @@ export const SoupSection: React.FC = () => {
                 <span><strong className="text-[#141414]">Zero Memory Spikes:</strong> Layer streaming and 4-bit NF4 base quantization enabled training on standard consumer GPUs with zero OOM errors.</span>
               </div>
               <div className="flex items-start gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#f8e67a] mt-1.5 shrink-0" />
+                <span><strong className="text-[#141414]">Response-Only Masking:</strong> Gradient loss isolates diff patches (<code className="font-mono text-[11px]">train_on_responses_only: true</code>), eliminating conversational hallucination.</span>
+              </div>
+              <div className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb] mt-1.5 shrink-0" />
                 <span><strong className="text-[#141414]">Portable 29.5MB Output:</strong> Exported clean safetensors weights ready for instant deployment in Ollama, Kaggle, or serverless workers.</span>
               </div>
             </div>
 
+            {/* Telemetry / Training Spec Mini-Grid */}
+            <div className="p-3.5 rounded-lg bg-[#fbfbfa] border border-[#ebe8df] grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div>
+                <div className="text-[10px] text-[#8e9385] uppercase tracking-wider">Hardware</div>
+                <div className="font-semibold text-[#141414] text-[11px] mt-0.5">1x Tesla T4</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-[#8e9385] uppercase tracking-wider">Train Duration</div>
+                <div className="font-semibold text-[#141414] text-[11px] mt-0.5">14.2 min</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-[#8e9385] uppercase tracking-wider">Eval Loss</div>
+                <div className="font-semibold text-[#141414] text-[11px] mt-0.5">0.412 <span className="text-[#7bd88f] text-[10px]">(-68%)</span></div>
+              </div>
+              <div>
+                <div className="text-[10px] text-[#8e9385] uppercase tracking-wider">Context Window</div>
+                <div className="font-semibold text-[#141414] text-[11px] mt-0.5">768 tokens</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-[#8e9385] uppercase tracking-wider">Quantization</div>
+                <div className="font-semibold text-[#141414] text-[11px] mt-0.5">4-bit NF4</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-[#8e9385] uppercase tracking-wider">Effective Batch</div>
+                <div className="font-semibold text-[#141414] text-[11px] mt-0.5">16 (8 x 2 ga)</div>
+              </div>
+            </div>
+
             {/* Links */}
-            <div className="mt-2 pt-3 border-t border-[#f0eee6] flex flex-wrap items-center gap-3">
+            <div className="pt-1 flex flex-wrap items-center gap-3">
               <a
                 href="https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b"
                 target="_blank"
@@ -117,7 +153,7 @@ export const SoupSection: React.FC = () => {
         </div>
 
         {/* Right Column: soup.yaml Code Card */}
-        <div className="lg:col-span-7 flex flex-col">
+        <div className="lg:col-span-7 flex flex-col h-full">
           <SoupYamlCard />
         </div>
       </div>

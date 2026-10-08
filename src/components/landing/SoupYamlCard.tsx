@@ -37,7 +37,7 @@ export const SoupYamlCard: React.FC = () => {
   };
 
   return (
-    <div className="w-full rounded-xl bg-[#141414] border border-[#38383a] overflow-hidden flex flex-col font-mono text-xs select-text">
+    <div className="w-full h-full rounded-xl bg-[#141414] border border-[#38383a] overflow-hidden flex flex-col font-mono text-xs select-text">
       {/* 32px Tab Header Bar with Traffic Lights */}
       <div className="h-[32px] min-h-[32px] bg-[#292929] border-b border-[#38383a] px-3.5 flex items-center justify-between select-none shrink-0">
         <div className="flex items-center gap-2">
