@@ -299,7 +299,6 @@ def get_tokenizer() -> AutoTokenizer:
         return _TOKENIZER
 
 
-@spaces.GPU(duration=60)
 def _gpu_generate_tokens(
     prompt: Optional[str] = None,
     max_new_tokens: int = 384,
@@ -310,7 +309,7 @@ def _gpu_generate_tokens(
 ) -> Union[str, torch.Tensor]:
     """Run model generation inside Hugging Face Spaces GPU allocation context.
 
-    On Spaces ZeroGPU, the GPU is only dynamically attached within this function.
+    On Spaces ZeroGPU, the GPU allocation is held by the top-level @spaces.GPU handler.
     Guarded by _INFERENCE_LOCK to serialize access across threads on macOS MPS and CUDA.
     """
     with _INFERENCE_LOCK:

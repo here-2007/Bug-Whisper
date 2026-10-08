@@ -32,16 +32,16 @@ import logging
 import os
 import subprocess
 import mimetypes
-from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import gradio as gr
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from starlette.routing import Mount, Route
 
 import inference
 
@@ -51,6 +51,15 @@ logger = logging.getLogger("bugwhisper.app")
 
 BASE_DIR = Path(__file__).parent.resolve()
 DIST_DIR = BASE_DIR / "dist"
+
+
+# ---------------------------------------------------------------------------
+# ZeroGPU Scanner Probe Function
+# ---------------------------------------------------------------------------
+@spaces.GPU
+def _zerogpu_probe() -> bool:
+    """Startup probe function detected by Hugging Face ZeroGPU platform scanner."""
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -118,33 +127,6 @@ class DiagnosisResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# FastAPI Application & REST Endpoints
-# ---------------------------------------------------------------------------
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan managing Bug Whisper server lifecycle on ZeroGPU."""
-    logger.info("Lifespan startup: Bug Whisper server initialized.")
-    yield
-    logger.info("Application shutdown.")
-
-
-fastapi_app = FastAPI(
-    title="Bug Whisper API",
-    description="Bridge connecting existing React UI with fine-tuned Qwen 2.5 Coder 3B model",
-    version="1.0.0",
-    lifespan=lifespan,
-)
-
-fastapi_app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-# ---------------------------------------------------------------------------
 # ZeroGPU Model Inference Handler
 # ---------------------------------------------------------------------------
 @spaces.GPU(duration=60)
@@ -166,70 +148,9 @@ def gradio_diagnose(
     )
 
 
-@fastapi_app.post("/api/diagnose", response_model=DiagnosisResponse)
-def diagnose_error(req: DiagnosisRequest) -> Dict[str, Any]:
-    """Structured error diagnosis endpoint called by the React Playground."""
-    logger.info("Received /api/diagnose request for error_type=%s, line=%s", req.error_type, req.line)
-
-    raw_traceback = req.traceback or req.stderr or ""
-    raw_message = req.error_message or ""
-    if not raw_message and raw_traceback:
-        lines = [line.strip() for line in raw_traceback.splitlines() if line.strip()]
-        if lines:
-            raw_message = lines[-1]
-
-    return gradio_diagnose(
-        code=req.code,
-        error_type=req.error_type or "RuntimeError",
-        error_message=raw_message,
-        traceback=raw_traceback,
-        line=float(req.line or 1),
-    )
-
-
-@fastapi_app.post("/api/explain", response_model=DiagnosisResponse)
-def explain_legacy(req: LegacyExplainRequest) -> Dict[str, Any]:
-    """Backward-compatible endpoint matching existing frontend probe signature."""
-    logger.info("Received /api/explain request for error_type=%s", req.error_type)
-    raw_tb = req.traceback or req.stderr or ""
-    raw_type = req.error_type or "RuntimeError"
-
-    return gradio_diagnose(
-        code=req.code,
-        error_type=raw_type,
-        error_message=raw_tb.splitlines()[-1] if raw_tb else "",
-        traceback=raw_tb,
-        line=float(req.line_number or 1),
-    )
-
-
-@fastapi_app.get("/api/status")
-@fastapi_app.get("/api/health")
-def api_status() -> Dict[str, Any]:
-    """Health and model status endpoint."""
-    status = inference.model_status()
-    status["frontend_available"] = (DIST_DIR / "index.html").is_file()
-    status["status"] = "ready"
-    return status
-
-
-@fastapi_app.get("/gradio")
-def redirect_to_gradio():
-    """Redirect /gradio to trailing slash /gradio/ for Starlette mount."""
-    return RedirectResponse(url="/gradio/", status_code=307)
-
-
-@fastapi_app.post("/gradio/api/diagnose", response_model=DiagnosisResponse)
-def gradio_api_diagnose(req: DiagnosisRequest) -> Dict[str, Any]:
-    """Mirror endpoint under /gradio/api/diagnose for Gradio-scoped clients."""
-    return diagnose_error(req)
-
-
 # ---------------------------------------------------------------------------
 # Gradio Blocks Interface (The Model Bridge)
 # ---------------------------------------------------------------------------
-
-
 with gr.Blocks(title="Bug Whisper Bridge") as demo:
     gr.Markdown("# Bug Whisper: Model Inference Bridge")
     gr.Markdown("ZeroGPU bridge hosting Qwen 2.5 Coder 3B 4-bit weights behind the React workbench.")
@@ -253,10 +174,79 @@ with gr.Blocks(title="Bug Whisper Bridge") as demo:
     )
 
 
-# ---------------------------------------------------------------------------
-# Mount Gradio and Static React Frontend
-# ---------------------------------------------------------------------------
+# Add CORS Middleware to demo.app
+demo.app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+
+# ---------------------------------------------------------------------------
+# REST Endpoints Attached to demo.app
+# ---------------------------------------------------------------------------
+@demo.app.post("/api/diagnose", response_model=DiagnosisResponse)
+def diagnose_error(req: DiagnosisRequest) -> Dict[str, Any]:
+    """Structured error diagnosis endpoint called by the React Playground."""
+    logger.info("Received /api/diagnose request for error_type=%s, line=%s", req.error_type, req.line)
+
+    raw_traceback = req.traceback or req.stderr or ""
+    raw_message = req.error_message or ""
+    if not raw_message and raw_traceback:
+        lines = [line.strip() for line in raw_traceback.splitlines() if line.strip()]
+        if lines:
+            raw_message = lines[-1]
+
+    return gradio_diagnose(
+        code=req.code,
+        error_type=req.error_type or "RuntimeError",
+        error_message=raw_message,
+        traceback=raw_traceback,
+        line=float(req.line or 1),
+    )
+
+
+@demo.app.post("/api/explain", response_model=DiagnosisResponse)
+def explain_legacy(req: LegacyExplainRequest) -> Dict[str, Any]:
+    """Backward-compatible endpoint matching existing frontend probe signature."""
+    logger.info("Received /api/explain request for error_type=%s", req.error_type)
+    raw_tb = req.traceback or req.stderr or ""
+    raw_type = req.error_type or "RuntimeError"
+
+    return gradio_diagnose(
+        code=req.code,
+        error_type=raw_type,
+        error_message=raw_tb.splitlines()[-1] if raw_tb else "",
+        traceback=raw_tb,
+        line=float(req.line_number or 1),
+    )
+
+
+@demo.app.get("/api/status")
+@demo.app.get("/api/health")
+def api_status() -> Dict[str, Any]:
+    """Health and model status endpoint."""
+    status = inference.model_status()
+    status["frontend_available"] = (DIST_DIR / "index.html").is_file()
+    status["status"] = "ready"
+    return status
+
+
+@demo.app.post("/gradio/api/diagnose", response_model=DiagnosisResponse)
+def gradio_api_diagnose(req: DiagnosisRequest) -> Dict[str, Any]:
+    """Mirror endpoint under /gradio/api/diagnose for Gradio-scoped clients."""
+    return diagnose_error(req)
+
+
+# Mount Gradio onto demo.app at /gradio so Gradio UI & API are fully initialized
+app = gr.mount_gradio_app(demo.app, demo, path="/gradio")
+
+
+# ---------------------------------------------------------------------------
+# Static React Frontend Serving & Route Precedence
+# ---------------------------------------------------------------------------
 mimetypes.add_type("text/javascript", ".mjs")
 mimetypes.add_type("text/javascript", ".js")
 mimetypes.add_type("application/wasm", ".wasm")
@@ -268,37 +258,33 @@ frontend_ready = ensure_frontend_built()
 if frontend_ready:
     assets_dir = DIST_DIR / "assets"
     if assets_dir.is_dir():
-        fastapi_app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+        app.router.routes.insert(0, Mount("/assets", StaticFiles(directory=str(assets_dir)), name="dist_assets"))
 
     pyodide_dir = DIST_DIR / "pyodide"
     if pyodide_dir.is_dir():
-        fastapi_app.mount("/pyodide", StaticFiles(directory=str(pyodide_dir)), name="pyodide")
+        app.router.routes.insert(0, Mount("/pyodide", StaticFiles(directory=str(pyodide_dir)), name="dist_pyodide"))
 
-    @fastapi_app.get("/", response_class=FileResponse)
-    def serve_frontend_root():
-        return FileResponse(DIST_DIR / "index.html")
+    app.router.routes.insert(0, Route("/", lambda req: FileResponse(DIST_DIR / "index.html"), methods=["GET", "HEAD"]))
 
-# Mount Gradio onto /gradio so Gradio UI and API are accessible
-app = gr.mount_gradio_app(fastapi_app, demo, path="/gradio")
+    @app.get("/gradio")
+    def redirect_to_gradio():
+        """Redirect /gradio to trailing slash /gradio/ for Starlette mount."""
+        return RedirectResponse(url="/gradio/", status_code=307)
 
-# Serve remaining static assets or SPA routes (registered after Gradio mount)
-if frontend_ready:
-
-    @fastapi_app.get("/{filename:path}")
+    @app.get("/{filename:path}")
     def serve_static_or_spa(filename: str, request: Request):
-        if filename.startswith(("api", "gradio", "gradio_api")):
+        if filename.startswith(("api", "gradio", "gradio_api", "assets", "pyodide", "queue", "openapi", "docs")):
             raise HTTPException(status_code=404, detail="Not found")
 
         file_path = DIST_DIR / filename
         if file_path.is_file():
             return FileResponse(file_path)
-        # SPA fallback for frontend paths
         return FileResponse(DIST_DIR / "index.html")
 
 else:
     logger.warning("Compiled frontend not available; serving placeholder on /.")
 
-    @fastapi_app.get("/", response_class=HTMLResponse)
+    @app.get("/", response_class=HTMLResponse)
     def serve_placeholder():
         return HTMLResponse(
             "<html><body style='font-family: monospace; padding: 2rem; background: #141414; color: #f6f6f6;'>"
@@ -310,17 +296,43 @@ else:
 
 
 # ---------------------------------------------------------------------------
-# Direct CLI Entrypoint
+# ZeroGPU Supervisor Readiness Notification Helper
+# ---------------------------------------------------------------------------
+def notify_zerogpu_startup() -> None:
+    """Explicitly execute ZeroGPU startup sequence and notify supervisor."""
+    try:
+        from spaces.zero import client as zero_client  # type: ignore
+        from spaces.zero import decorator as zero_decorator  # type: ignore
+        from spaces.zero import torch as zero_torch  # type: ignore
+
+        zero_torch.pack()
+        if len(zero_decorator.decorated_cache) > 0:
+            zero_client.startup_report()
+            logger.info("ZeroGPU supervisor successfully acknowledged startup_report.")
+        else:
+            logger.warning("ZeroGPU decorator cache was empty during startup report.")
+    except Exception as exc:
+        logger.debug("ZeroGPU startup notification: %s", exc)
+
+
+# ---------------------------------------------------------------------------
+# Direct Entrypoint: Launch Gradio App with Full Bridge
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    import uvicorn
-
+    port_env = os.environ.get("PORT") or os.environ.get("GRADIO_SERVER_PORT")
+    port = int(port_env) if port_env else 7860
     host = os.environ.get("HOST", "0.0.0.0")
-    port = int(os.environ.get("PORT", "7860"))
 
     logger.info("Starting Bug Whisper server on http://%s:%d ...", host, port)
     logger.info("Serving React frontend from: %s", DIST_DIR)
     logger.info("Gradio bridge available at: http://%s:%d/gradio", host, port)
     logger.info("API diagnosis endpoint: http://%s:%d/api/diagnose", host, port)
 
-    uvicorn.run(app, host=host, port=port)
+    notify_zerogpu_startup()
+
+    demo.launch(
+        _app=app,
+        server_name=host,
+        server_port=port,
+        prevent_thread_lock=False,
+    )
