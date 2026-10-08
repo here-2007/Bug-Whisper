@@ -52,10 +52,15 @@ export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
               <AlertOctagon className="w-3 h-3" />
               <span>Execution Error</span>
             </span>
-          ) : (
+          ) : result && result.success ? (
             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-[#16251b] text-[#7bd88f] border border-[#223d2b]">
               <CheckCircle2 className="w-3 h-3" />
               <span>Code Clean</span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-[#191b17] text-[#8e9385] border border-[#272b22]">
+              <Sparkles className="w-3 h-3 text-[#f8e67a]" />
+              <span>Standby</span>
             </span>
           )}
         </div>
@@ -120,8 +125,8 @@ export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
               <span>Line: {result?.lineNumber ?? 'Unknown'}</span>
             </div>
           </div>
-        ) : (
-          /* State 3: Code Clean (Default on mount & on clean exit code 0) */
+        ) : result && result.success ? (
+          /* State 3: Code Clean (Only when actual execution succeeded with exit code 0) */
           <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
             <div className="w-10 h-10 rounded-full bg-[#16251b] border border-[#223d2b] flex items-center justify-center text-[#7bd88f]">
               <CheckCircle2 className="w-5 h-5" />
@@ -136,6 +141,24 @@ export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
               <span>Status: Clean</span>
               <span>·</span>
               <span>Exit Code: 0</span>
+            </div>
+          </div>
+        ) : (
+          /* State 5: Standby / Ready for Execution (Initial mount before code runs) */
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+            <div className="w-10 h-10 rounded-full bg-[#1e201b] border border-[#2d3128] flex items-center justify-center text-[#8e9385]">
+              <Sparkles className="w-5 h-5 text-[#f8e67a]" />
+            </div>
+            <div className="space-y-1">
+              <div className="text-sm font-semibold text-white tracking-tight">Ready for Execution</div>
+              <p className="text-[11px] text-[#8e9385] max-w-sm leading-relaxed">
+                Click &apos;Run (Ctrl+Enter)&apos; to evaluate Python code. If an error occurs during execution, Bug Whisper automatically intercepts the traceback and explains the failure.
+              </p>
+            </div>
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#191b17] border border-[#272b22] text-[10px] text-[#6f7566]">
+              <span>Deterministic Tracer</span>
+              <span>·</span>
+              <span>Qwen 2.5 Coder 3B</span>
             </div>
           </div>
         )}

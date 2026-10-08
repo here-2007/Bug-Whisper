@@ -58,6 +58,7 @@ def __bug_whisper_execute__(user_code_str):
             "__file__": "main.py",
             "__doc__": None,
             "__package__": None,
+            "__builtins__": __builtins__,
         }
         exec(compiled_code, clean_globals)
 
@@ -134,13 +135,35 @@ async function getPyodide(): Promise<PyodideInterface> {
     message: 'Loading Pyodide Wasm runtime...',
   });
 
-  initPromise = (async () => {
-    // Load from self-hosted /pyodide/ mount (canonical location)
+  const CDN_INDEX_URL = 'https://cdn.jsdelivr.net/pyodide/v314.0.7/full/';
+
+  const getLocalIndexURL = (): string => {
     try {
-      const py = await loadPyodide({
-        indexURL: '/pyodide/',
-        checkAPIVersion: false,
-      });
+      if (typeof self !== 'undefined' && self.location && self.location.origin) {
+        return new URL('/pyodide/', self.location.origin).href;
+      }
+    } catch {
+      // Fall through to relative path
+    }
+    return '/pyodide/';
+  };
+
+  initPromise = (async () => {
+    try {
+      let py: PyodideInterface;
+      try {
+        py = await loadPyodide({
+          indexURL: getLocalIndexURL(),
+          checkAPIVersion: false,
+        });
+      } catch (localErr: unknown) {
+        console.warn('Local Pyodide load failed, falling back to jsDelivr CDN:', localErr);
+        py = await loadPyodide({
+          indexURL: CDN_INDEX_URL,
+          checkAPIVersion: false,
+        });
+      }
+
       await initHarness(py);
       pyodideInstance = py;
       postMessageToMain({

@@ -33,10 +33,26 @@ export const PlaygroundHeader: React.FC<PlaygroundHeaderProps> = ({
         </span>
       );
     }
+    if (status === 'error') {
+      return (
+        <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono bg-[#2b161b] text-[#fc618d] border border-[#52222c]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#fc618d]" />
+          <span>Static Tracer Active</span>
+        </span>
+      );
+    }
+    if (status === 'loading') {
+      return (
+        <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono bg-[#322c15] text-[#f8e67a] border border-[#52451c]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#f8e67a] animate-pulse" />
+          <span>Loading Wasm...</span>
+        </span>
+      );
+    }
     return (
       <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono bg-[#1a291e] text-[#7bd88f] border border-[#27462e]">
         <span className="w-1.5 h-1.5 rounded-full bg-[#7bd88f]" />
-        <span>{status === 'loading' ? 'Loading Wasm' : 'Sandbox Ready'}</span>
+        <span>Sandbox Ready</span>
       </span>
     );
   };

@@ -307,3 +307,64 @@ describe('B6: Settings & Persistence Boundaries', () => {
     expect(sanitizeTemperature(0.7)).toBe(0.7);
   });
 });
+
+// ============================================================================
+// B7: Deterministic Static Fallback Tracer Boundaries
+// ============================================================================
+describe('B7: Deterministic Static Fallback Tracer Boundaries', () => {
+  test('B7.1: Explicit zero division in arbitrary code returns ZeroDivisionError (not success)', async () => {
+    const { executeDeterministicFallback } = await import('../src/lib/pythonFallback');
+    const res = executeDeterministicFallback('print(1 / 0)', 'test-b7-1');
+    expect(res.success).toBe(false);
+    expect(res.errorType).toBe('ZeroDivisionError');
+    expect(res.lineNumber).toBe(1);
+    expect(res.stderr).toContain('ZeroDivisionError: division by zero');
+  });
+
+  test('B7.2: Unclosed parentheses in custom code returns SyntaxError', async () => {
+    const { executeDeterministicFallback } = await import('../src/lib/pythonFallback');
+    const res = executeDeterministicFallback('def broken_fn(\n    pass', 'test-b7-2');
+    expect(res.success).toBe(false);
+    expect(res.errorType).toBe('SyntaxError');
+    expect(res.stderr).toContain('SyntaxError');
+  });
+
+  test('B7.3: Missing colon on compound header returns SyntaxError', async () => {
+    const { executeDeterministicFallback } = await import('../src/lib/pythonFallback');
+    const res = executeDeterministicFallback('if x == 1\n    print("match")', 'test-b7-3');
+    expect(res.success).toBe(false);
+    expect(res.errorType).toBe('SyntaxError');
+    expect(res.stderr).toContain("expected ':'");
+  });
+
+  test('B7.4: JavaScript keywords mistakenly entered return SyntaxError', async () => {
+    const { executeDeterministicFallback } = await import('../src/lib/pythonFallback');
+    const res = executeDeterministicFallback('let x = 42', 'test-b7-4');
+    expect(res.success).toBe(false);
+    expect(res.errorType).toBe('SyntaxError');
+  });
+
+  test('B7.5: Playground default code triggers ZeroDivisionError in calculate_user_metrics', async () => {
+    const { executeDeterministicFallback } = await import('../src/lib/pythonFallback');
+    const defaultSnippet = `def calculate_user_metrics(users, target_id):
+    record = users.get(target_id)
+    ratio = record["total_requests"] / record["error_count"]
+    return {"ratio": ratio}
+
+user_db = {"usr_102": {"total_requests": 1420, "error_count": 0}}
+calculate_user_metrics(user_db, "usr_102")`;
+    const res = executeDeterministicFallback(defaultSnippet, 'test-b7-5');
+    expect(res.success).toBe(false);
+    expect(res.errorType).toBe('ZeroDivisionError');
+    expect(res.lineNumber).toBe(3);
+  });
+
+  test('B7.6: Valid simple script evaluates clean with exit 0', async () => {
+    const { executeDeterministicFallback } = await import('../src/lib/pythonFallback');
+    const res = executeDeterministicFallback('print("Clean execution")', 'test-b7-6');
+    expect(res.success).toBe(true);
+    expect(res.stdout).toContain('Clean execution');
+    expect(res.errorType).toBe(null);
+  });
+});
+

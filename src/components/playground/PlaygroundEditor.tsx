@@ -20,6 +20,11 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
   const monacoRef = useRef<any>(null);
   const decorationsRef = useRef<string[]>([]);
 
+  const onRunRef = useRef(onRun);
+  useEffect(() => {
+    onRunRef.current = onRun;
+  }, [onRun]);
+
   const handleMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
@@ -48,7 +53,9 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
     });
 
     monaco.editor.setTheme('playground-dark');
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onRun);
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      onRunRef.current?.();
+    });
   };
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PlaygroundHeader } from './PlaygroundHeader';
 import { PlaygroundEditor } from './PlaygroundEditor';
 import { PlaygroundTerminal } from './PlaygroundTerminal';
@@ -32,15 +32,19 @@ print(f"Metrics computed: {metrics}")
 
 export const BugWhisperPlayground: React.FC = () => {
   const [code, setCode] = useState<string>(DEFAULT_CODE);
+  const codeRef = useRef<string>(code);
+  useEffect(() => {
+    codeRef.current = code;
+  }, [code]);
   const [explanation, setExplanation] = useState<ExplanationResponse | null>(null);
   const [isExplaining, setIsExplaining] = useState<boolean>(false);
   const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
 
   const { status, isExecuting, lastResult, runCode, clearOutput } = usePyodide();
 
-  // Execute initial code on mount once Pyodide Wasm is ready
+  // Execute initial code on mount once Pyodide Wasm is ready or if fallback is active
   useEffect(() => {
-    if (status === 'ready') {
+    if (status === 'ready' || status === 'error') {
       runCode(code);
     }
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -97,8 +101,8 @@ export const BugWhisperPlayground: React.FC = () => {
   const handleRun = useCallback(() => {
     setExplanation(null);
     setIsExplaining(false);
-    runCode(code);
-  }, [code, runCode]);
+    runCode(codeRef.current);
+  }, [runCode]);
 
   const handleReset = useCallback(() => {
     setCode(DEFAULT_CODE);
