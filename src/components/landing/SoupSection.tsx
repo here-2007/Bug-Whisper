@@ -140,7 +140,7 @@ export const SoupSection: React.FC = () => {
                 <ArrowRight className="w-3.5 h-3.5" />
               </a>
               <a
-                href="https://github.com/trysoup/soup"
+                href="https://github.com/MakazhanAlpamys/Soup"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-neutral-50 border border-[#dfdacd] text-xs font-medium text-[#141414] transition-colors"

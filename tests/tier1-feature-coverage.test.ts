@@ -497,20 +497,13 @@ describe('F8: Pyodide WebWorker Sandbox & Terminal HUD Modules', () => {
     expect(content).toContain('clearOutput');
   });
 
-  test('F8.4: src/components/TerminalDrawer.tsx implements Engineering dark HUD, traffic dots, and Remediate CTA', () => {
-    const terminalPath = path.join(ROOT_DIR, 'src', 'components', 'TerminalDrawer.tsx');
+  test('F8.4: src/components/playground/PlaygroundTerminal.tsx implements terminal output with error display and Jump to Line', () => {
+    const terminalPath = path.join(ROOT_DIR, 'src', 'components', 'playground', 'PlaygroundTerminal.tsx');
     expect(fs.existsSync(terminalPath)).toBe(true);
     const content = fs.readFileSync(terminalPath, 'utf-8');
 
-    expect(content).toContain('TerminalDrawer');
-    expect(content).toContain('bg-ink-black');
-    expect(content).toContain('bg-charcoal-surface');
-    expect(content).toContain('border-graphite-border');
-    expect(content).toContain('bg-hot-pink');
-    expect(content).toContain('bg-canary-yellow');
-    expect(content).toContain('bg-mint-green');
-    expect(content).toContain('Jump to Line');
-    expect(content).toContain('Remediate with Whisper');
+    expect(content).toContain('PlaygroundTerminal');
+    expect(content).toContain('onJumpToLine');
   });
 
   test('F8.5: src/App.tsx mounts StudioSection hosting BugWhisperPlayground', () => {

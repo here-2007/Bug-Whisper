@@ -62,15 +62,9 @@ export async function diagnoseError(req: ErrorDiagnosisRequest): Promise<ErrorDi
   const isBrowser = typeof window !== 'undefined';
   const timeoutMs = isBrowser ? 30000 : 250;
 
-  const probeUrls: string[] = [];
-  if (isBrowser) {
-    probeUrls.push('/api/diagnose');
-    probeUrls.push('/gradio/api/diagnose');
-    probeUrls.push('http://localhost:7860/api/diagnose');
-  } else {
-    probeUrls.push('http://localhost:7860/api/diagnose');
-    probeUrls.push('/api/diagnose');
-  }
+  const probeUrls: string[] = isBrowser
+    ? ['/api/diagnose', '/gradio/api/diagnose']
+    : ['http://localhost:7860/api/diagnose'];
 
   for (const url of probeUrls) {
     try {
@@ -109,10 +103,10 @@ export async function diagnoseError(req: ErrorDiagnosisRequest): Promise<ErrorDi
       if (res.ok) {
         const rawJson = await res.json();
         const data = (isGradioApi && Array.isArray(rawJson.data) ? rawJson.data[0] : rawJson) || {};
-        const what = data.what_happened || data.what || `${req.error_type}: ${req.error_message}`;
-        const why = data.why_it_happened || data.why || 'The Python interpreter halted on an unhandled exception.';
+        const what = data.what_happened || data.what || '';
+        const why = data.why_it_happened || data.why || '';
         const fix = data.suggested_fix || '';
-        const explanation = data.explanation || (what ? `${what}\n\n${why}` : why);
+        const explanation = data.explanation || (what ? `${what}\n\n${why}` : why) || `${req.error_type}: ${req.error_message}\n\nThe Python interpreter halted on an unhandled exception.`;
 
         return {
           error_type: data.error_type || req.error_type,

@@ -6,6 +6,5 @@ Configured via pyproject.toml and setuptools.
 from setuptools import setup, find_packages
 
 setup(
-    package_dir={"": "backend"},
-    packages=find_packages(where="backend", include=["bugwhisper*"]),
+    packages=find_packages(exclude=["tests*"]),
 )

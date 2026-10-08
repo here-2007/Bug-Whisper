@@ -10,6 +10,8 @@ from __future__ import annotations
 import logging
 import os
 import subprocess
+import mimetypes
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -92,9 +94,6 @@ class DiagnosisResponse(BaseModel):
     what: str
     why: str
     warning: Optional[str] = None
-
-
-from contextlib import asynccontextmanager
 
 
 # ---------------------------------------------------------------------------
@@ -237,7 +236,6 @@ with gr.Blocks(title="Bug Whisper Bridge") as demo:
 # ---------------------------------------------------------------------------
 # Mount Gradio and Static React Frontend
 # ---------------------------------------------------------------------------
-import mimetypes
 
 mimetypes.add_type("text/javascript", ".mjs")
 mimetypes.add_type("text/javascript", ".js")

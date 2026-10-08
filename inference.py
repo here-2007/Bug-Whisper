@@ -299,12 +299,6 @@ def get_tokenizer() -> AutoTokenizer:
         return _TOKENIZER
 
 
-def get_model() -> AutoModelForCausalLM:
-    """Return the cached model instance."""
-    model, _ = get_inference_engine()
-    return model
-
-
 @spaces.GPU(duration=60)
 def _gpu_generate_tokens(
     prompt: Optional[str] = None,
@@ -396,25 +390,26 @@ def parse_model_output(
     error_message: str,
     line: Optional[int] = None,
 ) -> Dict[str, str]:
-    """Robustly parse structured diagnosis from model response text.
+    """Robustly parse structured diagnosis fields from raw model output.
 
-    Tries:
-    1. Direct json.loads or extracted ```json markdown block
-    2. Regex pattern extraction for what_happened / why_it_happened / suggested_fix
-    3. Markdown heading extraction (### What Happened, etc.)
-    4. Deterministic fallback to ensure valid output
+    Handles valid JSON, markdown blocks, paragraph prose, and malformed/empty text.
+    Ensures safe fallback values are always populated for what_happened and why_it_happened.
     """
-    cleaned = raw_text.strip()
+    cleaned = (raw_text or "").strip()
+    line_suffix = f" on line {line}" if line else ""
 
-    # Attempt 1: Extract JSON from markdown fence or raw text
+    if not cleaned:
+        return {
+            "what_happened": f"{error_type}{line_suffix}: {error_message}",
+            "why_it_happened": f"Python raised a {error_type} during bytecode execution.",
+            "suggested_fix": "Inspect the offending line and verify variables and types.",
+        }
+
+    # Attempt JSON extraction
     json_candidates = []
-
-    # Check for ```json ... ``` or ``` ... ```
     fence_match = re.search(r"```(?:json)?\s*(\{[\s\S]*?\})\s*```", cleaned)
     if fence_match:
         json_candidates.append(fence_match.group(1).strip())
-
-    # Check for direct top-level JSON object
     obj_match = re.search(r"\{[\s\S]*\}", cleaned)
     if obj_match:
         json_candidates.append(obj_match.group(0).strip())
@@ -435,35 +430,7 @@ def parse_model_output(
         except Exception:
             pass
 
-    # Attempt 2: Heading-based extraction (### What Happened / ### Why It Happened)
-    what_match = re.search(
-        r"(?:###\s*What Happened|What Happened:?)\s*\n*([\s\S]*?)(?=(?:###\s*Why It Happened|Why It Happened:?|$))",
-        cleaned,
-        re.IGNORECASE,
-    )
-    why_match = re.search(
-        r"(?:###\s*Why It Happened|Why It Happened:?)\s*\n*([\s\S]*?)(?=(?:###\s*Suggested Fix|How to Fix:?|Suggested Fix:?|$))",
-        cleaned,
-        re.IGNORECASE,
-    )
-    fix_match = re.search(
-        r"(?:###\s*Suggested Fix|How to Fix:?|Suggested Fix:?)\s*\n*([\s\S]*?)$",
-        cleaned,
-        re.IGNORECASE,
-    )
-
-    what_text = what_match.group(1).strip() if what_match else ""
-    why_text = why_match.group(1).strip() if why_match else ""
-    fix_text = fix_match.group(1).strip() if fix_match else ""
-
-    if what_text or why_text:
-        return {
-            "what_happened": what_text or f"{error_type}: {error_message}",
-            "why_it_happened": why_text or "The Python interpreter encountered an unhandled exception.",
-            "suggested_fix": fix_text,
-        }
-
-    # Attempt 3: If non-empty conversational text, use first paragraphs
+    # Paragraph-based extraction
     paragraphs = [p.strip() for p in cleaned.split("\n\n") if p.strip()]
     if paragraphs:
         what = paragraphs[0]
@@ -475,8 +442,6 @@ def parse_model_output(
             "suggested_fix": fix,
         }
 
-    # Fallback: Deterministic semantic explanation
-    line_suffix = f" on line {line}" if line else ""
     return {
         "what_happened": f"{error_type}{line_suffix}: {error_message}",
         "why_it_happened": f"Python raised a {error_type} during bytecode execution.",
@@ -533,18 +498,22 @@ def explain_error(
         # Direct model output as explanation, without artificial headings
         cleaned_explanation = raw_text
 
-        # For backwards compatibility with consumers expecting what/why:
-        paragraphs = [p.strip() for p in cleaned_explanation.split("\n\n") if p.strip()]
-        what_happened = paragraphs[0] if paragraphs else f"{safe_error_type}: {safe_error_msg}"
-        why_it_happened = (
-            paragraphs[1] if len(paragraphs) > 1 else (paragraphs[0] if paragraphs else "Runtime failure.")
+        # Use robust parser for structured fallback fields
+        parsed = parse_model_output(
+            raw_text=raw_text,
+            error_type=safe_error_type,
+            error_message=safe_error_msg,
+            line=line,
         )
+        what_happened = parsed["what_happened"]
+        why_it_happened = parsed["why_it_happened"]
+        suggested_fix = parsed.get("suggested_fix", "")
 
         return {
             "error_type": safe_error_type,
             "what_happened": what_happened,
             "why_it_happened": why_it_happened,
-            "suggested_fix": "",
+            "suggested_fix": suggested_fix,
             "confidence": 1.0,
             "explanation": cleaned_explanation,
             "latency_ms": latency_ms,

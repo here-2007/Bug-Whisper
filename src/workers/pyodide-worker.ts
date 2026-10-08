@@ -135,12 +135,10 @@ async function getPyodide(): Promise<PyodideInterface> {
   });
 
   initPromise = (async () => {
-    // 1. First priority: local self-hosted assets matching exact installed build
+    // Load from self-hosted /pyodide/ mount (canonical location)
     try {
-      const workerUrl = typeof self !== 'undefined' && self.location ? self.location.href : '';
-      const localBase = workerUrl ? new URL('.', workerUrl).href : '/assets/';
       const py = await loadPyodide({
-        indexURL: localBase,
+        indexURL: '/pyodide/',
         checkAPIVersion: false,
       });
       await initHarness(py);
@@ -151,30 +149,14 @@ async function getPyodide(): Promise<PyodideInterface> {
         message: 'Pyodide Wasm runtime ready',
       });
       return py;
-    } catch (localErr) {
-      console.warn('Local assets Pyodide load failed, trying /pyodide/ mount:', localErr);
-      try {
-        const py = await loadPyodide({
-          indexURL: '/pyodide/',
-          checkAPIVersion: false,
-        });
-        await initHarness(py);
-        pyodideInstance = py;
-        postMessageToMain({
-          type: 'STATUS',
-          status: 'ready',
-          message: 'Pyodide Wasm runtime ready (/pyodide/)',
-        });
-        return py;
-      } catch (fallbackErr: unknown) {
-        const errMsg = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr || localErr);
-        postMessageToMain({
-          type: 'STATUS',
-          status: 'error',
-          message: `Failed to initialize Pyodide: ${errMsg}`,
-        });
-        throw fallbackErr;
-      }
+    } catch (loadErr: unknown) {
+      const errMsg = loadErr instanceof Error ? loadErr.message : String(loadErr);
+      postMessageToMain({
+        type: 'STATUS',
+        status: 'error',
+        message: `Failed to initialize Pyodide: ${errMsg}`,
+      });
+      throw loadErr;
     } finally {
       initPromise = null;
     }

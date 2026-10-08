@@ -29,8 +29,11 @@ export const HeroNavbar: React.FC<{ className?: string }> = ({ className = '' })
           <a href="#playground" className="font-bold mr-12 hover:text-white transition-colors">
             PlayGround
           </a>
-          <a href="#soup" className="font-bold hover:text-white transition-colors">
+          <a href="#soup" className="font-bold mr-12 hover:text-white transition-colors">
             SOUP
+          </a>
+          <a href="https://www.kaggle.com/code/pernavjain/bug-whisper-python" className="font-bold hover:text-white transition-colors">
+            Notebook
           </a>
         </div>
       </div>

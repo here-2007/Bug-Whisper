@@ -1,3 +1,15 @@
+---
+title: Bug Whisper
+emoji: ⚡
+colorFrom: yellow
+colorTo: indigo
+sdk: gradio
+app_file: app.py
+pinned: false
+license: apache-2.0
+short_description: Python error debugging studio powered by Qwen 2.5 Coder 3B
+---
+
 # ⚡ Bug Whisper
 
 > **AI-powered Python error debugging studio & developer ecosystem**, combining deterministic runtime execution (CPython / Pyodide Wasm) with a fine-tuned **Qwen 2.5 Coder 3B** code-repair model (`bug-whisper-qwen25-coder-3b`).
@@ -6,7 +18,7 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Gradio](https://img.shields.io/badge/Gradio-6.0+-FF7C00?logo=gradio&logoColor=white)](https://gradio.app/)
 [![ZeroGPU](https://img.shields.io/badge/Hugging%20Face-ZeroGPU%20Ready-yellow)](https://huggingface.co/spaces)
-[![Tests](https://img.shields.io/badge/Tests-84%20TS%20%2B%2014%20Py%20Passing-success)](#test-suite--quality-assurance)
+[![Tests](https://img.shields.io/badge/Tests-84%20TS%20%2B%2017%20Py%20Passing-success)](#test-suite--quality-assurance)
 [![Kaggle Model](https://img.shields.io/badge/Kaggle-bug--whisper--qwen25--coder--3b-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
@@ -79,7 +91,7 @@ Bug Whisper pairs deterministic browser execution with specialized neural code r
 Clone the repository and install both Python and Node dependencies:
 
 ```bash
-git clone https://github.com/pernavjain/bug-whisper.git
+git clone https://github.com/harshitthek/bug-whisper.git
 cd bug-whisper
 
 # Set up Python virtual environment
@@ -199,7 +211,7 @@ Bug Whisper is pre-configured for deployment on **Hugging Face Spaces (ZeroGPU o
   "why_it_happened": "In Python, attempting to divide any number by zero results in a ZeroDivisionError.",
   "suggested_fix": "Replace the division operation with a non-zero value.",
   "confidence": 1.0,
-  "explanation": "### What Happened\nThe program attempted to divide by zero.\n\n### Why It Happened\nIn Python, attempting to divide any number by zero results in a ZeroDivisionError.\n\n### How to Fix\nReplace the division operation with a non-zero value.",
+  "explanation": "The program attempted to divide by zero. In Python, attempting to divide any number by zero results in a ZeroDivisionError. Replace the division operation with a non-zero value or add a guard check.",
   "latency_ms": 320,
   "provider": "Bug Whisper Qwen 2.5 Coder 3B (4-bit)",
   "what": "The program attempted to divide by zero.",
@@ -229,7 +241,7 @@ npm run build
 
 | Component | Test Suite | Tests Passing | Success Rate |
 |---|---|---|---|
-| **Python Backend & Model Bridge** | `pytest tests/test_backend_integration.py` | **14 / 14** | 100% |
+| **Python Backend & Model Bridge** | `pytest tests/test_backend_integration.py` | **17 / 17** | 100% |
 | **Frontend TypeScript Sandbox** | `tsx tests/run-tests.ts` | **84 / 84** | 100% |
 | **Vite Bundle** | `tsc -b && vite build` | **Clean build** | 100% |
 
@@ -237,8 +249,8 @@ npm run build
 
 ## 👥 Authors & Contributors
 
-* **Pernav Jain** ([@pernavjain](https://github.com/pernavjain) / Kaggle: [`pernavjain`](https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b))
-* **Harshit Sharma** ([@harshitxdev](https://github.com/harshitxdev) / Kaggle: `harshitxdev`)
+* **Pernav Jain** ([@here-2007](https://github.com/here-2007) · [LinkedIn](https://www.linkedin.com/in/pernav-jain/) · [Kaggle](https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b))
+* **Harshit Sharma** ([@harshitthek](https://github.com/harshitthek) · [LinkedIn](https://www.linkedin.com/in/devharshitsharma/))
 
 ---
 
