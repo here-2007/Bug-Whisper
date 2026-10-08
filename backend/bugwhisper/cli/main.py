@@ -63,7 +63,7 @@ def run(
     script_path: Path = typer.Argument(..., help="Path to Python script to execute"),
     timeout: float = typer.Option(5.0, "--timeout", "-t", help="Timeout in seconds"),
     auto_apply: bool = typer.Option(False, "--apply", "-y", help="Automatically apply verified fix"),
-    provider: str = typer.Option("auto", "--provider", "-p", help="Inference provider: auto, ollama, hf, openai, heuristic"),
+    provider: str = typer.Option("auto", "--provider", "-p", help="Inference provider: auto, ollama, hf, kaggle, openai, heuristic"),
     venv: Optional[Path] = typer.Option(None, "--venv", help="Path to virtual environment root or python executable"),
 ) -> None:
     """Executes Python script safely; synthesizes and verifies fixes upon failure."""
@@ -157,6 +157,7 @@ def serve(
 @app.command()
 def model(
     show_modelfile: bool = typer.Option(False, "--modelfile", "-m", help="Display Ollama Modelfile definition"),
+    download_kaggle: bool = typer.Option(False, "--download-kaggle", "-k", help="Download Kaggle model weights locally"),
 ) -> None:
     """Inspects local model status and Ollama configuration."""
     if show_modelfile:
@@ -213,6 +214,27 @@ def model(
         console.print("  • Run with HF provider: [cyan]bugwhisper run script.py --provider hf[/cyan]")
     except ImportError:
         console.print("  • huggingface_hub: [yellow]Not installed[/yellow] (run: pip install -r requirements.txt)")
+
+    console.print("\n[bold]Kaggle Hub Integration:[/bold]")
+    try:
+        import kagglehub
+        from bugwhisper.inference.kaggle_provider import KaggleProvider, DEFAULT_KAGGLE_HANDLE
+
+        kp = KaggleProvider()
+        cached = kp.is_model_downloaded()
+        cache_badge = "[bold green]Cached locally[/bold green]" if cached else "[yellow]Not cached (auto-downloads on first run)[/yellow]"
+        console.print(f"  • kagglehub: [green]v{kagglehub.__version__}[/green]")
+        console.print(f"  • Model Handle: [cyan]{DEFAULT_KAGGLE_HANDLE}[/cyan]")
+        console.print(f"  • Local Cache: {cache_badge}")
+        if download_kaggle:
+            console.print("[cyan]Downloading Kaggle model weights via kagglehub...[/cyan]")
+            path = kp.get_model_path(force_download=True)
+            console.print(f"[bold green]Model cached at: {path}[/bold green]")
+        else:
+            console.print("  • Download weights now: [cyan]bugwhisper model --download-kaggle[/cyan]")
+            console.print("  • Run with Kaggle provider: [cyan]bugwhisper run script.py --provider kaggle[/cyan]")
+    except ImportError:
+        console.print("  • kagglehub: [yellow]Not installed[/yellow] (run: pip install kagglehub)")
 
 
 if __name__ == "__main__":

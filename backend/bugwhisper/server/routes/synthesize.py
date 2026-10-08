@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 from bugwhisper.inference.heuristic_provider import HeuristicProvider
+from bugwhisper.inference.hf_provider import HuggingFaceProvider
+from bugwhisper.inference.kaggle_provider import KaggleProvider
 from bugwhisper.inference.manager import get_default_inference_manager
 from bugwhisper.inference.ollama_provider import OllamaProvider
 from bugwhisper.inference.openai_provider import OpenAIProvider
@@ -22,6 +24,10 @@ def _resolve_provider(provider_name: str | None):
         return OllamaProvider()
     if provider_name == "openai":
         return OpenAIProvider()
+    if provider_name in ("kaggle", "kagglehub"):
+        return KaggleProvider()
+    if provider_name in ("hf", "huggingface"):
+        return HuggingFaceProvider()
     return get_default_inference_manager()
 
 

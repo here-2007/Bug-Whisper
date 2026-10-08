@@ -43,7 +43,7 @@ export const PlaygroundRightPane: React.FC<PlaygroundRightPaneProps> = ({
   fixedCode,
 }) => {
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-[#141414]">
+    <div className="min-h-[380px] lg:h-full flex flex-col overflow-hidden bg-[#141414]">
       <PlaygroundTabs
         activeTab={activeTab}
         onTabChange={onTabChange}

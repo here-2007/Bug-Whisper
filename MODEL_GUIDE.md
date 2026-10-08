@@ -20,19 +20,19 @@ This guide details the fine-tuned **Qwen 2.5 Coder 3B** model (`bug-whisper-qwen
 
 ## 2. Serving Strategies
 
-Bug Whisper supports four serving strategies tailored for local development, production GPU clusters, and zero-dependency testing.
+Bug Whisper supports five serving strategies tailored for local development, production GPU clusters, Kaggle ecosystem weights, and zero-dependency testing.
 
 ```
                     ┌──────────────────────────────────────────────┐
                     │               Inference Manager              │
                     └──────────────────────┬───────────────────────┘
                                            │
-         ┌───────────────────┬─────────────┴───────┬────────────────────┐
-         ▼                   ▼                     ▼                    ▼
-┌──────────────────┐ ┌────────────────┐ ┌────────────────────┐ ┌──────────────────┐
-│   Local Ollama   │ │   vLLM / TGI   │ │  Hugging Face Hub  │ │   Deterministic  │
-│  (:11434/api)    │ │   (:8000/v1)   │ │  (Inference API)   │ │  Heuristics (0MB)│
-└──────────────────┘ └────────────────┘ └────────────────────┘ └──────────────────┘
+         ┌───────────────────┬─────────────┼─────────────┬────────────────────┐
+         ▼                   ▼             ▼             ▼                    ▼
+┌──────────────────┐ ┌────────────────┐ ┌──────────────┐ ┌────────────────┐ ┌──────────────────┐
+│   Local Ollama   │ │   vLLM / TGI   │ │  Kaggle Hub  │ │ Hugging Face   │ │   Deterministic  │
+│  (:11434/api)    │ │   (:8000/v1)   │ │  (kagglehub) │ │ (HF Hub / API) │ │  Heuristics (0MB)│
+└──────────────────┘ └────────────────┘ └──────────────┘ └────────────────┘ └──────────────────┘
 ```
 
 ---
@@ -142,9 +142,33 @@ print(tokenizer.decode(outputs[0][inputs.input_ids.shape[1]:], skip_special_toke
 
 ---
 
-### Strategy D: Deterministic Heuristic Fallback (Zero Weights / 0 MB)
+### Strategy D: Kaggle Hub (`kagglehub` Model Loader)
 
-When Ollama or remote GPU servers are not running, Bug Whisper automatically activates the **Deterministic Heuristic Engine**:
+Bug Whisper provides native support for loading fine-tuned weights directly from Kaggle Hub via `kagglehub`:
+
+* **Model Identifier**: `pernavjain/bug-whisper-qwen25-coder-3b`
+* **Zero-Setup Caching**: Downloads and caches model safetensors directly into your local Kaggle cache directory.
+* **Fallback Resilience**: Automatically verifies downloaded artifacts and falls back to deterministic AST heuristics if GPU acceleration is unavailable.
+
+#### CLI Usage:
+```bash
+# Verify status or download Kaggle model weights
+bugwhisper model --download-kaggle
+
+# Run repair on a script using the Kaggle provider
+bugwhisper run script.py --provider kaggle --apply
+```
+
+#### API Endpoints:
+* `GET /api/kaggle/status`: Check availability of `kagglehub` library and whether weights are cached locally.
+* `POST /api/kaggle/download`: Trigger asynchronous download and caching of Kaggle weights.
+* `POST /api/kaggle/infer`: Execute ChatML-aligned synthesis directly through the Kaggle-cached model.
+
+---
+
+### Strategy E: Deterministic Heuristic Fallback (Zero Weights / 0 MB)
+
+When Ollama, Kaggle, or remote GPU servers are not running, Bug Whisper automatically activates the **Deterministic Heuristic Engine**:
 * Employs AST static analysis and exception classification (`IndexError`, `KeyError`, `ZeroDivisionError`, `TypeError`, `AttributeError`, `UnboundLocalError`).
 * Resolves standard error patterns deterministically in $< 1\text{ ms}$.
 * Validates patches through two-stage AST compilation and dynamic execution.
@@ -188,10 +212,13 @@ Error output:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `BUGWHISPER_PROVIDER` | `ollama` | Active provider: `ollama`, `openai`, `vllm`, `heuristic` |
+| `BUGWHISPER_PROVIDER` | `ollama` | Active provider: `ollama`, `kaggle`, `hf`, `openai`, `vllm`, `heuristic` |
+| `KAGGLE_MODEL_HANDLE` | `pernavjain/bug-whisper-qwen25-coder-3b` | Target Kaggle Hub model identifier |
+| `HF_TOKEN` | `""` | Optional Hugging Face Hub token for hosted inference |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Endpoint for local Ollama service |
 | `OLLAMA_MODEL` | `bug-whisper-qwen25-coder-3b` | Target Ollama model name |
 | `OPENAI_BASE_URL` | `http://localhost:8000/v1` | Base URL for vLLM or OpenAI-compatible server |
 | `OPENAI_MODEL` | `bug-whisper-qwen25-coder-3b` | Target model name on remote server |
 | `OPENAI_API_KEY` | `""` | Optional authorization key for remote endpoint |
 | `BUGWHISPER_TIMEOUT` | `3.0` | Execution timeout (seconds) for dynamic runner |
+

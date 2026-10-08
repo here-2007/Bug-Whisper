@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Tests](https://img.shields.io/badge/Tests-74%20Passing%20(100%25)-success)](#test-suite--quality-assurance)
+[![Tests](https://img.shields.io/badge/Tests-93%20Passing%20(100%25)-success)](#test-suite--quality-assurance)
 [![Kaggle Model](https://img.shields.io/badge/Kaggle-bug--whisper--qwen25--coder--3b-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
@@ -74,23 +74,28 @@ python -m uvicorn backend.bugwhisper.server.app:app --port 8000 --reload
 ```
 Interactive API documentation is available at [http://localhost:8000/docs](http://localhost:8000/docs).
 
-### 3. Model Inference (Hugging Face, Ollama, or vLLM)
+### 3. Model Inference (Kaggle Hub, Hugging Face, Ollama, or vLLM)
 Bug Whisper supports multiple inference backends:
 
 ```bash
-# Option A: Hugging Face Library (huggingface_hub & transformers)
+# Option A: Kaggle Hub Model Loader (via kagglehub)
+# Directly downloads and caches pernavjain/bug-whisper-qwen25-coder-3b
+export BUGWHISPER_PROVIDER=kaggle
+python -m bugwhisper.cli.main model --download-kaggle
+
+# Option B: Hugging Face Library (huggingface_hub & transformers)
 # Uses fine-tuned pernavjain/bug-whisper-qwen25-coder-3b serverless endpoint
 export BUGWHISPER_PROVIDER=hf
 export HF_TOKEN="your_huggingface_token"  # Optional for public models
 
-# Option B: Local Ollama Service
+# Option C: Local Ollama Service
 ollama run qwen2.5-coder:3b
 ollama create bug-whisper-qwen25-coder-3b -f Modelfile
 
-# Option C: Zero-Weight Deterministic Fallback
-# Automatically engages if Ollama or HF are offline (0 MB download / 0 GPU)
+# Option D: Zero-Weight Deterministic Fallback
+# Automatically engages if Ollama, Kaggle, or HF are offline (0 MB download / 0 GPU)
 ```
-*For detailed instructions on serving via Hugging Face, vLLM, or Kaggle Hub, see [MODEL_GUIDE.md](file:///e:/projects/Bug%20whisper/MODEL_GUIDE.md).*
+*For detailed instructions on serving via Kaggle Hub, Hugging Face, or vLLM, see [MODEL_GUIDE.md](file:///e:/projects/Bug%20whisper/MODEL_GUIDE.md).*
 
 ### 4. Developer CLI (`bugwhisper`)
 Bug Whisper provides a command-line interface for terminal workflows:
@@ -98,11 +103,13 @@ Bug Whisper provides a command-line interface for terminal workflows:
 # Validate Python syntax statically
 python -m bugwhisper.cli.main check script.py
 
-# Execute, catch exceptions, synthesize & prompt to apply verified fix via Hugging Face
+# Execute, catch exceptions, synthesize & apply verified fix via Kaggle or Hugging Face
+python -m bugwhisper.cli.main run script.py --provider kaggle --apply
 python -m bugwhisper.cli.main run script.py --provider hf --apply
 
-# Inspect local model and Hugging Face Hub configuration
+# Inspect local model status and Kaggle / Hugging Face configuration
 python -m bugwhisper.cli.main model
+python -m bugwhisper.cli.main model --download-kaggle
 ```
 
 ### 5. Zero-Config Exception Auto-Hook
@@ -119,17 +126,17 @@ print(data["missing_key"])
 
 ## 🧪 Test Suite & Quality Assurance
 
-The repository includes a comprehensive test suite covering the runner sandbox, AST validator, traceback parser, inference fallbacks, two-stage verifier, and FastAPI endpoints:
+The repository includes a comprehensive test suite covering the runner sandbox, AST validator, traceback parser, inference fallbacks, Kaggle provider, two-stage verifier, and FastAPI endpoints:
 
 ```bash
 pytest backend/tests
 ```
 
 ```text
-======================= 85 passed in 35.12s =======================
+======================= 93 passed in 40.21s =======================
 ```
 
-* All 85 unit, integration, and sandbox tests pass with 100% success rate.
+* All 93 unit, integration, and sandbox tests pass with 100% success rate.
 * Frontend TypeScript test suite passes completely (82/82 tests passing).
 * Frontend TypeScript build compiles with zero errors (`tsc -b && vite build`).
 

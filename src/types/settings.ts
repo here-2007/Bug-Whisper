@@ -1,4 +1,4 @@
-export type ProviderType = 'mock' | 'ollama' | 'huggingface' | 'custom';
+export type ProviderType = 'mock' | 'ollama' | 'huggingface' | 'kaggle' | 'custom';
 
 export interface InferenceSettings {
   provider: ProviderType;
@@ -7,6 +7,7 @@ export interface InferenceSettings {
   hfEndpoint: string;
   hfModel: string;
   hfToken: string;
+  kaggleHandle: string;
   customEndpoint: string;
   customModel: string;
   customApiKey: string;
@@ -21,6 +22,7 @@ export const DEFAULT_INFERENCE_SETTINGS: InferenceSettings = {
   hfEndpoint: 'https://api-inference.huggingface.co/models',
   hfModel: 'pernavjain/bug-whisper-qwen25-coder-3b',
   hfToken: '',
+  kaggleHandle: 'pernavjain/bug-whisper-qwen25-coder-3b',
   customEndpoint: 'http://localhost:8000/v1',
   customModel: 'bug-whisper-qwen25-coder-3b',
   customApiKey: '',
@@ -32,6 +34,7 @@ export const PROVIDER_LABELS: Record<ProviderType, string> = {
   mock: 'Interactive Mock',
   ollama: 'Local Ollama',
   huggingface: 'Hugging Face Hub',
+  kaggle: 'Kaggle Models (kagglehub)',
   custom: 'Custom OpenAI / vLLM',
 };
 
@@ -39,5 +42,6 @@ export const PROVIDER_SHORT_LABELS: Record<ProviderType, string> = {
   mock: 'Mock',
   ollama: 'Ollama',
   huggingface: 'HF',
+  kaggle: 'Kaggle',
   custom: 'Custom',
 };

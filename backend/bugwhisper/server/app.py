@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from bugwhisper.server.config import settings
 from bugwhisper.server.routes.execute import router as execute_router
 from bugwhisper.server.routes.health import router as health_router
+from bugwhisper.server.routes.kaggle import router as kaggle_router
 from bugwhisper.server.routes.presets import router as presets_router
 from bugwhisper.server.routes.repair import router as repair_router
 from bugwhisper.server.routes.stream import router as stream_router
@@ -46,6 +47,7 @@ def create_app() -> FastAPI:
     application.include_router(repair_router, prefix="/api")
     application.include_router(stream_router, prefix="/api")
     application.include_router(presets_router, prefix="/api")
+    application.include_router(kaggle_router, prefix="/api")
 
     @application.get("/")
     async def root():

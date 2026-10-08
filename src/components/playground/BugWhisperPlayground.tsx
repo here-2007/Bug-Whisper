@@ -100,9 +100,9 @@ export const BugWhisperPlayground: React.FC = () => {
       />
 
       {/* Main 2-Column Split Workspace (Equal 50/50, Exactly Aligned) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#2d3128] h-[520px] lg:h-[560px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#2d3128] min-h-[560px] lg:h-[560px]">
         {/* Left: Python Code Editor */}
-        <div className="h-full flex flex-col overflow-hidden bg-[#141414]">
+        <div className="min-h-[380px] lg:h-full flex flex-col overflow-hidden bg-[#141414]">
           <PlaygroundEditor
             code={code}
             onChange={setCode}

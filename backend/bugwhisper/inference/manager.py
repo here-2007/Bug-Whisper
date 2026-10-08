@@ -12,6 +12,7 @@ from typing import AsyncIterator, Optional
 from .base import InferenceProvider, InferenceResult
 from .heuristic_provider import HeuristicProvider
 from .hf_provider import HuggingFaceProvider
+from .kaggle_provider import KaggleProvider
 from .ollama_provider import OllamaProvider
 from .openai_provider import OpenAIProvider
 
@@ -73,6 +74,11 @@ def get_default_inference_manager() -> InferenceManager:
             model_name=os.getenv("HF_MODEL", "pernavjain/bug-whisper-qwen25-coder-3b"),
             token=os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN") or None,
             use_local=os.getenv("HF_LOCAL", "").lower() in ("true", "1", "yes"),
+        )
+    elif provider_type in ("kaggle", "kagglehub"):
+        primary = KaggleProvider(
+            model_handle=os.getenv("KAGGLE_MODEL_HANDLE"),
+            use_gpu=os.getenv("KAGGLE_USE_GPU", "").lower() in ("true", "1", "yes"),
         )
     elif provider_type == "heuristic":
         primary = HeuristicProvider()

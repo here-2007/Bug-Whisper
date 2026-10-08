@@ -190,7 +190,57 @@ export async function runInference(req: InferenceRequest): Promise<InferenceResp
     }
   }
 
-  // 4. Custom OpenAI / vLLM Provider
+  // 4. Kaggle Hub Provider (calls local backend /api/kaggle/infer)
+  if (settings.provider === 'kaggle') {
+    const kaggleHandle = settings.kaggleHandle || 'pernavjain/bug-whisper-qwen25-coder-3b';
+    try {
+      const response = await fetch('http://localhost:8000/api/kaggle/infer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          stderr: stderr.slice(0, 300),
+          handle: kaggleHandle,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Kaggle API returned status ${response.status}`);
+      }
+
+      const data = await response.json();
+      return {
+        fixedCode: data.fixed_code || code,
+        explanation: 'Synthesized via Kaggle model weights (kagglehub pipeline).',
+        latencyMs: Math.round(performance.now() - startTime),
+        provider: `Kaggle Hub (${kaggleHandle})`,
+      };
+    } catch (err: unknown) {
+      console.warn('Kaggle inference call failed, using heuristic recovery:', err);
+      const matchingPreset = BUG_PRESETS.find(
+        (p) =>
+          p.buggyCode.trim() === code.trim() ||
+          code.includes(p.id) ||
+          (p.offendingLine && code.includes(p.summary.slice(0, 15)))
+      );
+      if (matchingPreset) {
+        return {
+          fixedCode: matchingPreset.fixedCode,
+          explanation: `Kaggle Hub offline (${err instanceof Error ? err.message : String(err)}). Recovered via deterministic engine.`,
+          latencyMs: Math.round(performance.now() - startTime),
+          provider: 'Deterministic Fallback (Kaggle Offline)',
+        };
+      }
+      return {
+        fixedCode: code,
+        explanation: `Kaggle error: ${err instanceof Error ? err.message : String(err)}`,
+        latencyMs: Math.round(performance.now() - startTime),
+        provider: 'Kaggle Hub (Failed)',
+      };
+    }
+  }
+
+  // 5. Custom OpenAI / vLLM Provider
   try {
     const response = await fetch(`${settings.customEndpoint.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',

@@ -109,6 +109,11 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
             automaticLayout: true,
             tabSize: 4,
             padding: { top: 12, bottom: 12 },
+            scrollbar: {
+              vertical: 'auto',
+              horizontal: 'auto',
+              alwaysConsumeMouseWheel: false,
+            },
           }}
         />
       </div>

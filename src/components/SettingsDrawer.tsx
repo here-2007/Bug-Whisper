@@ -156,7 +156,31 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                 </span>
               </button>
 
-              {/* Option 4: Custom */}
+              {/* Option 4: Kaggle Hub */}
+              <button
+                type="button"
+                onClick={() => onUpdateSettings({ provider: 'kaggle' })}
+                className={`flex flex-col p-3 rounded-lg border text-left transition-all cursor-pointer ${
+                  settings.provider === 'kaggle'
+                    ? 'border-signal-blue bg-[#1e2730] text-paper-white'
+                    : 'border-graphite-border bg-charcoal-surface hover:border-fog-text text-ash-text'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-1">
+                  <div className="flex items-center gap-1.5 font-semibold text-paper-white">
+                    <Sparkles className="w-3.5 h-3.5 text-signal-blue" />
+                    <span>Kaggle Hub</span>
+                  </div>
+                  {settings.provider === 'kaggle' && (
+                    <Check className="w-3.5 h-3.5 text-signal-blue" />
+                  )}
+                </div>
+                <span className="text-[10px] text-fog-text leading-snug">
+                  Fine-tuned weights via kagglehub library cache.
+                </span>
+              </button>
+
+              {/* Option 5: Custom */}
               <button
                 type="button"
                 onClick={() => onUpdateSettings({ provider: 'custom' })}
@@ -283,6 +307,30 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                       {showHfToken ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Kaggle Hub Configuration */}
+            {settings.provider === 'kaggle' && (
+              <div className="space-y-3">
+                <div className="text-[11px] text-fog-text leading-relaxed">
+                  Direct neural remediation powered by fine-tuned weights cached locally via the <code className="text-signal-blue">kagglehub</code> Python SDK.
+                </div>
+                <div>
+                  <label className="block text-[11px] font-mono text-ash-text mb-1">
+                    Kaggle Model Handle
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.kaggleHandle || 'pernavjain/bug-whisper-qwen25-coder-3b'}
+                    onChange={(e) => onUpdateSettings({ kaggleHandle: e.target.value })}
+                    placeholder="pernavjain/bug-whisper-qwen25-coder-3b"
+                    className="w-full px-3 py-1.5 rounded bg-ink-black border border-graphite-border text-paper-white font-mono text-xs focus:border-signal-blue focus:outline-none"
+                  />
+                  <p className="text-[10px] text-fog-text mt-1">
+                    Variation: PyTorch/4bit-bnb safetensors (Apache 2.0).
+                  </p>
                 </div>
               </div>
             )}
