@@ -86,31 +86,33 @@ export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
           </div>
         ) : hasError && explanation ? (
           /* State 2: Error occurred & explanation ready */
-          <div className="space-y-3 animate-in fade-in duration-200">
-            {/* Card 1: What Happened */}
-            <div className="p-3.5 rounded-lg bg-[#241719] border border-[#482025] space-y-2">
-              <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold text-[#fc618d]">
-                <AlertOctagon className="w-3.5 h-3.5 shrink-0" />
-                <span>What Happened</span>
+          <div className="space-y-2.5 animate-in fade-in duration-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {/* Card 1: What Happened */}
+              <div className="p-3.5 rounded-lg bg-[#241719] border border-[#482025] space-y-2">
+                <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold text-[#fc618d]">
+                  <AlertOctagon className="w-3.5 h-3.5 shrink-0" />
+                  <span>What Happened</span>
+                </div>
+                <p className="text-[#e2c7cb] text-[12px] leading-relaxed whitespace-pre-wrap">
+                  {explanation.what}
+                </p>
               </div>
-              <p className="text-[#e2c7cb] text-[12px] leading-relaxed whitespace-pre-wrap">
-                {explanation.what}
-              </p>
-            </div>
 
-            {/* Card 2: Why It Happened */}
-            <div className="p-3.5 rounded-lg bg-[#1f221b] border border-[#343b2b] space-y-2">
-              <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold text-[#f8e67a]">
-                <HelpCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>Why It Happened</span>
+              {/* Card 2: Why It Happened */}
+              <div className="p-3.5 rounded-lg bg-[#1f221b] border border-[#343b2b] space-y-2">
+                <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold text-[#f8e67a]">
+                  <HelpCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>Why It Happened</span>
+                </div>
+                <p className="text-[#d8decb] text-[12px] leading-relaxed whitespace-pre-wrap">
+                  {explanation.why}
+                </p>
               </div>
-              <p className="text-[#d8decb] text-[12px] leading-relaxed whitespace-pre-wrap">
-                {explanation.why}
-              </p>
             </div>
 
             {/* Model telemetry badge */}
-            <div className="flex items-center justify-between text-[10px] text-[#6a7061] px-1 pt-1">
+            <div className="flex items-center justify-between text-[10px] text-[#6a7061] px-1 pt-0.5">
               <span>Engine: {explanation.provider}</span>
               <span>Latency: {explanation.latencyMs}ms</span>
             </div>

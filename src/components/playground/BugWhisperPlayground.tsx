@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PlaygroundHeader } from './PlaygroundHeader';
 import { PlaygroundEditor } from './PlaygroundEditor';
-import { PlaygroundRightPane } from './PlaygroundRightPane';
+import { PlaygroundTerminal } from './PlaygroundTerminal';
+import { ErrorExplanationBlock } from './ErrorExplanationBlock';
 import { usePyodide } from '../../hooks/usePyodide';
 import { explainError, type ExplanationResponse } from '../../lib/inference';
 
@@ -116,10 +117,10 @@ export const BugWhisperPlayground: React.FC = () => {
         status={status}
       />
 
-      {/* Main 2-Column Split Workspace (Equal 50/50, Exactly Aligned) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#2d3128] min-h-[560px] lg:h-[560px]">
-        {/* Left: Python Code Editor */}
-        <div className="min-h-[380px] lg:h-full flex flex-col overflow-hidden bg-[#141414]">
+      {/* Top Row: 2-Column Split (Code Editor on Left, Terminal Output on Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#2d3128] min-h-[380px] lg:h-[400px]">
+        {/* Top-Left: Python Code Editor */}
+        <div className="min-h-[360px] lg:h-full flex flex-col overflow-hidden bg-[#141414]">
           <PlaygroundEditor
             code={code}
             onChange={(newCode) => {
@@ -131,14 +132,24 @@ export const BugWhisperPlayground: React.FC = () => {
           />
         </div>
 
-        {/* Right: Stacked Terminal (top) and Error Explanation (bottom) */}
-        <PlaygroundRightPane
-          lastResult={lastResult}
+        {/* Top-Right: Terminal Output */}
+        <div className="min-h-[280px] lg:h-full flex flex-col overflow-hidden bg-[#141414]">
+          <PlaygroundTerminal
+            result={lastResult}
+            isExecuting={isExecuting}
+            onJumpToLine={(line) => setHighlightedLine(line)}
+            onClearTerminal={clearOutput}
+          />
+        </div>
+      </div>
+
+      {/* Bottom Row: Full-Width Error Explanation Block */}
+      <div className="w-full border-t border-[#2d3128] min-h-[220px] lg:min-h-[240px] flex flex-col bg-[#141414]">
+        <ErrorExplanationBlock
+          result={lastResult}
           explanation={explanation}
           isExecuting={isExecuting}
           isExplaining={isExplaining}
-          onJumpToLine={(line) => setHighlightedLine(line)}
-          onClearTerminal={clearOutput}
         />
       </div>
     </div>
