@@ -13,19 +13,20 @@ export const HuggingFaceIcon: React.FC = () => (
   </svg>
 );
 
-export const HeroBrandNav: React.FC = () => {
+export const HeroNavbar: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
-    <div className="w-full flex items-center justify-between pb-6 lg:pb-8 text-[#cfd3c7] select-none">
-      <div className="flex items-center gap-6 sm:gap-8">
+    <nav className={`w-full flex items-center justify-between text-[#cfd3c7] select-none ${className}`}>
+      {/* Brand logo & main links */}
+      <div className="flex items-center gap-7 lg:gap-9">
         <a href="#" className="flex items-center gap-2 group">
           <Terminal className="w-5 h-5 text-[#de5d33]" />
-          <span className="font-bold text-[20px] sm:text-[22px] text-white tracking-[-0.04em] lowercase">
+          <span className="font-bold text-[22px] text-white tracking-[-0.04em] lowercase">
             bug whisper
           </span>
         </a>
 
-        <div className="flex items-center gap-5 sm:gap-8 text-[15px] sm:text-[17px] font-medium text-[#cfd3c7]">
-          <a href="#playground" className="font-bold mr-4 sm:mr-8 hover:text-white transition-colors">
+        <div className="hidden lg:flex items-center gap-6 text-[17px] font-medium text-[#cfd3c7]">
+          <a href="#playground" className="font-bold mr-12 hover:text-white transition-colors">
             PlayGround
           </a>
           <a href="#soup" className="font-bold hover:text-white transition-colors">
@@ -33,14 +34,9 @@ export const HeroBrandNav: React.FC = () => {
           </a>
         </div>
       </div>
-    </div>
-  );
-};
 
-export const HeroActionsNav: React.FC = () => {
-  return (
-    <div className="w-full flex items-center justify-end pb-6 lg:pb-8 text-[#cfd3c7] select-none">
-      <div className="flex items-center gap-2.5 sm:gap-3">
+      {/* Right: GitHub Star Badge & Ghost Action */}
+      <div className="flex items-center gap-3">
         <a
           href="https://github.com/here-2007/Bug-Whisper"
           target="_blank"
@@ -60,15 +56,6 @@ export const HeroActionsNav: React.FC = () => {
           <span>Hugging Face</span>
         </a>
       </div>
-    </div>
-  );
-};
-
-export const HeroNavbar: React.FC = () => {
-  return (
-    <nav className="w-full flex items-center justify-between pb-6 lg:pb-8 text-[#cfd3c7] select-none">
-      <HeroBrandNav />
-      <HeroActionsNav />
     </nav>
   );
 };
