@@ -1,11 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type {
-  PyodideStatus,
-  ExecutionResult,
-  WorkerOutboundMessage,
-  WorkerInboundMessage,
-  UsePyodideReturn,
-} from '../types/pyodide';
+import type { PyodideStatus, ExecutionResult, WorkerOutboundMessage, WorkerInboundMessage, UsePyodideReturn } from '../types/pyodide';
 import { executeDeterministicFallback } from '../lib/pythonFallback';
 
 const TIMEOUT_MS = 3000;
@@ -25,6 +19,7 @@ export function usePyodide(): UsePyodideReturn {
   const workerRef = useRef<Worker | null>(null);
   const timeoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingRequestRef = useRef<PendingRequest | null>(null);
+  const handleTimeoutRef = useRef<(() => void) | null>(null);
 
   const clearTimer = useCallback(() => {
     if (timeoutTimerRef.current) {
@@ -47,7 +42,9 @@ export function usePyodide(): UsePyodideReturn {
           setStatus(msg.status);
           if (msg.status === 'running') {
             clearTimer();
-            timeoutTimerRef.current = setTimeout(() => handleTimeout(), TIMEOUT_MS);
+            timeoutTimerRef.current = setTimeout(() => {
+              handleTimeoutRef.current?.();
+            }, TIMEOUT_MS);
           }
         } else if (msg.type === 'RUN_COMPLETE') {
           clearTimer();
@@ -73,7 +70,7 @@ export function usePyodide(): UsePyodideReturn {
       workerRef.current = worker;
       worker.postMessage({ type: 'INIT' } satisfies WorkerInboundMessage);
     } catch {
-      setStatus('error');
+      queueMicrotask(() => setStatus('error'));
     }
   }, [clearTimer]);
 
@@ -104,6 +101,10 @@ export function usePyodide(): UsePyodideReturn {
     }
     spawnWorker();
   }, [clearTimer, spawnWorker]);
+
+  useEffect(() => {
+    handleTimeoutRef.current = handleTimeout;
+  }, [handleTimeout]);
 
   const runCode = useCallback((code: string): Promise<ExecutionResult> => {
     return new Promise((resolve, reject) => {

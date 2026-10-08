@@ -1,6 +1,8 @@
 import React from 'react';
 import { Terminal } from 'lucide-react';
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 export const FooterSection: React.FC = () => {
   return (
     <footer className="w-full bg-[#0f100e] text-white pt-20 pb-16 px-6 select-none border-t border-[#23261f]">
@@ -64,7 +66,7 @@ export const FooterSection: React.FC = () => {
       </div>
 
       <div className="max-w-[1400px] mx-auto mt-16 pt-8 border-t border-[#1c1e19] flex flex-col sm:flex-row items-center justify-between text-xs text-[#64685b] font-mono">
-        <span>&copy; {new Date().getFullYear()} Bug Whisper. Open-source Python intelligence.</span>
+        <span>&copy; {CURRENT_YEAR} Bug Whisper. Open-source Python intelligence.</span>
         <span>Cream Paper Engineering Notebook · Zero Drop Shadows</span>
       </div>
     </footer>

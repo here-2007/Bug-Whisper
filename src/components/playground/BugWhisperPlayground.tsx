@@ -28,13 +28,13 @@ export const BugWhisperPlayground: React.FC = () => {
     }
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (lastResult?.lineNumber) {
-      setHighlightedLine(lastResult.lineNumber);
-    } else if (lastResult?.success) {
-      setHighlightedLine(null);
-    }
-  }, [lastResult]);
+  // Derive effective highlighted line without triggering cascading effect re-renders
+  const effectiveHighlightedLine =
+    highlightedLine !== null
+      ? highlightedLine
+      : lastResult && !lastResult.success && lastResult.lineNumber
+        ? lastResult.lineNumber
+        : null;
 
   const handleSelectPreset = useCallback((preset: BugPreset) => {
     setActivePreset(preset);
@@ -105,9 +105,12 @@ export const BugWhisperPlayground: React.FC = () => {
         <div className="min-h-[380px] lg:h-full flex flex-col overflow-hidden bg-[#141414]">
           <PlaygroundEditor
             code={code}
-            onChange={setCode}
+            onChange={(newCode) => {
+              setCode(newCode);
+              setHighlightedLine(null);
+            }}
             onRun={handleRun}
-            highlightLine={highlightedLine}
+            highlightLine={effectiveHighlightedLine}
           />
         </div>
 

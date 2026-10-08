@@ -33,6 +33,8 @@ __pycache__/
 .coverage
 htmlcov/
 *.egg-info/
+build/
+dist_pypi/
 .env
 .venv
 env/

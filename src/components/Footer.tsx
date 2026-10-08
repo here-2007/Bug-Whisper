@@ -18,6 +18,8 @@ const GithubIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5 h-3.5
   </svg>
 );
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 export const Footer: React.FC = () => {
   return (
     <footer className="w-full bg-[#111111] text-paper-white py-16 px-6 border-t border-graphite-border select-none">
@@ -136,7 +138,7 @@ export const Footer: React.FC = () => {
       </div>
 
       <div className="max-w-[1240px] mx-auto mt-12 pt-6 border-t border-graphite-border flex flex-col sm:flex-row items-center justify-between text-xs text-fog-text font-mono">
-        <span>&copy; {new Date().getFullYear()} Bug Whisper. All rights reserved.</span>
+        <span>&copy; {CURRENT_YEAR} Bug Whisper. All rights reserved.</span>
         <span>Cream Paper Engineering Notebook · Zero Drop Shadows</span>
       </div>
     </footer>

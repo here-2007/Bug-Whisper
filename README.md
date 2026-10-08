@@ -6,6 +6,7 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Tests](https://img.shields.io/badge/Tests-93%20Passing%20(100%25)-success)](#test-suite--quality-assurance)
+[![PyPI](https://img.shields.io/pypi/v/bugwhisper.svg?color=blue)](https://pypi.org/project/bugwhisper/)
 [![Kaggle Model](https://img.shields.io/badge/Kaggle-bug--whisper--qwen25--coder--3b-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
@@ -54,106 +55,158 @@ Bug Whisper pairs deterministic execution with specialized neural code repair. I
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Installation & Quickstart
 
-### 1. Interactive Web Studio
-Clone the repository and launch the frontend development server:
-```bash
-npm install
-npm run dev
-```
-Open [http://localhost:5173](http://localhost:5173) in your browser. The studio includes interactive presets (`IndexError`, `TypeError`, `Logic`, `ZeroDivision`, `MutableDefault`) and runs immediately using browser-based WebWorkers.
-
-### 2. FastAPI Backend Service
-Install Python dependencies and start the local API service:
-```bash
-pip install -r backend/requirements.txt
-# or from project root:
-# pip install -r requirements.txt
-python -m uvicorn backend.bugwhisper.server.app:app --port 8000 --reload
-```
-Interactive API documentation is available at [http://localhost:8000/docs](http://localhost:8000/docs).
-
-### 3. Model Inference (Kaggle Hub, Hugging Face, Ollama, or vLLM)
-Bug Whisper supports multiple inference backends:
+### 1. Python Package (PyPI)
+Install Bug Whisper directly from PyPI:
 
 ```bash
-# Option A: Kaggle Hub Model Loader (via kagglehub)
-# Directly downloads and caches pernavjain/bug-whisper-qwen25-coder-3b
-export BUGWHISPER_PROVIDER=kaggle
-python -m bugwhisper.cli.main model --download-kaggle
+# Core CLI and runtime auto-hook (zero heavy dependencies)
+pip install bugwhisper
 
-# Option B: Hugging Face Library (huggingface_hub & transformers)
-# Uses fine-tuned pernavjain/bug-whisper-qwen25-coder-3b serverless endpoint
-export BUGWHISPER_PROVIDER=hf
-export HF_TOKEN="your_huggingface_token"  # Optional for public models
+# With native Kaggle Hub model loading (kagglehub, torch, transformers)
+pip install "bugwhisper[kaggle]"
 
-# Option C: Local Ollama Service
-ollama run qwen2.5-coder:3b
-ollama create bug-whisper-qwen25-coder-3b -f Modelfile
+# With Hugging Face Hub inference client
+pip install "bugwhisper[hf]"
 
-# Option D: Zero-Weight Deterministic Fallback
-# Automatically engages if Ollama, Kaggle, or HF are offline (0 MB download / 0 GPU)
+# Complete developer & ML ecosystem
+pip install "bugwhisper[all]"
 ```
-*For detailed instructions on serving via Kaggle Hub, Hugging Face, or vLLM, see [MODEL_GUIDE.md](file:///e:/projects/Bug%20whisper/MODEL_GUIDE.md).*
 
-### 4. Developer CLI (`bugwhisper`)
-Bug Whisper provides a command-line interface for terminal workflows:
+### 2. Developer CLI (`bugwhisper`)
+Once installed via pip, the `bugwhisper` binary is immediately available:
+
 ```bash
-# Validate Python syntax statically
-python -m bugwhisper.cli.main check script.py
+# Validate Python syntax and AST statically
+bugwhisper check script.py
 
-# Execute, catch exceptions, synthesize & apply verified fix via Kaggle or Hugging Face
-python -m bugwhisper.cli.main run script.py --provider kaggle --apply
-python -m bugwhisper.cli.main run script.py --provider hf --apply
+# Inspect active Python virtual environment
+bugwhisper env
 
-# Inspect local model status and Kaggle / Hugging Face configuration
-python -m bugwhisper.cli.main model
-python -m bugwhisper.cli.main model --download-kaggle
+# Inspect Kaggle / Hugging Face model status and cache
+bugwhisper model
+bugwhisper model --download-kaggle
+
+# Run script, intercept crashes, synthesize fix via Kaggle & interactively apply patch
+bugwhisper run script.py --provider kaggle --apply
+
+# Start local FastAPI REST backend server
+bugwhisper serve --port 8000
 ```
 
-### 5. Zero-Config Exception Auto-Hook
-Add one line to any Python project to automatically intercept unhandled exceptions and render interactive diffs in the terminal:
+### 3. Python SDK & Zero-Config Auto-Hook
+
+#### Zero-Config Exception Auto-Hook
+Add one line to any script. Unhandled exceptions will automatically trigger interactive fix proposals with unified terminal diffs:
 ```python
 import bugwhisper.auto
 
-# Any unhandled exception will now trigger an automated fix proposal
 data = {"user": "Alice"}
-print(data["missing_key"])
+print(data["missing_key"])  # Triggers automated fix proposal
+```
+
+#### Programmatic Sandboxing & Verification
+Use Bug Whisper's deterministic core modules directly in your Python applications:
+```python
+from bugwhisper.core.runner import run_code_sandboxed
+from bugwhisper.core.ast_validator import validate_syntax
+from bugwhisper.core.diff_engine import generate_unified_diff
+
+# 1. Execute untrusted or buggy code safely in an isolated sandbox
+result = run_code_sandboxed("nums = [1, 2]\nprint(nums[10])")
+if not result.success:
+    print(f"Caught {result.error_type} at line {result.line_number}")
+    print(result.traceback_str)
+
+# 2. Inspect unified diff between buggy and remediated code
+diff = generate_unified_diff(
+    original_code="nums = [1, 2]\nprint(nums[10])",
+    remediated_code="nums = [1, 2]\nif len(nums) > 10:\n    print(nums[10])",
+)
+print(diff)
+```
+
+### 4. Interactive Web Studio
+Launch the browser-based development studio powered by Pyodide WebWorkers and Monaco DiffEditor:
+```bash
+git clone https://github.com/harshitthek/bug-whisper.git
+cd bug-whisper
+npm install
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser. The studio runs 100% offline using browser-based WebAssembly threads.
+
+---
+
+## 🧩 Modular Package Architecture
+
+Bug Whisper is architected into focused, decoupled modules:
+
+```
+bugwhisper/
+├── auto.py                 # Zero-config sys.excepthook runtime interceptor
+├── cli/                    # Typer command-line interface with Rich formatting
+│   ├── main.py             # CLI commands: check, run, env, model, serve
+│   └── auto_hook.py        # Terminal diff interactive prompter
+├── core/                   # Deterministic runtime engine & verification
+│   ├── runner.py           # Subprocess isolation with 3.0s timeout watchdog
+│   ├── ast_validator.py    # Static AST compilation & syntax checks
+│   ├── traceback_parser.py # Dual-mode exception & stack frame extractor
+│   ├── diff_engine.py      # Standard unified diff generator
+│   ├── verifier.py         # Two-stage static & dynamic patch verification
+│   ├── focal_window.py     # AST focal windowing for large codebases
+│   └── venv.py             # Automatic virtual environment resolver
+├── inference/              # Multi-tier code synthesis providers
+│   ├── kaggle_provider.py  # Kaggle Hub fine-tuned weights (kagglehub)
+│   ├── hf_provider.py      # Hugging Face serverless inference API
+│   ├── ollama_provider.py  # Local Ollama streaming client (:11434)
+│   ├── heuristic_provider.py # Instant AST deterministic fallback (0 MB)
+│   └── manager.py          # Unified multi-provider router
+└── server/                 # Production FastAPI REST application
+    ├── app.py              # Application factory with CORS & lifecycle hooks
+    ├── schemas.py          # Pydantic v2 validation contracts
+    └── routes/             # REST endpoints (/execute, /synthesize, /kaggle, etc.)
 ```
 
 ---
 
-## 🧪 Test Suite & Quality Assurance
+## 🧪 Quality Assurance & Test Suites
 
-The repository includes a comprehensive test suite covering the runner sandbox, AST validator, traceback parser, inference fallbacks, Kaggle provider, two-stage verifier, and FastAPI endpoints:
+The repository enforces 100% test pass rates across both Python and TypeScript:
 
 ```bash
-pytest backend/tests
+# Run 93 backend unit and integration tests (0 warnings)
+pytest backend/tests/ -v
+
+# Run 82 frontend tier tests & verify zero drop-shadow constraints
+npm test
+
+# Verify production Vite bundle and TypeScript types
+npm run build
 ```
 
-```text
-======================= 93 passed in 40.21s =======================
-```
-
-* All 93 unit, integration, and sandbox tests pass with 100% success rate.
-* Frontend TypeScript test suite passes completely (82/82 tests passing).
-* Frontend TypeScript build compiles with zero errors (`tsc -b && vite build`).
+| Component | Test Suite | Tests Passing | Success Rate |
+|---|---|---|---|
+| **Python Backend** | `pytest backend/tests/` | **93 / 93** | 100% |
+| **Frontend Studio** | `tsx tests/run-tests.ts` | **82 / 82** | 100% |
+| **Linter (`oxlint`)** | `oxlint` | **0 errors, 0 warnings** | 100% |
+| **Vite Bundle** | `tsc -b && vite build` | **Clean build (0 errors)** | 100% |
 
 ---
 
-## 📚 Documentation Directory
+## 📚 Documentation & Ecosystem
 
-* **[ARCHITECTURE.md](file:///e:/projects/Bug%20whisper/ARCHITECTURE.md)**: End-to-end technical architecture, sandbox security model, and component layout.
-* **[MODEL_GUIDE.md](file:///e:/projects/Bug%20whisper/MODEL_GUIDE.md)**: Model card, Kaggle weights, LoRA hyperparameters, and serving instructions (Ollama, vLLM, HF).
-* **[DESIGN.md](file:///e:/projects/Bug%20whisper/DESIGN.md)**: Design system specifications (cream paper notebook, typography tokens, zero drop shadows).
-* **[context.md](file:///e:/projects/Bug%20whisper/context.md)**: Model specs, dataset details, and strict 3-turn ChatML prompt contract.
-* **[memory.md](file:///e:/projects/Bug%20whisper/memory.md)**: Architectural decisions and technical lessons learned.
-* **[phases.md](file:///e:/projects/Bug%20whisper/phases.md)**: Development roadmap from foundation to production.
+* **[CONTRIBUTING.md](CONTRIBUTING.md)**: Developer setup, code standards, and PR guidelines.
+* **[CHANGELOG.md](CHANGELOG.md)**: Release history and version migration notes.
+* **[MODEL_GUIDE.md](MODEL_GUIDE.md)**: Kaggle weights, LoRA hyperparameters, and serving options.
+* **[ARCHITECTURE.md](ARCHITECTURE.md)**: End-to-end technical architecture and sandbox security.
+* **[DESIGN.md](DESIGN.md)**: Design system specifications (cream paper notebook, zero drop shadows).
+* **[context.md](context.md)**: Model specification and 3-turn ChatML prompt contract.
 
 ---
 
-## 👥 Contributors
+## 👥 Authors & Contributors
 
 * **Pernav Jain** ([@pernavjain](https://github.com/pernavjain) / Kaggle: [`pernavjain`](https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b))
 * **Harshit Sharma** ([@harshitxdev](https://github.com/harshitxdev) / Kaggle: `harshitxdev`)

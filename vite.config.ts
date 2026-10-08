@@ -1,10 +1,7 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-
-const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -12,8 +9,8 @@ export default defineConfig({
   resolve: {
     dedupe: ['react', 'react-dom'],
     alias: {
-      react: path.resolve(rootDir, './node_modules/react'),
-      'react-dom': path.resolve(rootDir, './node_modules/react-dom'),
+      react: path.resolve(import.meta.dirname, './node_modules/react'),
+      'react-dom': path.resolve(import.meta.dirname, './node_modules/react-dom'),
     },
   },
   worker: {
@@ -22,5 +19,15 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom', '@monaco-editor/react'],
     exclude: ['pyodide'],
+  },
+  build: {
+    rollupOptions: {
+      onwarn(warning, defaultHandler) {
+        if (warning.message && warning.message.includes('has been externalized for browser compatibility')) {
+          return;
+        }
+        defaultHandler(warning);
+      },
+    },
   },
 });

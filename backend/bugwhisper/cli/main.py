@@ -10,8 +10,13 @@ from __future__ import annotations
 
 import asyncio
 import os
+import warnings
 from pathlib import Path
 from typing import Optional
+
+# Filter upstream Click 8.5+ deprecation warnings from Typer
+warnings.filterwarnings("ignore", category=DeprecationWarning, message=r".*click\.utils.*")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module=r"typer.*")
 
 import typer
 import uvicorn
