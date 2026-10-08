@@ -1,88 +1,48 @@
 import React from 'react';
-import { PlaygroundTabs, type RightTab } from './PlaygroundTabs';
 import { PlaygroundTerminal } from './PlaygroundTerminal';
-import { PlaygroundDiff } from './PlaygroundDiff';
-import { PlaygroundVerifierPanel } from './PlaygroundVerifierPanel';
+import { ErrorExplanationBlock } from './ErrorExplanationBlock';
 import type { ExecutionResult } from '../../types/pyodide';
+import type { ExplanationResponse } from '../../lib/inference';
 
 interface PlaygroundRightPaneProps {
-  activeTab: RightTab;
-  onTabChange: (tab: RightTab) => void;
-  hasDiff: boolean;
-  hasError: boolean;
-  sideBySide: boolean;
-  onToggleSideBySide: () => void;
-  onCopyDiff: () => void;
-  diffCopied: boolean;
-  onAcceptFix: () => void;
-  onClearTerminal: () => void;
   lastResult: ExecutionResult | null;
+  explanation: ExplanationResponse | null;
   isExecuting: boolean;
+  isExplaining: boolean;
   onJumpToLine: (line: number) => void;
-  onHeal: () => void;
-  code: string;
-  fixedCode: string;
+  onClearTerminal: () => void;
 }
 
 export const PlaygroundRightPane: React.FC<PlaygroundRightPaneProps> = ({
-  activeTab,
-  onTabChange,
-  hasDiff,
-  hasError,
-  sideBySide,
-  onToggleSideBySide,
-  onCopyDiff,
-  diffCopied,
-  onAcceptFix,
-  onClearTerminal,
   lastResult,
+  explanation,
   isExecuting,
+  isExplaining,
   onJumpToLine,
-  onHeal,
-  code,
-  fixedCode,
+  onClearTerminal,
 }) => {
   return (
-    <div className="min-h-[380px] lg:h-full flex flex-col overflow-hidden bg-[#141414]">
-      <PlaygroundTabs
-        activeTab={activeTab}
-        onTabChange={onTabChange}
-        hasDiff={hasDiff}
-        hasError={hasError}
-        sideBySide={sideBySide}
-        onToggleSideBySide={onToggleSideBySide}
-        onCopyDiff={onCopyDiff}
-        diffCopied={diffCopied}
-        onAcceptFix={onAcceptFix}
-        onClearTerminal={onClearTerminal}
-      />
+    <div className="min-h-[460px] lg:h-full flex flex-col overflow-hidden bg-[#141414] divide-y divide-[#2d3128]">
+      {/* Upper Half: Terminal Output */}
+      <div className="flex-1 min-h-[220px] h-1/2 flex flex-col overflow-hidden">
+        <PlaygroundTerminal
+          result={lastResult}
+          isExecuting={isExecuting}
+          onJumpToLine={onJumpToLine}
+          onClearTerminal={onClearTerminal}
+        />
+      </div>
 
-      <div className="flex-1 w-full h-[calc(100%-40px)] overflow-hidden relative">
-        <div className={activeTab === 'terminal' ? 'w-full h-full flex flex-col' : 'hidden'}>
-          <PlaygroundTerminal
-            result={lastResult}
-            isExecuting={isExecuting}
-            onJumpToLine={onJumpToLine}
-            onHeal={onHeal}
-          />
-        </div>
-
-        <div className={activeTab === 'diff' ? 'w-full h-full flex flex-col' : 'hidden'}>
-          <PlaygroundDiff
-            originalCode={code}
-            fixedCode={fixedCode}
-            sideBySide={sideBySide}
-          />
-        </div>
-
-        <div className={activeTab === 'verifier' ? 'w-full h-full flex flex-col' : 'hidden'}>
-          <PlaygroundVerifierPanel
-            result={lastResult}
-            hasFixedCode={hasDiff}
-            fixedCode={fixedCode}
-          />
-        </div>
+      {/* Lower Half: Error Explanation */}
+      <div className="flex-1 min-h-[220px] h-1/2 flex flex-col overflow-hidden">
+        <ErrorExplanationBlock
+          result={lastResult}
+          explanation={explanation}
+          isExecuting={isExecuting}
+          isExplaining={isExplaining}
+        />
       </div>
     </div>
   );
 };
+

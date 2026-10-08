@@ -1,24 +1,44 @@
 import React from 'react';
-import { CornerDownRight, Sparkles, CheckCircle2, AlertOctagon } from 'lucide-react';
+import { CornerDownRight, CheckCircle2, AlertOctagon, Terminal, Trash2 } from 'lucide-react';
 import type { ExecutionResult } from '../../types/pyodide';
 
 interface PlaygroundTerminalProps {
   result: ExecutionResult | null;
   isExecuting: boolean;
   onJumpToLine?: (line: number) => void;
-  onHeal?: () => void;
+  onClearTerminal?: () => void;
 }
 
 export const PlaygroundTerminal: React.FC<PlaygroundTerminalProps> = ({
   result,
   isExecuting,
   onJumpToLine,
-  onHeal,
+  onClearTerminal,
 }) => {
   const hasError = Boolean(result && !result.success);
 
   return (
     <div className="flex-1 w-full h-full flex flex-col bg-[#141414] overflow-hidden font-mono text-xs select-text">
+      {/* Sub-header Bar */}
+      <div className="h-[38px] min-h-[38px] bg-[#1a1c17] border-b border-[#2d3128] px-3.5 flex items-center justify-between text-xs select-none shrink-0">
+        <div className="flex items-center gap-2">
+          <Terminal className="w-3.5 h-3.5 text-[#8e9385]" />
+          <span className="font-semibold text-white tracking-tight">Terminal Output</span>
+        </div>
+
+        {onClearTerminal && (
+          <button
+            type="button"
+            onClick={onClearTerminal}
+            className="flex items-center gap-1 text-[11px] text-[#8e9385] hover:text-white p-1 rounded hover:bg-[#20221d] cursor-pointer transition-colors"
+            title="Clear terminal output"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Clear</span>
+          </button>
+        )}
+      </div>
+
       {/* Scrollable Output Canvas */}
       <div className="p-4 flex-1 overflow-y-auto space-y-3">
         {/* Startup banner */}
@@ -66,17 +86,6 @@ export const PlaygroundTerminal: React.FC<PlaygroundTerminalProps> = ({
                 <div className="text-[#fc618d] text-[11px] whitespace-pre-wrap leading-relaxed bg-[#1f1014] p-2.5 rounded border border-[#3f1922]">
                   {result.traceback || result.stderr}
                 </div>
-
-                {onHeal && (
-                  <button
-                    type="button"
-                    onClick={onHeal}
-                    className="mt-1 w-full py-2 px-3 rounded-lg bg-[#de5d33] hover:bg-[#eb6a40] text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Synthesize Patch with Qwen 2.5 Coder 3B</span>
-                  </button>
-                )}
               </div>
             )}
 
@@ -90,7 +99,7 @@ export const PlaygroundTerminal: React.FC<PlaygroundTerminalProps> = ({
           </div>
         ) : (
           <div className="text-[#7d8274] italic text-[11px]">
-            &gt;&gt;&gt; Ready. Click &apos;Run&apos; to execute or select a preset above.
+            &gt;&gt;&gt; Ready. Click &apos;Run (Ctrl+Enter)&apos; to execute Python code.
           </div>
         )}
       </div>

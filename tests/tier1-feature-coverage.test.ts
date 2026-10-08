@@ -524,5 +524,35 @@ describe('F8: Pyodide WebWorker Sandbox & Terminal HUD Modules', () => {
     expect(playgroundContent).toContain('usePyodide');
     expect(playgroundContent).toContain('runCode');
   });
+
+  test('F8.6: src/components/playground/ErrorExplanationBlock.tsx renders clean and diagnostic states', () => {
+    const errorBlockPath = path.join(ROOT_DIR, 'src', 'components', 'playground', 'ErrorExplanationBlock.tsx');
+    expect(fs.existsSync(errorBlockPath)).toBe(true);
+    const content = fs.readFileSync(errorBlockPath, 'utf-8');
+    expect(content).toContain('Error Explanation');
+    expect(content).toContain('Code Clean');
+    expect(content).toContain('What Happened');
+    expect(content).toContain('Why It Happened');
+  });
+
+  test('F8.7: src/lib/inference.ts implements explainError for semantic root cause diagnosis', async () => {
+    const inferencePath = path.join(ROOT_DIR, 'src', 'lib', 'inference.ts');
+    expect(fs.existsSync(inferencePath)).toBe(true);
+    const mod = await import('../src/lib/inference');
+    expect(typeof mod.explainError).toBe('function');
+
+    const res = await mod.explainError({
+      code: 'print(1 / 0)',
+      stderr: 'ZeroDivisionError: division by zero',
+      traceback: 'Traceback (most recent call last):\n  File "<stdin>", line 1\nZeroDivisionError: division by zero',
+      errorType: 'ZeroDivisionError',
+      lineNumber: 1,
+    });
+
+    expect(res.what).toContain('ZeroDivisionError');
+    expect(res.why.length > 0).toBe(true);
+    expect(res.explanation).toContain('What Happened');
+    expect(res.explanation).toContain('Why It Happened');
+  });
 });
 

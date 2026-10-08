@@ -17,7 +17,7 @@ export const StudioSection: React.FC = () => {
               Python Debugging Studio
             </h2>
             <p className="text-xs sm:text-sm text-[#55584e] max-w-xl">
-              Live Pyodide WebWorker execution harness. Tracebacks and focal scopes are extracted deterministically with instantaneous 3B model remediation.
+              Live Pyodide WebWorker execution harness. Tracebacks are parsed deterministically with automated 3B model error diagnostics (What & Why).
             </p>
           </div>
 

@@ -40,3 +40,6 @@ dist_pypi/
 env/
 venv/
 video_frames/
+model/
+*.safetensors
+*.bin

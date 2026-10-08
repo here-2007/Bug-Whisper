@@ -2,33 +2,90 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { PlaygroundHeader } from './PlaygroundHeader';
 import { PlaygroundEditor } from './PlaygroundEditor';
 import { PlaygroundRightPane } from './PlaygroundRightPane';
-import { type RightTab } from './PlaygroundTabs';
-import { BUG_PRESETS } from '../../constants/presets';
-import { DEFAULT_INFERENCE_SETTINGS } from '../../types/settings';
 import { usePyodide } from '../../hooks/usePyodide';
-import { runInference } from '../../lib/inference';
-import type { BugPreset } from '../../types/presets';
+import { explainError, type ExplanationResponse } from '../../lib/inference';
+
+const DEFAULT_CODE = `def calculate_user_metrics(users, target_id):
+    # Lookup telemetry metrics for user
+    record = users.get(target_id)
+    ratio = record["total_requests"] / record["error_count"]
+    return {
+        "user_id": target_id,
+        "ratio": ratio,
+        "role": record["roles"][5]
+    }
+
+user_db = {
+    "usr_102": {
+        "total_requests": 1420,
+        "error_count": 0,
+        "roles": ["viewer", "analyst"]
+    }
+}
+
+# Running metrics calculation
+print("Computing metrics...")
+metrics = calculate_user_metrics(user_db, "usr_102")
+print(f"Metrics computed: {metrics}")
+`;
 
 export const BugWhisperPlayground: React.FC = () => {
-  const [activePreset, setActivePreset] = useState<BugPreset>(BUG_PRESETS[0]);
-  const [code, setCode] = useState<string>(BUG_PRESETS[0].buggyCode);
-  const [fixedCode, setFixedCode] = useState<string>(BUG_PRESETS[0].fixedCode);
-  const [activeTab, setActiveTab] = useState<RightTab>('terminal');
-  const [isFixing, setIsFixing] = useState<boolean>(false);
+  const [code, setCode] = useState<string>(DEFAULT_CODE);
+  const [explanation, setExplanation] = useState<ExplanationResponse | null>(null);
+  const [isExplaining, setIsExplaining] = useState<boolean>(false);
   const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
-  const [sideBySide, setSideBySide] = useState<boolean>(true);
-  const [diffCopied, setDiffCopied] = useState<boolean>(false);
 
   const { status, isExecuting, lastResult, runCode, clearOutput } = usePyodide();
 
-  // Execute initial preset on mount once status becomes ready
+  // Execute initial code on mount once Pyodide Wasm is ready
   useEffect(() => {
     if (status === 'ready') {
       runCode(code);
     }
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Derive effective highlighted line without triggering cascading effect re-renders
+  // Automatically trigger model explanation whenever a runtime or syntax error occurs
+  useEffect(() => {
+    if (!lastResult) {
+      setExplanation(null);
+      setIsExplaining(false);
+      return;
+    }
+
+    if (lastResult.success) {
+      setExplanation(null);
+      setIsExplaining(false);
+      return;
+    }
+
+    let isMounted = true;
+    setIsExplaining(true);
+
+    explainError({
+      code,
+      stderr: lastResult.stderr,
+      traceback: lastResult.traceback,
+      errorType: lastResult.errorType,
+      lineNumber: lastResult.lineNumber,
+    })
+      .then((res) => {
+        if (isMounted) {
+          setExplanation(res);
+          setIsExplaining(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setIsExplaining(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lastResult]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Derive effective highlighted line from traceback
   const effectiveHighlightedLine =
     highlightedLine !== null
       ? highlightedLine
@@ -36,66 +93,26 @@ export const BugWhisperPlayground: React.FC = () => {
         ? lastResult.lineNumber
         : null;
 
-  const handleSelectPreset = useCallback((preset: BugPreset) => {
-    setActivePreset(preset);
-    setCode(preset.buggyCode);
-    setFixedCode(preset.fixedCode);
-    setHighlightedLine(preset.offendingLine || null);
-    setActiveTab('terminal');
-    runCode(preset.buggyCode);
-  }, [runCode]);
-
   const handleRun = useCallback(() => {
-    setActiveTab('terminal');
     runCode(code);
   }, [code, runCode]);
 
-  const handleHeal = useCallback(async () => {
-    setIsFixing(true);
-    try {
-      const res = await runInference({
-        code,
-        stderr: lastResult?.stderr || lastResult?.traceback || '',
-        settings: DEFAULT_INFERENCE_SETTINGS,
-      });
-      setFixedCode(res.fixedCode);
-      setActiveTab('diff');
-    } finally {
-      setIsFixing(false);
-    }
-  }, [code, lastResult]);
-
-  const handleAcceptFix = useCallback(() => {
-    setCode(fixedCode);
-    setHighlightedLine(null);
-    setActiveTab('terminal');
-    runCode(fixedCode);
-  }, [fixedCode, runCode]);
-
   const handleReset = useCallback(() => {
-    setCode(activePreset.buggyCode);
-    setFixedCode(activePreset.fixedCode);
-    setHighlightedLine(activePreset.offendingLine || null);
-    setActiveTab('terminal');
-    runCode(activePreset.buggyCode);
-  }, [activePreset, runCode]);
-
-  const handleCopyDiff = useCallback(async () => {
-    await navigator.clipboard.writeText(fixedCode);
-    setDiffCopied(true);
-    setTimeout(() => setDiffCopied(false), 2000);
-  }, [fixedCode]);
+    setCode(DEFAULT_CODE);
+    setHighlightedLine(null);
+    setExplanation(null);
+    setIsExplaining(false);
+    clearOutput();
+    runCode(DEFAULT_CODE);
+  }, [clearOutput, runCode]);
 
   return (
     <div className="w-full rounded-xl border border-[#38383a] bg-[#141414] overflow-hidden flex flex-col shadow-none">
       <PlaygroundHeader
-        activePresetId={activePreset.id}
-        onSelectPreset={handleSelectPreset}
         onRun={handleRun}
-        onHeal={handleHeal}
         onReset={handleReset}
         isExecuting={isExecuting}
-        isFixing={isFixing}
+        isExplaining={isExplaining}
         status={status}
       />
 
@@ -114,26 +131,17 @@ export const BugWhisperPlayground: React.FC = () => {
           />
         </div>
 
-        {/* Right: Multi-tab Terminal / Diff / Verifier */}
+        {/* Right: Stacked Terminal (top) and Error Explanation (bottom) */}
         <PlaygroundRightPane
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          hasDiff={Boolean(fixedCode && code.trim() !== fixedCode.trim())}
-          hasError={Boolean(lastResult && !lastResult.success)}
-          sideBySide={sideBySide}
-          onToggleSideBySide={() => setSideBySide(!sideBySide)}
-          onCopyDiff={handleCopyDiff}
-          diffCopied={diffCopied}
-          onAcceptFix={handleAcceptFix}
-          onClearTerminal={clearOutput}
           lastResult={lastResult}
+          explanation={explanation}
           isExecuting={isExecuting}
+          isExplaining={isExplaining}
           onJumpToLine={(line) => setHighlightedLine(line)}
-          onHeal={handleHeal}
-          code={code}
-          fixedCode={fixedCode}
+          onClearTerminal={clearOutput}
         />
       </div>
     </div>
   );
 };
+
