@@ -42,10 +42,15 @@ export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
               <Loader2 className="w-3 h-3 animate-spin" />
               <span>Diagnosing...</span>
             </span>
-          ) : hasError ? (
+          ) : hasError && explanation ? (
             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-[#351e18] text-[#ea6b42] border border-[#5a2c20]">
               <AlertOctagon className="w-3 h-3" />
               <span>Diagnosis Ready</span>
+            </span>
+          ) : hasError ? (
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-[#351e18] text-[#ea6b42] border border-[#5a2c20]">
+              <AlertOctagon className="w-3 h-3" />
+              <span>Execution Error</span>
             </span>
           ) : (
             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-[#16251b] text-[#7bd88f] border border-[#223d2b]">
@@ -95,6 +100,24 @@ export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
             <div className="flex items-center justify-between text-[10px] text-[#6a7061] px-1 pt-0.5 shrink-0">
               <span>Engine: {explanation.provider}</span>
               <span>Latency: {explanation.latencyMs}ms</span>
+            </div>
+          </div>
+        ) : hasError ? (
+          /* State 4: Error occurred but explanation unavailable */
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+            <div className="w-10 h-10 rounded-full bg-[#351e18] border border-[#5a2c20] flex items-center justify-center text-[#ea6b42]">
+              <AlertOctagon className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="text-sm font-semibold text-[#ea6b42] tracking-tight">Diagnosis Unavailable</div>
+              <p className="text-[11px] text-[#8e9385] max-w-sm leading-relaxed">
+                Unable to generate an AI explanation right now. Inspect the terminal traceback above to identify the root cause.
+              </p>
+            </div>
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#191b17] border border-[#272b22] text-[10px] text-[#6f7566]">
+              <span>Error: {result?.errorType || 'Runtime Exception'}</span>
+              <span>·</span>
+              <span>Line: {result?.lineNumber ?? 'Unknown'}</span>
             </div>
           </div>
         ) : (

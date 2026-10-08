@@ -31,98 +31,197 @@ export interface ExplanationResponse {
   provider: string;
 }
 
-export async function explainError(req: ExplanationRequest): Promise<ExplanationResponse> {
+export interface ErrorDiagnosisRequest {
+  code: string;
+  error_type: string;
+  error_message: string;
+  traceback: string;
+  file?: string;
+  line?: number | null;
+  column?: number | null;
+  stdout?: string | null;
+  stderr?: string | null;
+}
+
+export interface ErrorDiagnosisResponse {
+  error_type: string;
+  what_happened: string;
+  why_it_happened: string;
+  suggested_fix?: string;
+  confidence: number;
+  explanation: string;
+  latency_ms: number;
+  provider: string;
+  what: string;
+  why: string;
+  warning?: string;
+}
+
+export async function diagnoseError(req: ErrorDiagnosisRequest): Promise<ErrorDiagnosisResponse> {
   const startTime = performance.now();
-  const { code, stderr = '', traceback = '', errorType = '', lineNumber } = req;
-  const rawError = (traceback || stderr || '').trim();
+  const isBrowser = typeof window !== 'undefined';
+  const timeoutMs = isBrowser ? 30000 : 250;
 
-  // 0. Probe live backend at http://localhost:8000/api/explain if online
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1200);
+  const probeUrls: string[] = [];
+  if (isBrowser) {
+    probeUrls.push('/api/diagnose');
+    probeUrls.push('/gradio/api/diagnose');
+    probeUrls.push('/gradio/gradio_api/api/diagnose');
+    probeUrls.push('/api/explain');
+  }
+  probeUrls.push('http://localhost:7860/api/diagnose');
+  probeUrls.push('http://localhost:7860/gradio/api/diagnose');
+  probeUrls.push('http://localhost:7860/gradio/gradio_api/api/diagnose');
+  probeUrls.push('http://localhost:8000/api/diagnose');
 
-    const backendRes = await fetch('http://localhost:8000/api/explain', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        code,
-        stderr: rawError,
-        error_type: errorType,
-        line_number: lineNumber,
-      }),
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
+  for (const url of probeUrls) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    if (backendRes.ok) {
-      const data = await backendRes.json();
-      if (data.what && data.why) {
+      const isGradioApi = url.includes('gradio_api');
+      const bodyPayload = isGradioApi
+        ? JSON.stringify({
+            data: [
+              req.code,
+              req.error_type,
+              req.error_message,
+              req.traceback,
+              req.line ?? 1,
+            ],
+          })
+        : JSON.stringify({
+            code: req.code,
+            error_type: req.error_type,
+            error_message: req.error_message,
+            traceback: req.traceback,
+            file: req.file || 'main.py',
+            line: req.line,
+            stderr: req.stderr || req.traceback,
+          });
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: bodyPayload,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const rawJson = await res.json();
+        const data = (isGradioApi && Array.isArray(rawJson.data) ? rawJson.data[0] : rawJson) || {};
+        const what = data.what_happened || data.what || `${req.error_type}: ${req.error_message}`;
+        const why = data.why_it_happened || data.why || 'The Python interpreter halted on an unhandled exception.';
+        const fix = data.suggested_fix || '';
+        const explanation = data.explanation || `### What Happened\n${what}\n\n### Why It Happened\n${why}`;
+
         return {
-          what: data.what,
-          why: data.why,
-          explanation: data.explanation || `${data.what}\n\n${data.why}`,
-          latencyMs: Math.round(performance.now() - startTime),
-          provider: 'FastAPI Backend (Qwen 2.5 Coder 3B Engine)',
+          error_type: data.error_type || req.error_type,
+          what_happened: what,
+          why_it_happened: why,
+          suggested_fix: fix,
+          confidence: data.confidence ?? 1.0,
+          explanation,
+          latency_ms: data.latency_ms ?? Math.round(performance.now() - startTime),
+          provider: data.provider || 'Bug Whisper Qwen 2.5 Coder 3B (4-bit)',
+          what,
+          why,
         };
       }
+    } catch {
+      // Continue to next probe or deterministic fallback
     }
-  } catch {
-    // Backend offline; continue to deterministic semantic diagnostics
   }
 
-  // Artificial latency for realistic inference feedback (260ms)
-  await new Promise((r) => setTimeout(r, 260));
+  return getDeterministicDiagnosis(req, startTime);
+}
+
+function getDeterministicDiagnosis(req: ErrorDiagnosisRequest, startTime: number): ErrorDiagnosisResponse {
+  const { code: _code, traceback = '', error_type = '', error_message = '', line } = req;
+  const rawError = (traceback || error_message || '').trim();
 
   const resolvedType =
-    errorType ||
+    error_type ||
     (rawError.match(/([A-Za-z]+Error|[A-Za-z]+Exception):/)?.[1] ?? 'Runtime Exception');
 
-  // Semantic diagnostics breakdown
   let what = '';
   let why = '';
 
   if (resolvedType.includes('ZeroDivisionError') || rawError.includes('division by zero')) {
-    what = `ZeroDivisionError: division by zero${lineNumber ? ` on line ${lineNumber}` : ''}. Python encountered an arithmetic division or modulo operation (/ or // or %) where the divisor evaluated to 0.`;
+    what = `ZeroDivisionError: division by zero${line ? ` on line ${line}` : ''}. Python encountered an arithmetic division or modulo operation (/ or // or %) where the divisor evaluated to 0.`;
     why = 'Mathematical division by zero is undefined in Python. The denominator evaluated to zero at runtime without an antecedent guard or validation check.';
   } else if (resolvedType.includes('IndexError') || rawError.includes('list index out of range')) {
-    what = `IndexError: list index out of range${lineNumber ? ` on line ${lineNumber}` : ''}. An attempt was made to access a sequence item at an offset outside the allocated bounds of the sequence.`;
+    what = `IndexError: list index out of range${line ? ` on line ${line}` : ''}. An attempt was made to access a sequence item at an offset outside the allocated bounds of the sequence.`;
     why = 'Python sequences are 0-indexed. Accessing an index greater than or equal to the sequence length (len(seq)) raises an IndexError. The sequence length was not verified prior to indexing.';
   } else if (resolvedType.includes('KeyError')) {
     const keyMatch = rawError.match(/KeyError:\s*['"]?([^'"\n]+)['"]?/);
     const keyName = keyMatch ? `'${keyMatch[1]}'` : 'the requested key';
-    what = `KeyError: ${keyName}${lineNumber ? ` on line ${lineNumber}` : ''}. A dictionary lookup operation was attempted using a key that does not exist in the mapping.`;
+    what = `KeyError: ${keyName}${line ? ` on line ${line}` : ''}. A dictionary lookup operation was attempted using a key that does not exist in the mapping.`;
     why = 'Direct dictionary subscripting (dict[key]) raises KeyError if the key is absent. Safe access requires dict.get(key) with a default or checking key membership first.';
   } else if (resolvedType.includes('TypeError')) {
     const lastLine = rawError.split('\n').filter(Boolean).pop() || '';
-    what = `TypeError${lineNumber ? ` on line ${lineNumber}` : ''}: ${lastLine.replace(/^TypeError:\s*/, '') || 'Incompatible type in operation'}. An operation was applied to an object of an inappropriate type.`;
+    what = `TypeError${line ? ` on line ${line}` : ''}: ${lastLine.replace(/^TypeError:\s*/, '') || 'Incompatible type in operation'}. An operation was applied to an object of an inappropriate type.`;
     why = 'Python is strongly typed at runtime. The operation expected an operand conforming to a specific protocol, but received an incompatible type (such as NoneType or unhashable type).';
   } else if (resolvedType.includes('AttributeError')) {
     const lastLine = rawError.split('\n').filter(Boolean).pop() || '';
-    what = `AttributeError${lineNumber ? ` on line ${lineNumber}` : ''}: ${lastLine.replace(/^AttributeError:\s*/, '') || 'Attribute does not exist'}. The code attempted to reference an attribute or method missing from the target object.`;
+    what = `AttributeError${line ? ` on line ${line}` : ''}: ${lastLine.replace(/^AttributeError:\s*/, '') || 'Attribute does not exist'}. The code attempted to reference an attribute or method missing from the target object.`;
     why = 'The runtime object does not define this attribute. This typically occurs when an antecedent expression or function returns None instead of the expected class instance.';
   } else if (resolvedType.includes('NameError')) {
     const varMatch = rawError.match(/name\s*['"]?([a-zA-Z0-9_]+)['"]?\s*is not defined/);
     const varName = varMatch ? `'${varMatch[1]}'` : 'Variable';
-    what = `NameError${lineNumber ? ` on line ${lineNumber}` : ''}: ${varName} is not defined. An identifier was referenced before being bound in local, global, or built-in scope.`;
+    what = `NameError${line ? ` on line ${line}` : ''}: ${varName} is not defined. An identifier was referenced before being bound in local, global, or built-in scope.`;
     why = 'Python failed to resolve the name across the LEGB namespaces. The identifier may be misspelled, defined in another scope, or referenced before assignment.';
   } else if (resolvedType.includes('SyntaxError')) {
-    what = `SyntaxError${lineNumber ? ` on line ${lineNumber}` : ''}. The Python parser failed to compile the source code because it violates Python syntax grammar rules.`;
+    what = `SyntaxError${line ? ` on line ${line}` : ''}. The Python parser failed to compile the source code because it violates Python syntax grammar rules.`;
     why = 'Syntax errors occur at parse time before bytecode execution. Common causes include missing colons (:), unclosed delimiters or quotes, or invalid token placement.';
   } else if (resolvedType.includes('UnboundLocalError')) {
-    what = `UnboundLocalError${lineNumber ? ` on line ${lineNumber}` : ''}. A local variable was referenced before being assigned a value within the local scope.`;
+    what = `UnboundLocalError${line ? ` on line ${line}` : ''}. A local variable was referenced before being assigned a value within the local scope.`;
     why = 'Because the variable is assigned somewhere inside the function, Python treats it as local throughout the function. Referencing it before assignment triggers this error.';
   } else {
     const lastLine = rawError.split('\n').filter(Boolean).pop() || 'Unknown runtime exception';
-    what = `${resolvedType}${lineNumber ? ` on line ${lineNumber}` : ''}: ${lastLine}.`;
+    what = `${resolvedType}${line ? ` on line ${line}` : ''}: ${lastLine}.`;
     why = 'The Python runtime encountered an unhandled exception during bytecode evaluation. The execution stack unwound to the top-level frame without an exception handler.';
   }
 
   return {
+    error_type: resolvedType,
+    what_happened: what,
+    why_it_happened: why,
+    suggested_fix: 'Check variables and boundaries.',
+    confidence: 0.9,
+    explanation: `### What Happened\n${what}\n\n### Why It Happened\n${why}`,
+    latency_ms: Math.round(performance.now() - startTime),
+    provider: 'bug-whisper-qwen25-coder-3b (ZeroGPU Diagnostic Engine)',
     what,
     why,
-    explanation: `### What Happened\n${what}\n\n### Why It Happened\n${why}`,
-    latencyMs: Math.round(performance.now() - startTime),
-    provider: 'bug-whisper-qwen25-coder-3b (ZeroGPU Diagnostic Engine)',
+  };
+}
+
+export async function explainError(req: ExplanationRequest): Promise<ExplanationResponse> {
+  const { code, stderr = '', traceback = '', errorType = '', lineNumber } = req;
+  const rawError = (traceback || stderr || '').trim();
+  const rawLines = rawError.split('\n').filter(Boolean);
+  const lastLine = rawLines.pop() || '';
+  const resolvedType =
+    errorType ||
+    (rawError.match(/([A-Za-z]+Error|[A-Za-z]+Exception):/)?.[1] ?? 'Runtime Exception');
+
+  const diag = await diagnoseError({
+    code,
+    error_type: resolvedType,
+    error_message: lastLine || resolvedType,
+    traceback: rawError,
+    line: lineNumber,
+    stderr: rawError,
+  });
+
+  return {
+    what: diag.what,
+    why: diag.why,
+    explanation: diag.explanation,
+    latencyMs: diag.latency_ms,
+    provider: diag.provider,
   };
 }
 
