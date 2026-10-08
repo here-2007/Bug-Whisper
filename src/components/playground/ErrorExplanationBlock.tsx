@@ -1,22 +1,45 @@
-import React from 'react';
-import { Sparkles, CheckCircle2, AlertOctagon, Loader2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Sparkles, CheckCircle2, AlertOctagon, Loader2, Copy, Check, GitCommitHorizontal, FileText } from 'lucide-react';
 import type { ExplanationResponse } from '../../lib/inference';
 import type { ExecutionResult } from '../../types/pyodide';
+import { generateUnifiedDiff } from '../../lib/diff';
 
 interface ErrorExplanationBlockProps {
   result: ExecutionResult | null;
   explanation: ExplanationResponse | null;
+  currentCode?: string;
   isExecuting: boolean;
   isExplaining: boolean;
+  onApplyFix?: (repairedCode: string) => void;
 }
 
 export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
   result,
   explanation,
+  currentCode = '',
   isExecuting,
   isExplaining,
+  onApplyFix,
 }) => {
   const hasError = Boolean(result && !result.success);
+  const [activeTab, setActiveTab] = useState<'explanation' | 'diff'>('explanation');
+  const [copied, setCopied] = useState(false);
+
+  const repairedCode = explanation?.repairedCode;
+  const diffText = useMemo(() => {
+    if (!repairedCode || !currentCode) return '';
+    return generateUnifiedDiff(currentCode, repairedCode);
+  }, [currentCode, repairedCode]);
+
+  const handleCopyExplanation = async () => {
+    if (!explanation) return;
+    const textToCopy = activeTab === 'diff' && diffText
+      ? diffText
+      : (explanation.explanation || `${explanation.what}\n\n${explanation.why}`);
+    await navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="flex-1 w-full h-full flex flex-col bg-[#141414] overflow-hidden font-mono text-xs select-text">
@@ -30,8 +53,20 @@ export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
           </span>
         </div>
 
-        {/* Dynamic status pill */}
-        <div>
+        {/* Right Header: Dynamic Status Pill & Copy Action */}
+        <div className="flex items-center gap-2">
+          {hasError && explanation && (
+            <button
+              type="button"
+              onClick={handleCopyExplanation}
+              title="Copy diagnosis to clipboard"
+              className="flex items-center gap-1 text-[11px] text-[#8e9385] hover:text-white px-2 py-0.5 rounded bg-[#20221d] border border-[#2e3227] hover:border-[#3d4236] transition-colors cursor-pointer"
+            >
+              {copied ? <Check className="w-3 h-3 text-[#7bd88f]" /> : <Copy className="w-3 h-3" />}
+              <span>{copied ? 'Copied' : 'Copy'}</span>
+            </button>
+          )}
+
           {isExecuting ? (
             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-[#322c15] text-[#f8e67a] border border-[#52451c]">
               <Loader2 className="w-3 h-3 animate-spin" />
@@ -97,14 +132,82 @@ export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
         ) : hasError && explanation ? (
           /* State 2: Error occurred & direct model explanation ready */
           <div className="space-y-2 animate-in fade-in duration-200 h-full flex flex-col justify-between">
-            <div className="p-3.5 rounded-lg bg-[#191b17] border border-[#2d3128] text-[#d8decb] text-xs leading-relaxed whitespace-pre-wrap font-mono select-text flex-1 overflow-y-auto">
-              {explanation.explanation || `${explanation.what}\n\n${explanation.why}`}
-            </div>
+            {/* View Tab Switcher when Diff is Available */}
+            {explanation.repairedCode && diffText && (
+              <div className="flex items-center justify-between pb-1 border-b border-[#2d3128]">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('explanation')}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] transition-colors cursor-pointer ${
+                      activeTab === 'explanation'
+                        ? 'bg-[#20221d] text-white border border-[#3d4236]'
+                        : 'text-[#8e9385] hover:text-white'
+                    }`}
+                  >
+                    <FileText className="w-3 h-3" />
+                    <span>Explanation</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('diff')}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] transition-colors cursor-pointer ${
+                      activeTab === 'diff'
+                        ? 'bg-[#20221d] text-white border border-[#3d4236]'
+                        : 'text-[#8e9385] hover:text-white'
+                    }`}
+                  >
+                    <GitCommitHorizontal className="w-3 h-3 text-[#7bd88f]" />
+                    <span>Diff Patch</span>
+                  </button>
+                </div>
 
-            {/* Model telemetry badge */}
-            <div className="flex items-center justify-between text-[10px] text-[#6a7061] px-1 pt-0.5 shrink-0">
+                {onApplyFix && (
+                  <button
+                    type="button"
+                    onClick={() => onApplyFix(explanation.repairedCode!)}
+                    title="Apply the synthesized fix to editor and re-execute"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#16251b] hover:bg-[#1e3425] border border-[#223d2b] text-[#7bd88f] text-[11px] font-semibold transition-colors cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Apply Fix & Re-run</span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Main Diagnostic Body */}
+            {activeTab === 'diff' && diffText ? (
+              <div className="p-3.5 rounded-lg bg-[#191b17] border border-[#2d3128] text-xs leading-relaxed font-mono select-text flex-1 overflow-y-auto">
+                <pre className="space-y-0.5">
+                  {diffText.split('\n').map((line, idx) => {
+                    let lineClass = 'text-[#8e9385]';
+                    if (line.startsWith('+')) lineClass = 'text-[#7bd88f] bg-[#16251b]/60 px-1 rounded-sm';
+                    else if (line.startsWith('-')) lineClass = 'text-[#fc618d] bg-[#2b161b]/60 px-1 rounded-sm';
+                    else if (line.startsWith('@')) lineClass = 'text-[#f8e67a]';
+                    return (
+                      <div key={idx} className={lineClass}>
+                        {line || ' '}
+                      </div>
+                    );
+                  })}
+                </pre>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-lg bg-[#191b17] border border-[#2d3128] text-[#d8decb] text-xs leading-relaxed whitespace-pre-wrap font-mono select-text flex-1 overflow-y-auto">
+                {explanation.explanation || `${explanation.what}\n\n${explanation.why}`}
+              </div>
+            )}
+
+            {/* Bottom Row: Actions & Telemetry */}
+            <div className="flex items-center justify-between text-[10px] text-[#6a7061] px-1 pt-1 border-t border-[#23271f] shrink-0">
               <span>Engine: {explanation.provider}</span>
-              <span>Latency: {explanation.latencyMs}ms</span>
+              <div className="flex items-center gap-3">
+                {explanation.suggestedFix && activeTab === 'explanation' && (
+                  <span className="text-[#a0a599] hidden md:inline">Fix: {explanation.suggestedFix}</span>
+                )}
+                <span>Latency: {explanation.latencyMs}ms</span>
+              </div>
             </div>
           </div>
         ) : hasError ? (

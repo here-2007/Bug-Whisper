@@ -1,5 +1,5 @@
-import React from 'react';
-import { CornerDownRight, CheckCircle2, AlertOctagon, Terminal, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { CornerDownRight, CheckCircle2, AlertOctagon, Terminal, Trash2, Copy, Check } from 'lucide-react';
 import type { ExecutionResult } from '../../types/pyodide';
 
 interface PlaygroundTerminalProps {
@@ -16,6 +16,17 @@ export const PlaygroundTerminal: React.FC<PlaygroundTerminalProps> = ({
   onClearTerminal,
 }) => {
   const hasError = Boolean(result && !result.success);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyTerminal = async () => {
+    if (!result) return;
+    const content = result.traceback || result.stderr || result.stdout || '';
+    if (content) {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <div className="flex-1 w-full h-full flex flex-col bg-[#141414] overflow-hidden font-mono text-xs select-text">
@@ -26,17 +37,31 @@ export const PlaygroundTerminal: React.FC<PlaygroundTerminalProps> = ({
           <span className="font-semibold text-white tracking-tight">Terminal Output</span>
         </div>
 
-        {onClearTerminal && (
-          <button
-            type="button"
-            onClick={onClearTerminal}
-            className="flex items-center gap-1 text-[11px] text-[#8e9385] hover:text-white p-1 rounded hover:bg-[#20221d] cursor-pointer transition-colors"
-            title="Clear terminal output"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Clear</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {result && (
+            <button
+              type="button"
+              onClick={handleCopyTerminal}
+              className="flex items-center gap-1 text-[11px] text-[#8e9385] hover:text-white px-2 py-0.5 rounded bg-[#20221d] border border-[#2e3227] hover:border-[#3d4236] cursor-pointer transition-colors"
+              title="Copy terminal traceback or output"
+            >
+              {copied ? <Check className="w-3 h-3 text-[#7bd88f]" /> : <Copy className="w-3 h-3" />}
+              <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
+            </button>
+          )}
+
+          {onClearTerminal && (
+            <button
+              type="button"
+              onClick={onClearTerminal}
+              className="flex items-center gap-1 text-[11px] text-[#8e9385] hover:text-white p-1 rounded hover:bg-[#20221d] cursor-pointer transition-colors"
+              title="Clear terminal output"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Clear</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Scrollable Output Canvas */}

@@ -104,6 +104,7 @@ export async function loadDiffModule(): Promise<{
   isRealImplementation: boolean;
 }> {
   const possiblePaths = [
+    path.join(ROOT_DIR, 'src', 'lib', 'diff.ts'),
     path.join(ROOT_DIR, 'src', 'utils', 'diff.ts'),
     path.join(ROOT_DIR, 'src', 'services', 'diff.ts'),
   ];

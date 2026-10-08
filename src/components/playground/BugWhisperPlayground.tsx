@@ -5,6 +5,7 @@ import { PlaygroundTerminal } from './PlaygroundTerminal';
 import { ErrorExplanationBlock } from './ErrorExplanationBlock';
 import { usePyodide } from '../../hooks/usePyodide';
 import { explainError, type ExplanationResponse } from '../../lib/inference';
+import { BUG_PRESETS } from '../../constants/presets';
 
 const DEFAULT_CODE = `def calculate_user_metrics(users, target_id):
     # Lookup telemetry metrics for user
@@ -36,16 +37,36 @@ export const BugWhisperPlayground: React.FC = () => {
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
+
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('default');
+  const [isShareCopied, setIsShareCopied] = useState<boolean>(false);
   const [explanation, setExplanation] = useState<ExplanationResponse | null>(null);
   const [isExplaining, setIsExplaining] = useState<boolean>(false);
   const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
 
   const { status, isExecuting, lastResult, runCode, clearOutput } = usePyodide();
 
+  // Parse shareable permalink from URL hash on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash.startsWith('#code=')) {
+      try {
+        const rawHash = window.location.hash.slice(6);
+        const decoded = decodeURIComponent(atob(rawHash));
+        if (decoded.trim()) {
+          setCode(decoded);
+          codeRef.current = decoded;
+          setSelectedPresetId('custom');
+        }
+      } catch (err) {
+        console.warn('Failed to parse code from hash permalink:', err);
+      }
+    }
+  }, []);
+
   // Execute initial code on mount once Pyodide Wasm is ready or if fallback is active
   useEffect(() => {
     if (status === 'ready' || status === 'error') {
-      runCode(code);
+      runCode(codeRef.current);
     }
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -106,6 +127,7 @@ export const BugWhisperPlayground: React.FC = () => {
 
   const handleReset = useCallback(() => {
     setCode(DEFAULT_CODE);
+    setSelectedPresetId('default');
     setHighlightedLine(null);
     setExplanation(null);
     setIsExplaining(false);
@@ -113,11 +135,58 @@ export const BugWhisperPlayground: React.FC = () => {
     runCode(DEFAULT_CODE);
   }, [clearOutput, runCode]);
 
+  const handleSelectPreset = useCallback((presetId: string) => {
+    setSelectedPresetId(presetId);
+    setHighlightedLine(null);
+    setExplanation(null);
+    setIsExplaining(false);
+    clearOutput();
+
+    let targetCode = DEFAULT_CODE;
+    if (presetId !== 'default') {
+      const found = BUG_PRESETS.find((p) => p.id === presetId);
+      if (found) {
+        targetCode = found.buggyCode;
+      }
+    }
+    setCode(targetCode);
+    codeRef.current = targetCode;
+    runCode(targetCode);
+  }, [clearOutput, runCode]);
+
+  const handleShare = useCallback(async () => {
+    try {
+      const currentText = codeRef.current;
+      const encoded = btoa(encodeURIComponent(currentText));
+      if (typeof window !== 'undefined') {
+        window.location.hash = `code=${encoded}`;
+        await navigator.clipboard.writeText(window.location.href);
+        setIsShareCopied(true);
+        setTimeout(() => setIsShareCopied(false), 2000);
+      }
+    } catch (err) {
+      console.warn('Share encoding error:', err);
+    }
+  }, []);
+
+  const handleApplyFix = useCallback((repairedCode: string) => {
+    setCode(repairedCode);
+    codeRef.current = repairedCode;
+    setHighlightedLine(null);
+    setExplanation(null);
+    setIsExplaining(false);
+    runCode(repairedCode);
+  }, [runCode]);
+
   return (
     <div className="w-full rounded-xl border border-[#38383a] bg-[#141414] overflow-hidden flex flex-col shadow-none">
       <PlaygroundHeader
         onRun={handleRun}
         onReset={handleReset}
+        onSelectPreset={handleSelectPreset}
+        onShare={handleShare}
+        selectedPresetId={selectedPresetId}
+        isShareCopied={isShareCopied}
         isExecuting={isExecuting}
         isExplaining={isExplaining}
         status={status}
@@ -154,11 +223,12 @@ export const BugWhisperPlayground: React.FC = () => {
         <ErrorExplanationBlock
           result={lastResult}
           explanation={explanation}
+          currentCode={code}
           isExecuting={isExecuting}
           isExplaining={isExplaining}
+          onApplyFix={handleApplyFix}
         />
       </div>
     </div>
   );
 };
-

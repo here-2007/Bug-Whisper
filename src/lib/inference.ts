@@ -29,6 +29,8 @@ export interface ExplanationResponse {
   explanation: string;
   latencyMs: number;
   provider: string;
+  suggestedFix?: string;
+  repairedCode?: string;
 }
 
 export interface ErrorDiagnosisRequest {
@@ -48,6 +50,7 @@ export interface ErrorDiagnosisResponse {
   what_happened: string;
   why_it_happened: string;
   suggested_fix?: string;
+  repaired_code?: string;
   confidence: number;
   explanation: string;
   latency_ms: number;
@@ -106,6 +109,7 @@ export async function diagnoseError(req: ErrorDiagnosisRequest): Promise<ErrorDi
         const what = data.what_happened || data.what || '';
         const why = data.why_it_happened || data.why || '';
         const fix = data.suggested_fix || '';
+        const repCode = data.repaired_code || (data.suggested_fix && data.suggested_fix.includes('\n') ? data.suggested_fix : undefined);
         const explanation = data.explanation || (what ? `${what}\n\n${why}` : why) || `${req.error_type}: ${req.error_message}\n\nThe Python interpreter halted on an unhandled exception.`;
 
         return {
@@ -113,6 +117,7 @@ export async function diagnoseError(req: ErrorDiagnosisRequest): Promise<ErrorDi
           what_happened: what,
           why_it_happened: why,
           suggested_fix: fix,
+          repaired_code: repCode,
           confidence: data.confidence ?? 1.0,
           explanation,
           latency_ms: data.latency_ms ?? Math.round(performance.now() - startTime),
@@ -130,12 +135,49 @@ export async function diagnoseError(req: ErrorDiagnosisRequest): Promise<ErrorDi
 }
 
 function getDeterministicDiagnosis(req: ErrorDiagnosisRequest, startTime: number): ErrorDiagnosisResponse {
-  const { code: _code, traceback = '', error_type = '', error_message = '', line } = req;
+  const { code: rawCode, traceback = '', error_type = '', error_message = '', line } = req;
   const rawError = (traceback || error_message || '').trim();
 
   const resolvedType =
     error_type ||
     (rawError.match(/([A-Za-z]+Error|[A-Za-z]+Exception):/)?.[1] ?? 'Runtime Exception');
+
+  // Check matching preset or known code patterns
+  const matchingPreset = BUG_PRESETS.find(
+    (p) =>
+      p.buggyCode.trim() === rawCode.trim() ||
+      rawCode.includes(p.id) ||
+      (p.offendingLine && rawCode.includes(p.summary.slice(0, 15)))
+  );
+
+  let suggestedFix = '';
+  let repairedCode = '';
+
+  if (matchingPreset) {
+    suggestedFix = matchingPreset.explanation;
+    repairedCode = matchingPreset.fixedCode;
+  } else if (rawCode.includes('def calculate_user_metrics')) {
+    suggestedFix = 'Guard zero division in error_count telemetry and check roles bounds safely.';
+    repairedCode = rawCode
+      .replace(
+        'ratio = record["total_requests"] / record["error_count"]',
+        'err_count = record.get("error_count", 0)\n    ratio = record["total_requests"] / err_count if err_count != 0 else 0.0'
+      )
+      .replace(
+        '"role": record["roles"][5]',
+        'roles = record.get("roles", [])\n        role = roles[5] if len(roles) > 5 else (roles[0] if roles else "viewer")\n        return {\n            "user_id": target_id,\n            "ratio": ratio,\n            "role": role\n        }'
+      );
+  } else if (resolvedType.includes('ZeroDivisionError') || rawError.includes('division by zero')) {
+    suggestedFix = 'Guard division by zero with a non-zero validation check.';
+    repairedCode = rawCode.replace(/\/ 0(?![0-9.])/g, '/ 1').replace(/\/\/ 0(?![0-9.])/g, '// 1');
+  } else if (resolvedType.includes('SyntaxError') && rawError.includes("expected ':'")) {
+    suggestedFix = "Add a colon ':' at the end of the statement header.";
+    const lines = rawCode.split('\n');
+    if (line && line <= lines.length) {
+      lines[line - 1] = lines[line - 1].replace(/\s*$/, ':');
+      repairedCode = lines.join('\n');
+    }
+  }
 
   let what = '';
   let why = '';
@@ -180,7 +222,8 @@ function getDeterministicDiagnosis(req: ErrorDiagnosisRequest, startTime: number
     error_type: resolvedType,
     what_happened: what,
     why_it_happened: why,
-    suggested_fix: 'Check variables and boundaries.',
+    suggested_fix: suggestedFix || 'Check variables and boundaries.',
+    repaired_code: repairedCode || undefined,
     confidence: 0.9,
     explanation: `${what}\n\n${why}`,
     latency_ms: Math.round(performance.now() - startTime),
@@ -214,6 +257,8 @@ export async function explainError(req: ExplanationRequest): Promise<Explanation
     explanation: diag.explanation,
     latencyMs: diag.latency_ms,
     provider: diag.provider,
+    suggestedFix: diag.suggested_fix,
+    repairedCode: diag.repaired_code,
   };
 }
 
