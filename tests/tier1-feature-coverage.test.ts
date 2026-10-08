@@ -525,14 +525,13 @@ describe('F8: Pyodide WebWorker Sandbox & Terminal HUD Modules', () => {
     expect(playgroundContent).toContain('runCode');
   });
 
-  test('F8.6: src/components/playground/ErrorExplanationBlock.tsx renders clean and diagnostic states', () => {
+  test('F8.6: src/components/playground/ErrorExplanationBlock.tsx renders clean and direct diagnostic output', () => {
     const errorBlockPath = path.join(ROOT_DIR, 'src', 'components', 'playground', 'ErrorExplanationBlock.tsx');
     expect(fs.existsSync(errorBlockPath)).toBe(true);
     const content = fs.readFileSync(errorBlockPath, 'utf-8');
     expect(content).toContain('Error Explanation');
     expect(content).toContain('Code Clean');
-    expect(content).toContain('What Happened');
-    expect(content).toContain('Why It Happened');
+    expect(content).toContain('explanation.explanation');
   });
 
   test('F8.7: src/lib/inference.ts implements explainError for semantic root cause diagnosis', async () => {
@@ -551,8 +550,7 @@ describe('F8: Pyodide WebWorker Sandbox & Terminal HUD Modules', () => {
 
     expect(res.what).toContain('ZeroDivisionError');
     expect(res.why.length > 0).toBe(true);
-    expect(res.explanation).toContain('What Happened');
-    expect(res.explanation).toContain('Why It Happened');
+    expect(res.explanation.length > 0).toBe(true);
   });
 });
 

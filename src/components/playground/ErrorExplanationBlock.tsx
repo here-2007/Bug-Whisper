@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, CheckCircle2, AlertOctagon, Loader2, HelpCircle } from 'lucide-react';
+import { Sparkles, CheckCircle2, AlertOctagon, Loader2 } from 'lucide-react';
 import type { ExplanationResponse } from '../../lib/inference';
 import type { ExecutionResult } from '../../types/pyodide';
 
@@ -80,39 +80,19 @@ export const ErrorExplanationBlock: React.FC<ErrorExplanationBlockProps> = ({
             <div className="space-y-1">
               <div className="text-sm font-semibold text-[#f8e67a]">Diagnosing Runtime Failure...</div>
               <p className="text-[11px] text-[#8e9385] max-w-sm leading-relaxed">
-                Qwen 2.5 Coder 3B is deconstructing the traceback and evaluating what and why the error occurred.
+                Qwen 2.5 Coder 3B is deconstructing the traceback and evaluating the error...
               </p>
             </div>
           </div>
         ) : hasError && explanation ? (
-          /* State 2: Error occurred & explanation ready */
-          <div className="space-y-2.5 animate-in fade-in duration-200">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              {/* Card 1: What Happened */}
-              <div className="p-3.5 rounded-lg bg-[#241719] border border-[#482025] space-y-2">
-                <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold text-[#fc618d]">
-                  <AlertOctagon className="w-3.5 h-3.5 shrink-0" />
-                  <span>What Happened</span>
-                </div>
-                <p className="text-[#e2c7cb] text-[12px] leading-relaxed whitespace-pre-wrap">
-                  {explanation.what}
-                </p>
-              </div>
-
-              {/* Card 2: Why It Happened */}
-              <div className="p-3.5 rounded-lg bg-[#1f221b] border border-[#343b2b] space-y-2">
-                <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold text-[#f8e67a]">
-                  <HelpCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>Why It Happened</span>
-                </div>
-                <p className="text-[#d8decb] text-[12px] leading-relaxed whitespace-pre-wrap">
-                  {explanation.why}
-                </p>
-              </div>
+          /* State 2: Error occurred & direct model explanation ready */
+          <div className="space-y-2 animate-in fade-in duration-200 h-full flex flex-col justify-between">
+            <div className="p-3.5 rounded-lg bg-[#191b17] border border-[#2d3128] text-[#d8decb] text-xs leading-relaxed whitespace-pre-wrap font-mono select-text flex-1 overflow-y-auto">
+              {explanation.explanation || `${explanation.what}\n\n${explanation.why}`}
             </div>
 
             {/* Model telemetry badge */}
-            <div className="flex items-center justify-between text-[10px] text-[#6a7061] px-1 pt-0.5">
+            <div className="flex items-center justify-between text-[10px] text-[#6a7061] px-1 pt-0.5 shrink-0">
               <span>Engine: {explanation.provider}</span>
               <span>Latency: {explanation.latencyMs}ms</span>
             </div>
