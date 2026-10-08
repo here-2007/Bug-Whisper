@@ -237,12 +237,24 @@ with gr.Blocks(title="Bug Whisper Bridge") as demo:
 # ---------------------------------------------------------------------------
 # Mount Gradio and Static React Frontend
 # ---------------------------------------------------------------------------
+import mimetypes
+
+mimetypes.add_type("text/javascript", ".mjs")
+mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("application/wasm", ".wasm")
+mimetypes.add_type("application/zip", ".zip")
+mimetypes.add_type("application/json", ".json")
+
 frontend_ready = ensure_frontend_built()
 
 if frontend_ready:
     assets_dir = DIST_DIR / "assets"
     if assets_dir.is_dir():
         fastapi_app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+    pyodide_dir = DIST_DIR / "pyodide"
+    if pyodide_dir.is_dir():
+        fastapi_app.mount("/pyodide", StaticFiles(directory=str(pyodide_dir)), name="pyodide")
 
     @fastapi_app.get("/", response_class=FileResponse)
     def serve_frontend_root():
