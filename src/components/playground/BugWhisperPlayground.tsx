@@ -95,6 +95,8 @@ export const BugWhisperPlayground: React.FC = () => {
         : null;
 
   const handleRun = useCallback(() => {
+    setExplanation(null);
+    setIsExplaining(false);
     runCode(code);
   }, [code, runCode]);
 

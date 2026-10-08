@@ -261,3 +261,33 @@ def test_15_spa_fallback_and_static_routing(client):
     res_404 = client.get("/api/unknown_route")
     assert res_404.status_code == 404
 
+
+def test_16_startup_preload_and_inference_lock():
+    """Verify eager startup loading keeps model resident and _INFERENCE_LOCK exists."""
+    assert hasattr(inference, "load_model_at_startup")
+    model, tokenizer = inference.load_model_at_startup()
+    assert model is not None
+    assert tokenizer is not None
+    assert inference.model_status()["loaded"] is True
+    assert hasattr(inference, "_INFERENCE_LOCK")
+    assert not inference._INFERENCE_LOCK.locked()
+
+
+def test_17_direct_model_explanation_no_artificial_headings(client):
+    """Verify explanation field contains direct explanation and does not inject artificial headings."""
+    payload = {
+        "code": "print(1 / 0)",
+        "error_type": "ZeroDivisionError",
+        "error_message": "division by zero",
+        "traceback": 'Traceback (most recent call last):\n  File "main.py", line 1, in <module>\n    print(1 / 0)\nZeroDivisionError: division by zero',
+        "line": 1,
+    }
+    res = client.post("/api/diagnose", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert "explanation" in data
+    # Explanation should not contain artificial markdown headings
+    assert "### What Happened" not in data["explanation"]
+    assert "### Why It Happened" not in data["explanation"]
+    assert len(data["explanation"].strip()) > 0
+

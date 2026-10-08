@@ -94,13 +94,29 @@ class DiagnosisResponse(BaseModel):
     warning: Optional[str] = None
 
 
+from contextlib import asynccontextmanager
+
+
 # ---------------------------------------------------------------------------
 # FastAPI Application & REST Endpoints
 # ---------------------------------------------------------------------------
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan managing eager model pre-loading at startup."""
+    logger.info("Lifespan startup: ensuring Bug Whisper model is pre-loaded into memory...")
+    try:
+        inference.load_model_at_startup()
+    except Exception as exc:
+        logger.error("Failed to preload model during lifespan startup: %s", exc)
+    yield
+    logger.info("Application shutdown.")
+
+
 fastapi_app = FastAPI(
     title="Bug Whisper API",
     description="Bridge connecting existing React UI with fine-tuned Qwen 2.5 Coder 3B model",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 fastapi_app.add_middleware(
@@ -271,6 +287,12 @@ if __name__ == "__main__":
 
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "7860"))
+
+    logger.info("Preloading Bug Whisper model before server start...")
+    try:
+        inference.load_model_at_startup()
+    except Exception as exc:
+        logger.warning("Could not preload model immediately at startup: %s", exc)
 
     logger.info("Starting Bug Whisper server on http://%s:%d ...", host, port)
     logger.info("Serving React frontend from: %s", DIST_DIR)

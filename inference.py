@@ -48,11 +48,12 @@ except ImportError:
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Global model state & singleton lock
+# Global model state & singleton locks
 _MODEL = None
 _TOKENIZER = None
 _RESOLVED_MODEL_DIR: Optional[Path] = None
 _MODEL_LOCK = threading.Lock()
+_INFERENCE_LOCK = threading.Lock()
 
 DEFAULT_KAGGLE_HANDLE = "pernavjain/bug-whisper-qwen25-coder-3b/pyTorch/4bit-bnb"
 DEFAULT_MODEL_DIR = os.environ.get("MODEL_DIR", "./model")
@@ -226,7 +227,7 @@ def load_model(model_path: Union[str, Path]) -> AutoModelForCausalLM:
     model = AutoModelForCausalLM.from_pretrained(
         path_str,
         device_map="auto",
-        torch_dtype=torch.bfloat16 if torch.cuda.is_available() else None,
+        dtype=torch.bfloat16 if torch.cuda.is_available() else None,
         low_cpu_mem_usage=True,
     )
     model.eval()
@@ -272,6 +273,14 @@ def get_inference_engine() -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
         return _MODEL, _TOKENIZER
 
 
+def load_model_at_startup() -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+    """Eagerly load model and tokenizer at application startup and keep resident in memory."""
+    logger.info("Initializing Bug Whisper model eagerly at startup...")
+    model, tokenizer = get_inference_engine()
+    logger.info("Model preloaded successfully and resident in memory.")
+    return model, tokenizer
+
+
 def get_tokenizer() -> AutoTokenizer:
     """Return the cached tokenizer or load it from the resolved model directory."""
     global _TOKENIZER
@@ -308,77 +317,69 @@ def _gpu_generate_tokens(
     """Run model generation inside Hugging Face Spaces GPU allocation context.
 
     On Spaces ZeroGPU, the GPU is only dynamically attached within this function.
-    Supports both direct prompt string inference and raw tensor inputs.
+    Guarded by _INFERENCE_LOCK to serialize access across threads on macOS MPS and CUDA.
     """
-    if prompt is not None:
-        active_model, active_tokenizer = get_inference_engine()
-        device = next(active_model.parameters()).device
-        inputs = active_tokenizer(prompt, return_tensors="pt")
-        active_input_ids = inputs["input_ids"].to(device)
-        active_mask = inputs.get("attention_mask", torch.ones_like(active_input_ids)).to(device)
+    with _INFERENCE_LOCK:
+        if prompt is not None:
+            active_model, active_tokenizer = get_inference_engine()
+            device = next(active_model.parameters()).device
+            inputs = active_tokenizer(prompt, return_tensors="pt")
+            active_input_ids = inputs["input_ids"].to(device)
+            active_mask = inputs.get("attention_mask", torch.ones_like(active_input_ids)).to(device)
 
-        with torch.no_grad():
-            outputs = active_model.generate(
-                input_ids=active_input_ids,
-                attention_mask=active_mask,
-                max_new_tokens=max_new_tokens,
-                do_sample=temperature > 0.0,
-                temperature=temperature if temperature > 0.0 else None,
-                pad_token_id=active_model.config.pad_token_id or active_model.config.eos_token_id,
-                eos_token_id=active_model.config.eos_token_id,
-            )
+            with torch.inference_mode():
+                outputs = active_model.generate(
+                    input_ids=active_input_ids,
+                    attention_mask=active_mask,
+                    max_new_tokens=max_new_tokens,
+                    do_sample=temperature > 0.0,
+                    temperature=temperature if temperature > 0.0 else None,
+                    pad_token_id=active_model.config.pad_token_id or active_model.config.eos_token_id,
+                    eos_token_id=active_model.config.eos_token_id,
+                )
 
-        input_len = active_input_ids.shape[1]
-        generated_tokens = outputs[0][input_len:]
-        return active_tokenizer.decode(generated_tokens, skip_special_tokens=True)
+            input_len = active_input_ids.shape[1]
+            generated_tokens = outputs[0][input_len:]
+            return active_tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
-    if model is not None and input_ids is not None:
-        mask = attention_mask if attention_mask is not None else torch.ones_like(input_ids)
-        with torch.no_grad():
-            outputs = model.generate(
-                input_ids=input_ids,
-                attention_mask=mask,
-                max_new_tokens=max_new_tokens,
-                do_sample=temperature > 0.0,
-                temperature=temperature if temperature > 0.0 else None,
-                pad_token_id=model.config.pad_token_id or model.config.eos_token_id,
-                eos_token_id=model.config.eos_token_id,
-            )
-        return outputs
+        if model is not None and input_ids is not None:
+            mask = attention_mask if attention_mask is not None else torch.ones_like(input_ids)
+            with torch.inference_mode():
+                outputs = model.generate(
+                    input_ids=input_ids,
+                    attention_mask=mask,
+                    max_new_tokens=max_new_tokens,
+                    do_sample=temperature > 0.0,
+                    temperature=temperature if temperature > 0.0 else None,
+                    pad_token_id=model.config.pad_token_id or model.config.eos_token_id,
+                    eos_token_id=model.config.eos_token_id,
+                )
+            return outputs
 
-    raise ValueError("Either prompt or (model and input_ids) must be provided to _gpu_generate_tokens.")
+        raise ValueError("Either prompt or (model and input_ids) must be provided to _gpu_generate_tokens.")
 
 
 def build_prompt(
     tokenizer: AutoTokenizer,
     code: str,
-    error_type: str,
-    error_message: str,
-    traceback: str,
+    error_type: Optional[str] = None,
+    error_message: Optional[str] = None,
+    traceback: Optional[str] = None,
     line: Optional[int] = None,
 ) -> str:
-    """Format prompt using the model's own ChatML chat template."""
-    clean_code = code[:MAX_CODE_LENGTH]
-    clean_tb = traceback[:MAX_TRACEBACK_LENGTH]
-    clean_msg = error_message[:MAX_ERROR_MSG_LENGTH]
-    line_str = str(line) if line is not None else "Unknown"
+    """Format prompt using the exact ChatML contract defined in Modelfile and context.md."""
+    clean_code = (code or "").strip()[:MAX_CODE_LENGTH]
+    clean_tb = (traceback or error_message or "").strip()
+    truncated_stderr = clean_tb[:300] if clean_tb else f"{error_type or 'RuntimeError'}: {error_message or 'Error'}"
 
     system_content = (
-        "You are Bug Whisper, an expert Python debugging assistant.\n"
-        "Analyze the Python runtime or syntax execution error.\n"
-        "Respond in strictly valid JSON format with three concise fields:\n"
-        '- "what_happened": a 1-2 sentence description of what failed and where\n'
-        '- "why_it_happened": a 1-2 sentence explanation of the root cause in Python\n'
-        '- "suggested_fix": a concise description of how to resolve the error'
+        "You are an expert Python bug-fixing assistant. Fix all errors in the provided code and return only the corrected Python code."
     )
 
     user_content = (
-        f"Analyze this Python execution error:\n\n"
-        f"SOURCE CODE:\n```python\n{clean_code}\n```\n\n"
-        f"ERROR TYPE:\n{error_type}\n\n"
-        f"ERROR MESSAGE:\n{clean_msg}\n\n"
-        f"TRACEBACK:\n```\n{clean_tb}\n```\n\n"
-        f"LINE: {line_str}\n"
+        f"Fix the bug in this Python code:\n\n"
+        f"```python\n{clean_code}\n```\n\n"
+        f"Error output:\n```\n{truncated_stderr}\n```"
     )
 
     messages = [
@@ -519,37 +520,33 @@ def explain_error(
         )
 
         # Run inference via @spaces.GPU
-        raw_text = _gpu_generate_tokens(
-            prompt=prompt,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-        )
-
-        parsed = parse_model_output(
-            raw_text=raw_text,
-            error_type=safe_error_type,
-            error_message=safe_error_msg,
-            line=line,
-        )
+        raw_text = str(
+            _gpu_generate_tokens(
+                prompt=prompt,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+            )
+        ).strip()
 
         latency_ms = int((time.perf_counter() - start_time) * 1000)
 
-        what_happened = parsed["what_happened"]
-        why_it_happened = parsed["why_it_happened"]
-        suggested_fix = parsed.get("suggested_fix", "")
+        # Direct model output as explanation, without artificial headings
+        cleaned_explanation = raw_text
 
-        # Format unified explanation markdown string
-        explanation_md = f"### What Happened\n{what_happened}\n\n### Why It Happened\n{why_it_happened}"
-        if suggested_fix:
-            explanation_md += f"\n\n### How to Fix\n{suggested_fix}"
+        # For backwards compatibility with consumers expecting what/why:
+        paragraphs = [p.strip() for p in cleaned_explanation.split("\n\n") if p.strip()]
+        what_happened = paragraphs[0] if paragraphs else f"{safe_error_type}: {safe_error_msg}"
+        why_it_happened = (
+            paragraphs[1] if len(paragraphs) > 1 else (paragraphs[0] if paragraphs else "Runtime failure.")
+        )
 
         return {
             "error_type": safe_error_type,
             "what_happened": what_happened,
             "why_it_happened": why_it_happened,
-            "suggested_fix": suggested_fix,
+            "suggested_fix": "",
             "confidence": 1.0,
-            "explanation": explanation_md,
+            "explanation": cleaned_explanation,
             "latency_ms": latency_ms,
             "provider": "Bug Whisper Qwen 2.5 Coder 3B (4-bit)",
             # Aliases for frontend backward compatibility
@@ -561,19 +558,21 @@ def explain_error(
         logger.exception("Inference failed: %s", exc)
         latency_ms = int((time.perf_counter() - start_time) * 1000)
 
-        fallback_what = f"{safe_error_type}: {safe_error_msg}"
-        fallback_why = "Execution failed. The Python runtime halted due to an unhandled exception."
+        fallback_explanation = (
+            f"{safe_error_type}: {safe_error_msg}.\n\n"
+            "The Python interpreter encountered an unhandled exception during execution."
+        )
         return {
             "error_type": safe_error_type,
-            "what_happened": fallback_what,
-            "why_it_happened": fallback_why,
-            "suggested_fix": "Check the traceback and verify variable initialization and syntax.",
+            "what_happened": f"{safe_error_type}: {safe_error_msg}",
+            "why_it_happened": "Execution failed due to an unhandled exception.",
+            "suggested_fix": "Inspect the offending line and verify variables and types.",
             "confidence": 0.5,
-            "explanation": f"### What Happened\n{fallback_what}\n\n### Why It Happened\n{fallback_why}",
+            "explanation": fallback_explanation,
             "latency_ms": latency_ms,
             "provider": "Bug Whisper (Fallback)",
-            "what": fallback_what,
-            "why": fallback_why,
+            "what": f"{safe_error_type}: {safe_error_msg}",
+            "why": "Execution failed due to an unhandled exception.",
             "warning": str(exc),
         }
 

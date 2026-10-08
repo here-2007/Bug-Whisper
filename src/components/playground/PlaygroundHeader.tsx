@@ -79,7 +79,7 @@ export const PlaygroundHeader: React.FC<PlaygroundHeaderProps> = ({
         <button
           type="button"
           onClick={onRun}
-          disabled={isExecuting || isExplaining}
+          disabled={isExecuting}
           className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-mono font-medium transition-colors disabled:opacity-50 cursor-pointer"
         >
           {isExecuting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-white" />}

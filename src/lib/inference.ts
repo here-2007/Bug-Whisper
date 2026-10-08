@@ -66,13 +66,11 @@ export async function diagnoseError(req: ErrorDiagnosisRequest): Promise<ErrorDi
   if (isBrowser) {
     probeUrls.push('/api/diagnose');
     probeUrls.push('/gradio/api/diagnose');
-    probeUrls.push('/gradio/gradio_api/api/diagnose');
-    probeUrls.push('/api/explain');
+    probeUrls.push('http://localhost:7860/api/diagnose');
+  } else {
+    probeUrls.push('http://localhost:7860/api/diagnose');
+    probeUrls.push('/api/diagnose');
   }
-  probeUrls.push('http://localhost:7860/api/diagnose');
-  probeUrls.push('http://localhost:7860/gradio/api/diagnose');
-  probeUrls.push('http://localhost:7860/gradio/gradio_api/api/diagnose');
-  probeUrls.push('http://localhost:8000/api/diagnose');
 
   for (const url of probeUrls) {
     try {
@@ -114,7 +112,7 @@ export async function diagnoseError(req: ErrorDiagnosisRequest): Promise<ErrorDi
         const what = data.what_happened || data.what || `${req.error_type}: ${req.error_message}`;
         const why = data.why_it_happened || data.why || 'The Python interpreter halted on an unhandled exception.';
         const fix = data.suggested_fix || '';
-        const explanation = data.explanation || `### What Happened\n${what}\n\n### Why It Happened\n${why}`;
+        const explanation = data.explanation || (what ? `${what}\n\n${why}` : why);
 
         return {
           error_type: data.error_type || req.error_type,
@@ -190,7 +188,7 @@ function getDeterministicDiagnosis(req: ErrorDiagnosisRequest, startTime: number
     why_it_happened: why,
     suggested_fix: 'Check variables and boundaries.',
     confidence: 0.9,
-    explanation: `### What Happened\n${what}\n\n### Why It Happened\n${why}`,
+    explanation: `${what}\n\n${why}`,
     latency_ms: Math.round(performance.now() - startTime),
     provider: 'bug-whisper-qwen25-coder-3b (ZeroGPU Diagnostic Engine)',
     what,
