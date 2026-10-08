@@ -35,6 +35,3 @@ export const StudioSection: React.FC = () => {
     </section>
   );
 };
-
-// Backwards compatibility alias
-export const ConvexProductSection = StudioSection;

@@ -35,7 +35,7 @@ export const Footer: React.FC = () => {
               Bug Whisper
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-charcoal-surface border border-graphite-border text-fog-text">
-              v0.1.0-qwen3b
+              v0.1.1-qwen3b
             </span>
           </div>
 
@@ -128,7 +128,7 @@ export const Footer: React.FC = () => {
             <span>Kaggle (@pernavjain)</span>
           </a>
           <span className="text-fog-text">
-            License: MIT Open Source
+            License: Apache-2.0 Open Source
           </span>
           <span className="text-fog-text">
             Pyodide v0.26 WebAssembly Runtime

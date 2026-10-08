@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.1] - 2026-10-08
+
+### Added
+- **Official Apache-2.0 LICENSE**: Added official Apache 2.0 license file to repository root.
+- **Social & SEO Metadata**: Added Open Graph, Twitter card, theme colors, and search engine metadata to `index.html`.
+- **Kaggle Dependency Parity**: Added `kagglehub>=0.2.0` to both `requirements.txt` and `backend/requirements.txt`.
+
+### Changed
+- **Removed Legacy Aliases**: Fully removed all legacy Convex compatibility aliases from frontend codebase.
+
+---
+
 ## [0.1.0] - 2026-10-08
 
 ### Added

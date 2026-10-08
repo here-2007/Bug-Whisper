@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bugwhisper"
-version = "0.1.0"
+version = "0.1.1"
 description = "Deterministic runtime execution & neural Python error debugging studio powered by Qwen 2.5 Coder 3B"
 readme = "README.md"
 requires-python = ">=3.9"

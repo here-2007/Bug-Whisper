@@ -55,6 +55,3 @@ export const AST_GLYPHS: number[][][] = [
     [1, 1, 1],
   ],
 ];
-
-// Alias for backwards compatibility
-export const CONVEX_GLYPHS = AST_GLYPHS;

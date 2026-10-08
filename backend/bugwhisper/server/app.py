@@ -25,7 +25,7 @@ def create_app() -> FastAPI:
             "Deterministic runtime execution, dual-mode traceback parsing, "
             "multi-tier inference, and two-stage verification."
         ),
-        version="0.1.0",
+        version="0.1.1",
         docs_url="/docs",
         redoc_url="/redoc",
     )
@@ -53,7 +53,7 @@ def create_app() -> FastAPI:
     async def root():
         return {
             "name": "Bug Whisper Core API",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "docs": "/docs",
             "status": "online",
         }

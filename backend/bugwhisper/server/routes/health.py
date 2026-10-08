@@ -16,7 +16,7 @@ async def check_health() -> HealthResponse:
     """Returns runtime health status and active capabilities."""
     return HealthResponse(
         status="healthy",
-        version="0.1.0",
+        version="0.1.1",
         python_version=sys.version.split()[0],
         available_providers=["heuristic", "ollama", "openai"],
     )
