@@ -5,15 +5,17 @@ import { HeroWorkbench } from './HeroWorkbench';
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="w-full px-3 sm:px-6 pt-3 pb-8 select-none">
-      <div className="max-w-[1460px] mx-auto flex flex-col gap-2.5 sm:gap-3">
-        {/* Top Unified HeroNavbar Card as it was earlier */}
-        <div className="w-full bg-[#1c1e19] border border-[#2e3128] rounded-xl px-6 py-4 sm:px-8 sm:py-5">
+    <section className="w-full pb-8 select-none">
+      {/* Full-width top HeroNavbar with 0 whitespace on top, left, or right */}
+      <header className="w-full bg-[#1c1e19] border-b border-[#2e3128] px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4">
+        <div className="max-w-[1460px] mx-auto">
           <HeroNavbar />
         </div>
+      </header>
 
-        {/* 2-Section Partitioned Hero Grid with Thin Canvas Gap */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3 items-stretch">
+      {/* Hero Partition: 2-Section Grid with Thin Background Gap */}
+      <div className="w-full px-3 sm:px-6 pt-2.5 sm:pt-3">
+        <div className="max-w-[1460px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3 items-stretch">
           {/* Left Section Card: Headline, Studio CTA, Fine-Tuning Info */}
           <div className="lg:col-span-5 flex flex-col justify-between bg-[#1c1e19] border border-[#2e3128] rounded-xl p-6 sm:p-8">
             {/* Headline and Spaced CTA */}
