@@ -63,12 +63,6 @@ export const BugWhisperPlayground: React.FC = () => {
     }
   }, []);
 
-  // Execute initial code on mount once Pyodide Wasm is ready or if fallback is active
-  useEffect(() => {
-    if (status === 'ready' || status === 'error') {
-      runCode(codeRef.current);
-    }
-  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Automatically trigger model explanation whenever a runtime or syntax error occurs
   useEffect(() => {
@@ -132,8 +126,7 @@ export const BugWhisperPlayground: React.FC = () => {
     setExplanation(null);
     setIsExplaining(false);
     clearOutput();
-    runCode(DEFAULT_CODE);
-  }, [clearOutput, runCode]);
+  }, [clearOutput]);
 
   const handleSelectPreset = useCallback((presetId: string) => {
     setSelectedPresetId(presetId);
