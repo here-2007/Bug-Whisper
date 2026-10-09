@@ -455,6 +455,34 @@ def parse_model_output(
     }
 
 
+def extract_repaired_code(raw_text: str, original_code: str) -> Optional[str]:
+    """Extract clean repaired Python code from model output."""
+    cleaned = (raw_text or "").strip()
+    if not cleaned:
+        return None
+
+    # Check for markdown code fences: ```python ... ``` or ``` ... ```
+    fence_matches = re.findall(r"```(?:python)?\s*([\s\S]*?)```", cleaned)
+    if fence_matches:
+        for match in fence_matches:
+            cand = match.strip()
+            if cand and cand != original_code.strip():
+                return cand
+        longest = max(fence_matches, key=len).strip()
+        if longest and longest != original_code.strip():
+            return longest
+
+    # If raw_text is itself Python code
+    lines = cleaned.splitlines()
+    pythonic_indicators = ("def ", "class ", "import ", "from ", "print(", "return ", "=", "if ", "for ", "while ")
+    has_python = any(any(line.strip().startswith(ind) for ind in pythonic_indicators) for line in lines)
+    if has_python and not cleaned.startswith("{") and not cleaned.startswith("Error:"):
+        if cleaned != original_code.strip():
+            return cleaned
+
+    return None
+
+
 def explain_error(
     code: str,
     error_type: str,
@@ -504,6 +532,9 @@ def explain_error(
         # Direct model output as explanation, without artificial headings
         cleaned_explanation = raw_text
 
+        # Extract synthesized repaired code from model output
+        repaired_code = extract_repaired_code(raw_text, safe_code)
+
         # Use robust parser for structured fallback fields
         parsed = parse_model_output(
             raw_text=raw_text,
@@ -520,6 +551,7 @@ def explain_error(
             "what_happened": what_happened,
             "why_it_happened": why_it_happened,
             "suggested_fix": suggested_fix,
+            "repaired_code": repaired_code,
             "confidence": 1.0,
             "explanation": cleaned_explanation,
             "latency_ms": latency_ms,
@@ -542,6 +574,7 @@ def explain_error(
             "what_happened": f"{safe_error_type}: {safe_error_msg}",
             "why_it_happened": "Execution failed due to an unhandled exception.",
             "suggested_fix": "Inspect the offending line and verify variables and types.",
+            "repaired_code": None,
             "confidence": 0.5,
             "explanation": fallback_explanation,
             "latency_ms": latency_ms,

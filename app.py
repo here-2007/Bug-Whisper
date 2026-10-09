@@ -120,6 +120,7 @@ class DiagnosisResponse(BaseModel):
     what_happened: str
     why_it_happened: str
     suggested_fix: str
+    repaired_code: Optional[str] = None
     confidence: float
     explanation: str
     latency_ms: int
@@ -212,6 +213,7 @@ def make_fallback_diagnosis(
         "what_happened": f"{safe_type}: {safe_msg}",
         "why_it_happened": reason,
         "suggested_fix": "Inspect the offending line in the editor or wait a moment for GPU quota to refresh.",
+        "repaired_code": None,
         "confidence": 0.5,
         "explanation": fallback_explanation,
         "latency_ms": 60,
