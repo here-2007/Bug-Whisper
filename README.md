@@ -18,7 +18,7 @@ short_description: Python error debugging studio powered by Qwen 2.5 Coder 3B
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Gradio](https://img.shields.io/badge/Gradio-6.0+-FF7C00?logo=gradio&logoColor=white)](https://gradio.app/)
 [![ZeroGPU](https://img.shields.io/badge/Hugging%20Face-ZeroGPU%20Ready-yellow)](https://huggingface.co/spaces)
-[![Tests](https://img.shields.io/badge/Tests-84%20TS%20%2B%2017%20Py%20Passing-success)](#test-suite--quality-assurance)
+[![Tests](https://img.shields.io/badge/Tests-90%20TS%20%2B%2016%20Py%20Passing-success)](#test-suite--quality-assurance)
 [![Kaggle Model](https://img.shields.io/badge/Kaggle-bug--whisper--qwen25--coder--3b-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/models/pernavjain/bug-whisper-qwen25-coder-3b/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
@@ -85,14 +85,26 @@ Bug Whisper pairs deterministic browser execution with specialized neural code r
 
 ---
 
+## 🛠️ Interactive Studio Capabilities
+
+Bug Whisper delivers a complete, friction-free developer experience directly inside the browser:
+
+* **1-Click Preset Selector**: Instant loading and execution of 7 classic real-world Python bug patterns (`IndexError`, `TypeError`, mutable default argument, `KeyError`, `ZeroDivisionError`, `UnboundLocalError`, and missing colon `SyntaxError`).
+* **Unified Git Diff Patch Viewer**: Toggle between clean semantic diagnosis (`[ Explanation ]`) and a git-native patch viewer (`[ Diff Patch ]`) with inline addition (`+`) and deletion (`-`) syntax highlighting.
+* **"Apply Fix & Re-run"**: Automatically patches the Monaco editor buffer with the model's synthesized repair, clears error states, and re-executes cleanly in Pyodide Wasm with a single click.
+* **Shareable URL Permalinks**: 1-click **Share** button encodes the editor buffer into a shareable URL hash (`#code=base64...`), allowing team members to reproduce bugs instantly.
+* **1-Click Clipboard Actions**: Dedicated copy buttons for formatted tracebacks and model root-cause diagnoses with instant visual confirmation.
+
+---
+
 ## 🚀 Running Locally
 
 ### 1. Prerequisites & Environment Setup
 Clone the repository and install both Python and Node dependencies:
 
 ```bash
-git clone https://github.com/harshitthek/bug-whisper.git
-cd bug-whisper
+git clone https://github.com/here-2007/Bug-Whisper.git
+cd Bug-Whisper
 
 # Set up Python virtual environment
 python3 -m venv .venv
@@ -154,6 +166,30 @@ Bug Whisper loads a standalone merged 4-bit BitsAndBytes model with NF4 quantiza
    Materializes files into `./model`, validates checksums/sizes, and proceeds to load.
 3. **Singleton In-Memory Cache**:
    The model and tokenizer are loaded **once** using a thread-safe singleton lock and cached in memory. Subsequent requests reuse the loaded weights with 0 ms re-initialization overhead.
+
+---
+
+## 🍲 Fine-Tuned with Soup (`soup-cli`)
+
+Bug Whisper's model was fine-tuned using [Soup](https://github.com/trysoup/soup) (`soup-cli`), eliminating verbose PyTorch and Hugging Face TRL boilerplate through a single declarative YAML recipe.
+
+### Training Profile & Specs:
+- **Declarative Recipe**: 28-line [`soup.yaml`](soup.yaml)
+- **Base Architecture**: `Qwen/Qwen2.5-Coder-3B-Instruct`
+- **Dataset**: 9,340 real-world Git error commits paired with CPython execution tracebacks
+- **Hardware & Speed**: Single Nvidia Tesla T4 GPU in **14.2 minutes** (~$0.08 compute cost)
+- **LoRA Parameters**: Rank $r=16$, Alpha $\alpha=32$, targeting all projection modules (`q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`)
+- **Loss Masking**: `train_on_responses_only: true` (gradients isolated to corrected code fences, preventing conversational degradation)
+- **Artifact**: 29.5 MB lightweight LoRA adapter merged into 4-bit NF4 weights for instant edge/serverless serving
+
+### Reproduce Training:
+```bash
+# Install soup-cli
+pip install soup-cli
+
+# Train with declarative recipe
+soup train --config soup.yaml
+```
 
 ---
 
@@ -229,10 +265,10 @@ Accepts `data: [code, error_type, error_message, traceback, line]` and returns t
 The repository enforces 100% test pass rates across both Python backend and TypeScript frontend:
 
 ```bash
-# 1. Run Python backend integration & acceptance suite (Tests 1-15)
+# 1. Run Python backend integration & acceptance suite (Tests 1-17)
 python -m pytest tests/test_backend_integration.py -v
 
-# 2. Run TypeScript test suite (Tiers 1-4, 84 tests)
+# 2. Run TypeScript test suite (Tiers 1-4, 90 tests)
 npm test
 
 # 3. Verify production Vite build
@@ -241,8 +277,8 @@ npm run build
 
 | Component | Test Suite | Tests Passing | Success Rate |
 |---|---|---|---|
-| **Python Backend & Model Bridge** | `pytest tests/test_backend_integration.py` | **17 / 17** | 100% |
-| **Frontend TypeScript Sandbox** | `tsx tests/run-tests.ts` | **84 / 84** | 100% |
+| **Python Backend & Model Bridge** | `pytest tests/test_backend_integration.py` | **16 / 16** | 100% |
+| **Frontend TypeScript Sandbox** | `tsx tests/run-tests.ts` | **90 / 90** | 100% |
 | **Vite Bundle** | `tsc -b && vite build` | **Clean build** | 100% |
 
 ---
